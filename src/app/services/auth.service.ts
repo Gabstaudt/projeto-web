@@ -36,6 +36,7 @@ export class AuthService {
     const salt = 'super teste do carai';
     const passwordHash = this.encryptPassword(password, salt); 
 
+    // Convertendo os dados para bytes
     const appCommandBytes = this.numberToBytes({ num: AppCommand });
     const plataformBytes = this.numberToBytes({ num: Plataform });
     const versionBytes = this.versionToBytes(Version);
@@ -43,6 +44,7 @@ export class AuthService {
     const usernameBytes = this.encodeWithLength(username);
     const passwordBytes = this.encodeWithLength(passwordHash); // Use o hash em Base64
 
+    // Combinando bytes sem zeros adicionais
     const combinedBytes = new Uint8Array(
       appCommandBytes.length +
       plataformBytes.length +
@@ -64,6 +66,9 @@ export class AuthService {
     combinedBytes.set(usernameBytes, offset);
     offset += usernameBytes.length;
     combinedBytes.set(passwordBytes, offset);
+
+    // Adicionando log para depuração
+    console.log('Combined Bytes:', combinedBytes);
 
     return this.http.post<LoginResponse>(this.apiUrl, combinedBytes.buffer, { headers }).pipe(
       map(response => {

@@ -31,7 +31,7 @@ app.post('/login', (req, res) => {
 
   const response = {
     respostaOK: 1,
-    IdUsuario: 101, // definir lógica para retornar o ID do usuário
+    IdUsuario: 101, //lógica para retornar o ID do usuário
     PrivilegioUsuario: 2,
     UnidadeUsuario: 3,
     AcessoProducao: 1,
