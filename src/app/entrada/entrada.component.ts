@@ -12,7 +12,7 @@ export class EntradaComponent implements OnInit {
   }
 
   initMap(): void {
-    const map = L.map('map').setView([-15.7801, -47.9292], 4); // Ajuste as coordenadas e o nível de zoom
+    const map = L.map('map').setView([-15.7801, -47.9292], 4); 
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,

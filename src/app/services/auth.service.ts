@@ -41,7 +41,7 @@ export class AuthService {
     const versionBytes = this.versionToBytes(Version);
     const gadjetIDBytes = this.encodeWithLength(GadjetID);
     const usernameBytes = this.encodeWithLength(username);
-    const passwordBytes = this.wordArrayToBytes(passwordHash);
+    const passwordBytes = this.encodeWithLength(passwordHash); // Use o hash em Base64
 
     const combinedBytes = new Uint8Array(
       appCommandBytes.length +
@@ -93,23 +93,12 @@ export class AuthService {
     return !!localStorage.getItem('SessaoID'); 
   }
 
-  private encryptPassword(password: string, salt: string): CryptoJS.WordArray {
+  private encryptPassword(password: string, salt: string): string {
     const saltedPassword = password + salt;
-    return CryptoJS.SHA256(saltedPassword); // Retorna um WordArray
+    const hash = CryptoJS.SHA256(saltedPassword); // Retorna um WordArray
+    return CryptoJS.enc.Base64.stringify(hash); // Convertendo para Base64
   }
   
-  private wordArrayToBytes(wordArray: CryptoJS.WordArray): Uint8Array {
-    const byteArray = new Uint8Array(wordArray.sigBytes);
-    for (let i = 0; i < wordArray.words.length; i++) {
-      const word = wordArray.words[i];
-      byteArray[i * 4] = (word >> 24) & 0xff;
-      byteArray[i * 4 + 1] = (word >> 16) & 0xff;
-      byteArray[i * 4 + 2] = (word >> 8) & 0xff;
-      byteArray[i * 4 + 3] = word & 0xff;
-    }
-    return byteArray; 
-  }
-
   private encodeWithLength(str: string): Uint8Array {
     const stringBytes = new TextEncoder().encode(str);
     const length = stringBytes.length;
