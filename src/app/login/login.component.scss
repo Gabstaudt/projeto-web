@@ -1,0 +1,196 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0; // Remove margens padrão do body
+    height: 100vh; // Garante que o body ocupe toda a altura da viewport
+    display: flex;
+    justify-content: center; // Centraliza horizontalmente
+    align-items: center; // Centraliza verticalmente
+    background: url('../../assets/img/cosanpa-1.jpeg') no-repeat center center fixed; // Imagem de fundo
+    background-size: cover; // Cobre toda a área
+}
+
+  
+.error-message {
+    position: absolute; // Para ficar na lateral
+    top: 20px; // Distância do topo
+    right: 20px; // Distância da lateral direita
+    background-color: rgba(255, 0, 0, 0.9); // Fundo vermelho com opacidade 90
+    color: white; // Texto branco
+    padding: 10px; // Espaçamento interno
+    font-family: 'Poppins', sans-serif; // Fonte Poppins
+    border-radius: 5px; // Borda arredondada
+    z-index: 1000; // Coloca na frente de outros elementos
+    width: auto; // Ajusta a largura
+}
+
+
+
+.login-container {
+    display: flex;
+    width: 100%; // Ocupa toda a largura da página
+    height: 100%; // Ocupa toda a altura da página
+    justify-content: center; // Centraliza horizontalmente
+    align-items: center; // Centraliza verticalmente
+}
+
+.login-form {
+    width: 90%; // Largura responsiva
+    max-width: 544px; // Limite de largura
+    height: 650px; // Altura do formulário
+    display: flex;
+    flex-direction: column;
+    justify-content: center; // Centraliza verticalmente
+    align-items: center; // Centraliza horizontalmente
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8); // Fundo branco com opacidade de 80%
+    border-radius: 8px; // Borda arredondada
+}
+
+.image-container {
+    width: 536px; // Largura da imagem
+    height: 650px; // Altura da imagem
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-image {
+    width: 100%; // Faz a imagem ocupar toda a largura do container
+    height: 100%; // Faz a imagem ocupar toda a altura do container
+    object-fit: cover; // Ajusta a imagem para cobrir o espaço sem distorção
+    object-position: center; // Centraliza a imagem
+}
+
+.logo {
+    width: 64px;
+    height: 66px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 34px;
+    color: #030303;
+    font-weight: 500; // Peso Medium
+    margin-bottom: 5px; // Reduzir a margem
+    text-align: center; // Centraliza o texto
+}
+
+p {
+    font-size: 14px;
+    color: #636364;
+    margin: 0px 0 25px; // Ajusta a margem superior para 5px
+    text-align: center; // Centraliza o texto
+}
+
+.form-group {
+    width: 100%; // Para ocupar toda a largura disponível
+    margin-bottom: 15px;
+}
+
+.remember-me-container {
+        display: flex;
+        align-items: center; /* Alinha verticalmente */
+        width: 100%; /* Ocupa toda a largura do formulário */
+        margin-top: 22px; /* Adiciona espaço acima para separação visual */
+    
+
+    input[type="checkbox"] {
+        margin-right: 20px; // Espaço entre o checkbox e o label
+    }
+
+    .forgot-password {
+        color: #28166F;
+        
+        font-size: 14px; /* Fonte consistente */
+        margin-left: 15px; /* Ajuste para mais proximidade, se necessário */
+    }
+}
+
+label {
+    font-size: 14px;
+    color: #181818;
+    margin-bottom: 5px;
+    display: block; // Para o label ficar acima do input
+}
+
+.input-field {
+    width: 100%; // Para ocupar toda a largura do formulário
+    height: 40px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+    padding: 10px;
+}
+
+.forgot-password {
+    color: #28166F;
+    text-decoration: none;
+    display: block; // Para que o link fique em sua própria linha
+    margin-top: 10px; // Espaço acima do link
+}
+
+.login-button {
+    width: 108%; // Para ocupar toda a largura do formulário
+    height: 41.31px;
+    background-color: #28166F;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.footer {
+    margin-top: 20px; // Espaço acima do rodapé
+    text-align: center; // Centraliza o texto
+}
+
+.signup-link {
+    color: #28166F;
+    text-decoration: none;
+}
+
+
+.modal {
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza horizontalmente */
+    justify-content: center; /* Centraliza verticalmente */
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    width: 300px; /* Ajuste a largura conforme necessário */
+  }
+  
+  .modal-logo {
+    width: 64px;
+    height: 66px;
+    margin-bottom: 20px;
+  }
+  
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  

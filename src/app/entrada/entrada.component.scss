@@ -1,0 +1,66 @@
+.entrada-container {
+    display: flex;
+    height: 100vh; // Altura total da tela
+    font-family: 'Poppins', sans-serif; // Fonte 
+}
+h1 {
+    font-size: 34px;
+    color: #030303; 
+    font-weight: 500; // Peso Medium da fonte
+    margin-bottom: 5px; // Reduzir a margem
+    text-align: center; // Centraliza o texto
+}
+
+.sidebar {
+    width: 250px; // Largura da barra lateral
+    background-color: rgba(180, 180, 180, 0.9); // Cor de fundo da barra com opacidade
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column; // Alinha os itens em coluna
+    align-items: center; // Centraliza horizontalmente
+
+    .logo {
+        width: 80%;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center; // Centraliza a logo
+    }
+
+    nav {
+        ul {
+            list-style: none;
+            padding: 0;
+
+            li {
+                margin: 15px 0;
+
+                a {
+                    display: block; // Faz o link ocupar toda a área do li
+                    background-color: black; // Cor de fundo do botão
+                    color: white; // Cor do texto
+                    padding: 10px; // Espaçamento interno
+                    border-radius: 5px; // Bordas arredondadas
+                    text-decoration: none; // Remove sublinhado
+                    transition: background-color 0.3s; // Transição suave na cor
+
+                    &:hover {
+                        background-color: rgba(255, 255, 255, 0.1); // Clareia ao passar o mouse
+                    }
+                }
+            }
+        }
+    }
+}
+
+.map-container {
+    flex-grow: 1; // Ocupa o restante da tela
+    background-color: rgba(240, 240, 240, 0.9); // Cor de fundo do mapa com opacidade
+    padding: 20px;
+    border-radius: 8px; // Bordas 
+
+    #map {
+        height: 100%; // Altura do mapa
+        border-radius: 8px; // Borda 
+    }
+}

@@ -1,0 +1,88 @@
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tela de Login</title>
+  <base href="/">
+
+  <!-- Importando a fonte Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="error-message" [ngClass]="{'show': loginError}" *ngIf="loginError">
+      <p style="color: white;">{{ loginError }}</p>
+  </div>
+
+  <div class="login-container">
+    <div class="login-form">
+      <img src="../../assets/img/logo-cosanpa.png" alt="Logo" class="logo">
+      <h1>TELEMETRIX</h1>
+      <p>Supervisionado</p>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <!-- Campo Usuário -->
+        <div class="form-group">
+          <label for="username">Usuário</label>
+          <input
+            type="text"
+            id="username"
+            formControlName="username"
+            class="input-field"
+            placeholder="Digite seu usuário"
+            (focus)="onFocus()" 
+            autocomplete="username" 
+
+          />
+          <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+            <small class="text-danger">Usuário é obrigatório</small>
+          </div>
+        </div>
+    
+        <!-- Campo Senha -->
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            class="input-field"
+            placeholder="Digite sua senha"
+            autocomplete="current-password"
+          />
+          <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            <small class="text-danger">Senha é obrigatória</small>
+          </div>
+        </div>
+
+        <!-- Checkbox -->
+        <div class="form-group remember-me-container">
+          <input type="checkbox" id="rememberMe" formControlName="rememberMe" />
+          <label for="rememberMe">Lembre-se de mim</label>
+        </div>
+
+        <!-- Modal para solicitação -->
+       <div class="modal" *ngIf="isModalOpen">
+      <div class="modal-content">
+      <span class="close" (click)="closeModal()">&times;</span>
+         <img src="../../assets/img/logo-cosanpa.png" alt="Logo" class="modal-logo">
+        <h1>TELEMETRIX</h1>
+       <p>Supervisionado</p>
+       <p>Para cadastro no Telemetrix entre em contato: (91) 98490-0928</p>
+      </div>
+      </div>
+
+
+        <!-- Botão de submit -->
+        <button type="submit" class="login-button" [disabled]="loginForm.invalid">Entrar</button>
+      </form>
+    
+      <!-- Rodapé com link para cadastro -->
+      <div class="footer">
+        <p>Sem cadastro? <a href="#" class="signup-link" (click)="openModal(); $event.preventDefault()">Solicite aqui</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
