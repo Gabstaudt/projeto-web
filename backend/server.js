@@ -43,7 +43,7 @@ app.post('/login', (req, res) => {
   res.json(response);
 });
 
-// Middleware de tratamento de erros
+// tratamento de erros
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Algo deu errado!' });

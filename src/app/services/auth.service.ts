@@ -1,50 +1,49 @@
-import { Injectable } from '@angular/core'; 
-import { HttpClient, HttpHeaders } from '@angular/common/http'; 
-import { Observable, throwError } from 'rxjs'; 
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import CryptoJS from 'crypto-js'; 
-import biri from 'biri'; 
+import CryptoJS from 'crypto-js';
+import biri from 'biri';
 
-interface LoginResponse { 
-  respostaOK: number; 
-  IdUsuario: number; 
-  PrivilegioUsuario: number; 
-  UnidadeUsuario: number; 
-  AcessoProducao: number; 
-  AcessoEmpresa1: number; 
-  AcessoEmpresa2: number; 
-  SessaoID: string; 
+interface LoginResponse {
+  respostaOK: number;
+  IdUsuario: number;
+  PrivilegioUsuario: number;
+  UnidadeUsuario: number;
+  AcessoProducao: number;
+  AcessoEmpresa1: number;
+  AcessoEmpresa2: number;
+  SessaoID: string;
 }
 
-@Injectable({ 
-  providedIn: 'root' 
+@Injectable({
+  providedIn: 'root'
 })
-export class AuthService { 
-  private apiUrl = 'http://localhost:3000/login'; 
+export class AuthService {
+  private apiUrl = 'http://10.20.96.221:8043/dados';
 
   constructor(private http: HttpClient) { }
 
-  login(username: string, password: string): Observable<LoginResponse> { 
-    const AppCommand = 240; 
+  login(username: string, password: string): Observable<LoginResponse> {
+    const AppCommand = 240;
     const Plataform = 3;
     const Version = 1;
-    const GadjetID = biri(); 
-    const headers = new HttpHeaders({ 
-      'Content-Type': 'application/octet-stream' 
+    const GadjetID = biri();
+    const headers = new HttpHeaders({
+      
+      'Content-Type': 'application/json'
     });
 
     const salt = 'super teste do carai';
-    const passwordHash = this.encryptPassword(password, salt); 
+    const passwordHash = this.encryptPassword(password, salt);
 
-    // Convertendo os dados para bytes
-    const appCommandBytes = this.numberToBytes({ num: AppCommand });
-    const plataformBytes = this.numberToBytes({ num: Plataform });
-    const versionBytes = this.versionToBytes(Version);
+    const appCommandBytes = this.numberToBytes({ num: AppCommand }).subarray(3); // Remover primeiro byte
+    const plataformBytes = this.numberToBytes({ num: Plataform }).subarray(3); // Remover primeiro byte
+    const versionBytes = this.versionToBytes(Version).subarray(1); // Remover primeiro byte
     const gadjetIDBytes = this.encodeWithLength(GadjetID);
     const usernameBytes = this.encodeWithLength(username);
-    const passwordBytes = this.encodeWithLength(passwordHash); // Use o hash em Base64
+    const passwordBytes = this.encodeWithLength(passwordHash);
 
-    // Combinando bytes sem zeros adicionais
     const combinedBytes = new Uint8Array(
       appCommandBytes.length +
       plataformBytes.length +
@@ -67,9 +66,6 @@ export class AuthService {
     offset += usernameBytes.length;
     combinedBytes.set(passwordBytes, offset);
 
-    // Adicionando log para depuração
-    console.log('Combined Bytes:', combinedBytes);
-
     return this.http.post<LoginResponse>(this.apiUrl, combinedBytes.buffer, { headers }).pipe(
       map(response => {
         if (response) {
@@ -84,18 +80,27 @@ export class AuthService {
         return response;
       }),
       catchError(error => {
-        console.error('Erro ao fazer login', error);
-        return throwError(error); 
+        if (error.status) {
+          console.error(`Erro Status: ${error.status}`);
+        }
+        if (error.error && error.error.message) {
+          console.error(`Mensagem de erro: ${error.error.message}`);
+        } else {
+          console.error(`Erro genérico: ${error.message}`);
+        }
+        console.error('Detalhes do erro:', error);
+
+        return throwError(() => error);
       })
     );
   }
 
   logout(): void {
-    localStorage.removeItem('SessaoID'); 
+    localStorage.removeItem('SessaoID');
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('SessaoID'); 
+    return !!localStorage.getItem('SessaoID');
   }
 
   private encryptPassword(password: string, salt: string): string {
@@ -103,13 +108,13 @@ export class AuthService {
     const hash = CryptoJS.SHA256(saltedPassword); // Retorna um WordArray
     return CryptoJS.enc.Base64.stringify(hash); // Convertendo para Base64
   }
-  
+
   private encodeWithLength(str: string): Uint8Array {
     const stringBytes = new TextEncoder().encode(str);
     const length = stringBytes.length;
 
     const lengthBytes = new Uint8Array(2);
-    lengthBytes[0] = (length >> 8) & 0xff;  
+    lengthBytes[0] = (length >> 8) & 0xff; 
     lengthBytes[1] = length & 0xff;         
 
     const combined = new Uint8Array(lengthBytes.length + stringBytes.length);
@@ -119,17 +124,17 @@ export class AuthService {
   }
 
   private numberToBytes({ num }: { num: number; }): Uint8Array {
-    const byteArray = new Uint8Array(4); 
+    const byteArray = new Uint8Array(4);
     for (let i = 0; i < 4; i++) {
-      byteArray[3 - i] = (num >> (i * 8)) & 0xff; 
+      byteArray[3 - i] = (num >> (i * 8)) & 0xff;
     }
-    return byteArray; 
+    return byteArray;
   }
 
   private versionToBytes(version: number): Uint8Array {
     const byteArray = new Uint8Array(2);
-    byteArray[0] = (version >> 8) & 0xff; // byte alto
-    byteArray[1] = version & 0xff;        // byte baixo
+    byteArray[0] = (version >> 8) & 0xff;
+    byteArray[1] = version & 0xff;       
     return byteArray;
   }
 }
