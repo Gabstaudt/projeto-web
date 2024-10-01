@@ -21,7 +21,7 @@ interface LoginResponse {
   providedIn: 'root' // Torna este serviço disponível globalmente no app
 })
 export class AuthService {
-  private apiUrl = 'http://10.20.96.221:8043/dados'; 
+  private apiUrl = ''; 
 
   constructor(private http: HttpClient) { } // Injeta o HttpClient para fazer requisições HTTP
 
@@ -37,7 +37,7 @@ export class AuthService {
     });
 
     // criptografia da senha com salt
-    const salt = 'super teste do carai'; 
+    const salt = ''; 
     const passwordHash = this.encryptPassword(password, salt); // Chama a função para criptografar a senha
 
     // Conversão dos números em arrays de bytes
