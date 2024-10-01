@@ -43,7 +43,7 @@ export class AuthService {
     // Conversão dos números em arrays de bytes
     const appCommandBytes = this.numberToBytes({ num: AppCommand }).subarray(3); //subtraindo os primeiros 3 bytes porque formaram 4
     const plataformBytes = this.numberToBytes({ num: Plataform }).subarray(3); 
-    const versionBytes = this.versionToBytes(Version).subarray(1); //subtraindo o primeiro byte
+    const versionBytes = this.versionToBytes(Version); 
     const gadjetIDBytes = this.encodeWithLength(GadjetID); // ID do dispositivo em bytes
     const usernameBytes = this.encodeWithLength(username); // nome de usuário em bytes
     const passwordBytes = this.encodeWithLength(passwordHash); // senha criptografada em bytes
@@ -76,6 +76,7 @@ export class AuthService {
     return this.http.post<LoginResponse>(this.apiUrl, combinedBytes.buffer, { headers }).pipe(
       map(response => { // Manipula a resposta do servidor
         if (response) {
+          
           // Armazena os dados do usuário no localStorage se a resposta for válida
           localStorage.setItem('SessaoID', response.SessaoID);
           localStorage.setItem('IdUsuario', response.IdUsuario.toString());
@@ -122,7 +123,7 @@ export class AuthService {
   }
 
   // Função privada que codifica uma string em bytes, + tamanho da string
-  private encodeWithLength(str: string): Uint8Array {
+    private encodeWithLength(str: string): Uint8Array {
     const stringBytes = new TextEncoder().encode(str); // Codifica a string em UTF-8
     const length = stringBytes.length; // Obtém o comprimento da string em bytes
 
@@ -155,3 +156,4 @@ export class AuthService {
     return byteArray;
   }
 }
+
