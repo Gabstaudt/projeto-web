@@ -9,6 +9,7 @@ import biri from 'biri'; // Função para gerar ID aleatório
 interface LoginResponse {
   respostaOK: number;
   IdUsuario: number;
+  NomeUsuario: string; // Adicionado para armazenar o nome do usuário
   PrivilegioUsuario: number;
   UnidadeUsuario: number;
   AcessoProducao: number;
@@ -21,34 +22,31 @@ interface LoginResponse {
   providedIn: 'root' // Torna este serviço disponível globalmente no app
 })
 export class AuthService {
-  private apiUrl = ''; 
+  private apiUrl = 'http://10.20.96.221:8043/dados'; 
 
   constructor(private http: HttpClient) { } // Injeta o HttpClient para fazer requisições HTTP
 
   // Função de login que aceita username e password, e retorna um Observable com a resposta
-  login(username: string, password: string): Observable<LoginResponse> {
-    const AppCommand = 240; // Valor fixo (comando da aplicação)
-    const Plataform = 3; // Valor fixo para a plataforma
-    const Version = 1; // Versão 
-    const GadjetID = biri(); //ID aleatório para o dispositivo usando a função biri
+  login(username: string, password: string): Observable<any> {
+    const AppCommand = 240;
+    const Plataform = 3;
+    const Version = 1;
+    const GadjetID = biri();
 
     const headers = new HttpHeaders({
-      'Content-Type': 'application/json' //tipo de conteúdo da requisição como JSON
+      'Content-Type': 'application/json' // Alterado para application/json
     });
 
-    // criptografia da senha com salt
-    const salt = ''; 
-    const passwordHash = this.encryptPassword(password, salt); // Chama a função para criptografar a senha
+    const salt = 'super teste do carai'; 
+    const passwordHash = this.encryptPassword(password, salt); 
 
-    // Conversão dos números em arrays de bytes
-    const appCommandBytes = this.numberToBytes({ num: AppCommand }).subarray(3); //subtraindo os primeiros 3 bytes porque formaram 4
+    const appCommandBytes = this.numberToBytes({ num: AppCommand }).subarray(3);
     const plataformBytes = this.numberToBytes({ num: Plataform }).subarray(3); 
-    const versionBytes = this.versionToBytes(Version).subarray(1); //subtraindo o primeiro byte
-    const gadjetIDBytes = this.encodeWithLength(GadjetID); // ID do dispositivo em bytes
-    const usernameBytes = this.encodeWithLength(username); // nome de usuário em bytes
-    const passwordBytes = this.encodeWithLength(passwordHash); // senha criptografada em bytes
+    const versionBytes = this.versionToBytes(Version); // Não subtrai um byte
+    const gadjetIDBytes = this.encodeWithLength(GadjetID);
+    const usernameBytes = this.encodeWithLength(username); 
+    const passwordBytes = this.encodeWithLength(passwordHash);
 
-    //arrays de bytes em um único array
     const combinedBytes = new Uint8Array(
       appCommandBytes.length +
       plataformBytes.length +
@@ -58,7 +56,6 @@ export class AuthService {
       passwordBytes.length
     );
 
-    // Preenche o array combinado com os arrays individuais
     let offset = 0;
     combinedBytes.set(appCommandBytes, offset);
     offset += appCommandBytes.length;
@@ -72,36 +69,63 @@ export class AuthService {
     offset += usernameBytes.length;
     combinedBytes.set(passwordBytes, offset);
 
-    //requisição HTTP para o servidor passando o array de bytes como corpo da requisição
-    return this.http.post<LoginResponse>(this.apiUrl, combinedBytes.buffer, { headers }).pipe(
-      map(response => { // Manipula a resposta do servidor
-        if (response) {
-          // Armazena os dados do usuário no localStorage se a resposta for válida
-          localStorage.setItem('SessaoID', response.SessaoID);
-          localStorage.setItem('IdUsuario', response.IdUsuario.toString());
-          localStorage.setItem('PrivilegioUsuario', response.PrivilegioUsuario.toString());
-          localStorage.setItem('UnidadeUsuario', response.UnidadeUsuario.toString());
-          localStorage.setItem('AcessoProducao', response.AcessoProducao.toString());
-          localStorage.setItem('AcessoEmpresa1', response.AcessoEmpresa1.toString());
-          localStorage.setItem('AcessoEmpresa2', response.AcessoEmpresa2.toString());
-        }
-        return response;
-      }),
-      catchError(error => { // Manipula os erros de requisição
-        if (error.status) {
-          console.error(`Erro Status: ${error.status}`);
-        }
-        if (error.error && error.error.message) {
-          console.error(`Mensagem de erro: ${error.error.message}`);
-        } else {
-          console.error(`Erro genérico: ${error.message}`);
-        }
-        console.error('Detalhes do erro:', error);
+    return this.http.post(this.apiUrl, combinedBytes.buffer, { headers, responseType: 'arraybuffer' }).pipe(
+      map(response => {
 
-        // Retorna o erro utilizando o operador 
+        const decoder = new TextDecoder('utf-8', { fatal: false });
+        let decodedResponse = decoder.decode(response);
+        decodedResponse = this.sanitizeResponse(decodedResponse);
+
+        // Verifica se a resposta decodificada é um número
+        const responseNumber = Number(decodedResponse.trim());
+
+        // Verifica se o retorno é 0 ou 2 e trata os casos
+        if (responseNumber === 0) {
+          console.log("parou aqui");
+
+          throw new Error('Usuário ou senha incorretos.');
+        } else if (responseNumber === 2) {
+          throw new Error('Usuário já está logado.');
+        }
+        
+        // Continua se não for 0 ou 2
+        try {
+          const parsedResponse: LoginResponse = JSON.parse(decodedResponse);
+
+          if (parsedResponse) {
+            localStorage.setItem('SessaoID', parsedResponse.SessaoID);
+            localStorage.setItem('IdUsuario', parsedResponse.IdUsuario.toString());
+            localStorage.setItem('NomeUsuario', parsedResponse.NomeUsuario); // Armazenamento do nome do usuário
+            localStorage.setItem('PrivilegioUsuario', parsedResponse.PrivilegioUsuario.toString());
+            localStorage.setItem('UnidadeUsuario', parsedResponse.UnidadeUsuario.toString());
+            localStorage.setItem('AcessoProducao', parsedResponse.AcessoProducao.toString());
+            localStorage.setItem('AcessoEmpresa1', parsedResponse.AcessoEmpresa1.toString());
+            localStorage.setItem('AcessoEmpresa2', parsedResponse.AcessoEmpresa2.toString());
+          }
+
+          return parsedResponse;
+        } catch (error) {
+          console.error('Erro ao parsear resposta como JSON:', error);
+          throw new Error(`Erro ao parsear JSON. Resposta decodificada: ${decodedResponse}`);
+        }
+      }),
+      catchError(error => {
+        console.error('Erro ao fazer login', error);
         return throwError(() => error);
       })
     );
+  }
+
+  // Função para remover caracteres inválidos da string decodificada
+  private sanitizeResponse(response: string): string {
+    // Remove caracteres de controle e não imprimíveis (exceto quebras de linha, etc.)
+    return response.replace(/[^\x20-\x7E]/g, '');
+  }
+
+  // Função para verificar se a string se parece com um JSON
+  private isLikelyJson(response: string): boolean {
+    const trimmed = response.trim();
+    return (trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'));
   }
 
   // Função de logout que remove os dados da sessão do localStorage
