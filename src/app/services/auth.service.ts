@@ -9,7 +9,7 @@ import biri from 'biri'; // Função para gerar ID aleatório
 interface LoginResponse {
   respostaOK: number;
   IdUsuario: number;
-  NomeUsuario: string; // Adicionado para armazenar o nome do usuário
+  NomeUsuario: string; 
   PrivilegioUsuario: number;
   UnidadeUsuario: number;
   AcessoProducao: number;
@@ -19,14 +19,14 @@ interface LoginResponse {
 }
 
 @Injectable({
-  providedIn: 'root' // Torna este serviço disponível globalmente no app
+  providedIn: 'root' 
 })
 export class AuthService {
   private apiUrl = 'http://10.20.96.221:8043/dados'; 
 
   constructor(private http: HttpClient) { } // Injeta o HttpClient para fazer requisições HTTP
 
-  // Função de login que aceita username e password, e retorna um Observable com a resposta
+  // Função de login que retorna um Observable com a resposta
   login(username: string, password: string): Observable<any> {
     const AppCommand = 240;
     const Plataform = 3;
@@ -34,7 +34,7 @@ export class AuthService {
     const GadjetID = biri();
 
     const headers = new HttpHeaders({
-      'Content-Type': 'application/json' // Alterado para application/json
+      'Content-Type': 'application/json' 
     });
 
     const salt = 'super teste do carai'; 
@@ -42,7 +42,7 @@ export class AuthService {
 
     const appCommandBytes = this.numberToBytes({ num: AppCommand }).subarray(3);
     const plataformBytes = this.numberToBytes({ num: Plataform }).subarray(3); 
-    const versionBytes = this.versionToBytes(Version); // Não subtrai um byte
+    const versionBytes = this.versionToBytes(Version); 
     const gadjetIDBytes = this.encodeWithLength(GadjetID);
     const usernameBytes = this.encodeWithLength(username); 
     const passwordBytes = this.encodeWithLength(passwordHash);
@@ -79,16 +79,16 @@ export class AuthService {
         // Verifica se a resposta decodificada é um número
         const responseNumber = Number(decodedResponse.trim());
 
-        // Verifica se o retorno é 0 ou 2 e trata os casos
+        // Verifica se o retorno é 0 ou 2 para tratamento de erros
+        //criar mensagem e estilo no componente login
         if (responseNumber === 0) {
-          console.log("parou aqui");
-
+          
           throw new Error('Usuário ou senha incorretos.');
         } else if (responseNumber === 2) {
           throw new Error('Usuário já está logado.');
         }
         
-        // Continua se não for 0 ou 2
+        // Continua se não for 0 ou 2 (erros)
         try {
           const parsedResponse: LoginResponse = JSON.parse(decodedResponse);
 
@@ -116,9 +116,9 @@ export class AuthService {
     );
   }
 
-  // Função para remover caracteres inválidos da string decodificada
+  // remove caracteres inválidos da string decodificada
   private sanitizeResponse(response: string): string {
-    // Remove caracteres de controle e não imprimíveis (exceto quebras de linha, etc.)
+    // Remove caracteres de controle e não imprimíveis
     return response.replace(/[^\x20-\x7E]/g, '');
   }
 
@@ -128,7 +128,8 @@ export class AuthService {
     return (trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'));
   }
 
-  // Função de logout que remove os dados da sessão do localStorage
+  // logout para remover as informações do localstorage
+  //alterar posteriormente para ficar logado apenas por tempo determinado
   logout(): void {
     localStorage.removeItem('SessaoID');
   }
@@ -146,7 +147,7 @@ export class AuthService {
   }
 
   // Função privada que codifica uma string em bytes, + tamanho da string
-  private encodeWithLength(str: string): Uint8Array {
+   private encodeWithLength(str: string): Uint8Array {
     const stringBytes = new TextEncoder().encode(str); // Codifica a string em UTF-8
     const length = stringBytes.length; // Obtém o comprimento da string em bytes
 
