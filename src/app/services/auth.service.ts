@@ -31,12 +31,12 @@ export class AuthService {
     const AppCommand = 240;
     const Plataform = 3;
     const Version = 1;
-    const GadjetID = biri();
+    const GadjetID = biri();// "id" do dispositivo
 
     const headers = new HttpHeaders({
-      'Content-Type': 'application/json' 
+      'Content-Type': 'application/x-www-form-urlencoded' 
     });
-
+//envio da requisição
     const salt = 'super teste do carai'; 
     const passwordHash = this.encryptPassword(password, salt); 
 
@@ -45,7 +45,7 @@ export class AuthService {
     const versionBytes = this.versionToBytes(Version); 
     const gadjetIDBytes = this.encodeWithLength(GadjetID);
     const usernameBytes = this.encodeWithLength(username); 
-    const passwordBytes = this.encodeWithLength(passwordHash);
+    const passwordBytes = this.encodeWithLength(passwordHash); // hash da senha
 
     const combinedBytes = new Uint8Array(
       appCommandBytes.length +
@@ -53,7 +53,7 @@ export class AuthService {
       versionBytes.length +
       gadjetIDBytes.length +
       usernameBytes.length +
-      passwordBytes.length
+      passwordBytes.length 
     );
 
     let offset = 0;
@@ -68,13 +68,14 @@ export class AuthService {
     combinedBytes.set(usernameBytes, offset);
     offset += usernameBytes.length;
     combinedBytes.set(passwordBytes, offset);
-
+//resposta
     return this.http.post(this.apiUrl, combinedBytes.buffer, { headers, responseType: 'arraybuffer' }).pipe(
       map(response => {
 
         const decoder = new TextDecoder('utf-8', { fatal: false });
         let decodedResponse = decoder.decode(response);
         decodedResponse = this.sanitizeResponse(decodedResponse);
+        console.log('***a resposta recebida é:****', response);
 
         // Verifica se a resposta decodificada é um número
         const responseNumber = Number(decodedResponse.trim());
@@ -93,6 +94,7 @@ export class AuthService {
           const parsedResponse: LoginResponse = JSON.parse(decodedResponse);
 
           if (parsedResponse) {
+            
             localStorage.setItem('SessaoID', parsedResponse.SessaoID);
             localStorage.setItem('IdUsuario', parsedResponse.IdUsuario.toString());
             localStorage.setItem('NomeUsuario', parsedResponse.NomeUsuario); // Armazenamento do nome do usuário
@@ -101,6 +103,7 @@ export class AuthService {
             localStorage.setItem('AcessoProducao', parsedResponse.AcessoProducao.toString());
             localStorage.setItem('AcessoEmpresa1', parsedResponse.AcessoEmpresa1.toString());
             localStorage.setItem('AcessoEmpresa2', parsedResponse.AcessoEmpresa2.toString());
+            console.log("erro", decodedResponse);
           }
 
           return parsedResponse;
@@ -179,4 +182,5 @@ export class AuthService {
     byteArray[1] = version & 0xff; // Segundo byte da versão
     return byteArray;
   }
+  
 }
