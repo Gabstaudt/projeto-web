@@ -37,7 +37,7 @@ h1 {
 
                 a {
                     display: block; // Faz o link ocupar toda a área do li
-                    background-color: black; // Cor de fundo do botão
+                    background-color: #28166F; // Cor de fundo do botão
                     color: white; // Cor do texto
                     padding: 10px; // Espaçamento interno
                     border-radius: 5px; // Bordas arredondadas
@@ -45,7 +45,7 @@ h1 {
                     transition: background-color 0.3s; // Transição suave na cor
 
                     &:hover {
-                        background-color: rgba(255, 255, 255, 0.1); // Clareia ao passar o mouse
+                        background-color: rgba(0, 17, 255, 0.1); // Clareia ao passar o mouse
                     }
                 }
             }

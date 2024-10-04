@@ -1,5 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet'; // importação do mapa
+import{EntradaService} from '../services/auth/entrada.service';
+
+
+interface EntradaData {
+  comandoSupervisao: number;          //resposta 200 OK
+  sessaoID: string;           
+  comandoEstrutura: number;         
+}
+const loginData: EntradaData = {
+  comandoSupervisao: 254,        //resposta 200 OK
+  sessaoID: 'qualquer',           
+  comandoEstrutura: 237
+};
 
 @Component({
   selector: 'app-entrada',

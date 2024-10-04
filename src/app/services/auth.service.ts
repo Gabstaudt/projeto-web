@@ -1,21 +1,22 @@
 import { Injectable } from '@angular/core'; 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import CryptoJS from 'crypto-js';
 import biri from 'biri';
+import{EntradaService} from '../services/auth/entrada.service';
 
 // o que a interface irá receber de login
 interface LoginResponse {
   respostaOK: number;          //resposta 200 OK
   IdUsuario: number;           
   NomeUsuario: string;         
-  PrivilegioUsuario: number;   // Nível de privilégio do usuário
-  UnidadeUsuario: number;      // Unidade do usuário
-  AcessoProducao: number;      // Acesso à produção
-  AcessoEmpresa1: number;      // Acesso à empresa 1
-  AcessoEmpresa2: number;      // Acesso à empresa 2
-  SessaoID: string;            // ID da sessão-gerada pelo servidor diferente a cada sessão
+  PrivilegioUsuario: number;  
+  UnidadeUsuario: number;     
+  AcessoProducao: number;     
+  AcessoEmpresa1: number;     
+  AcessoEmpresa2: number;      
+  SessaoID: string;            
 }
 
 @Injectable({
@@ -25,7 +26,11 @@ export class AuthService {
  
   private apiUrl = 'http://10.20.96.221:8043/dados';
 
-  constructor(private http: HttpClient) {} // Injeta o HttpClient 
+  constructor(
+    private http: HttpClient,
+    private entradaService: EntradaService // Injetado 
+  ) {}
+  
 
   // realizar o login, recebendo usuário e senha
   login(username: string, password: string): Observable<LoginResponse> {
@@ -98,6 +103,15 @@ export class AuthService {
 
         return parsedResponse; // Retorna a resposta analisada
       }),
+      switchMap((loginResponse: any) => { // Tipagem correta para o loginResponse
+        const sessaoId = localStorage.getItem('SessaoID');
+        if (sessaoId) {
+          // Faz a segunda requisição no EntradaService
+          return this.entradaService.fazerSegundaRequisicao(sessaoId);
+        }
+        return throwError(() => new Error('Sessão não encontrada'));
+      }),
+      
       catchError(error => {
         console.error('Erro ao fazer login', error); // Loga o erro no console
         return throwError(() => error); 
