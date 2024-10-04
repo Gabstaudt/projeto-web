@@ -39,7 +39,7 @@ export class AuthService {
     const Version = 1;        // Versão da aplicação - fixo 
     const GadjetID = biri();  // id único gerado pela biblioteca biri
 
-    // cabeçalhos para a requisição HTTP
+    // cabeçalho para a requisição HTTP
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded' // para não fazer a "pré requisição" options
     });
@@ -103,7 +103,7 @@ export class AuthService {
 
         return parsedResponse; // Retorna a resposta analisada
       }),
-      switchMap((loginResponse: any) => { // Tipagem correta para o loginResponse
+      switchMap((loginResponse: any) => { 
         const sessaoId = localStorage.getItem('SessaoID');
         if (sessaoId) {
           // Faz a segunda requisição no EntradaService

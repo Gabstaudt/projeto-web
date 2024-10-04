@@ -6,7 +6,8 @@ import { Observable } from 'rxjs';
 interface EntradaResponse {
   sessaoOK:number;
   Versao: number;
-  Setores: number;       
+  Setores: number;     
+    
 }
 
 @Injectable({
