@@ -4,9 +4,9 @@ import { Observable } from 'rxjs';
 
 
 interface EntradaResponse {
-  comandoSupervisao: number;          //resposta 200 OK
-  sessaoID: string;           
-  comandoEstrutura: number;         
+  sessaoOK:number;
+  Versao: number;
+  Setores: number;       
 }
 
 @Injectable({
