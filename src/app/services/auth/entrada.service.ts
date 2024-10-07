@@ -30,7 +30,7 @@ export class EntradaService {
       // tratamento de erros
       catchError(error => {
         console.error('Erro ao fazer a segunda requisição', error); // Loga o erro no console
-        return throwError(() => error); // Lança o erro para ser tratado em outro lugar
+        return throwError(() => error); 
       })
     );
   }
@@ -41,7 +41,7 @@ export class EntradaService {
 
     //
     const respostaOK = bytes[offset]; // Lê a resposta de status
-    offset += 1; // Atualiza o offset para o próximo valor
+    offset += 1; 
 
     // Última versão
     const ultimaVersao = (bytes[offset] << 8) | bytes[offset + 1]; 
