@@ -5,7 +5,6 @@ import { catchError, map } from 'rxjs/operators';
 import { Alarme } from '../../models/alarme.model';
 import { Setor } from '../../models/setor.model';
 import { Tag } from '../../models/tag.model';
-import { ArrayType } from '@angular/compiler';
 
 
 @Injectable({
@@ -30,8 +29,9 @@ export class EntradaService {
 
     // Construir os bytes da requisição
     const body = this.gerarBytesRequisicao(sessaoId, comandoSupervisao, comandoEstrutura);
-    
-
+   
+    console.log('Corpo da requisição (bytes):', body);
+   
 
     // Realiza a requisição POST
     return this.http.post(this.apiUrl, body, { headers, responseType: 'arraybuffer' }).pipe(
@@ -39,6 +39,8 @@ export class EntradaService {
       // Manipulação da resposta
       map(response => {
         const byteArray = new Uint8Array(response); // Converte a resposta em um array de bytes
+        console.log('RECEEBEMOS?????', byteArray);
+
         return this.parseSecondResponse(byteArray); // Chama a função que interpreta os bytes da resposta
       }),
 
