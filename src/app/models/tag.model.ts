@@ -3,7 +3,7 @@ export class Tag {
   // Propriedades da tag
   id: number; 
   nome: string; 
-  desc: string; 
+  descricao: string; 
   tipo: number; 
   max: number; 
   min: number;
@@ -16,7 +16,7 @@ export class Tag {
   constructor() {
     this.id = 0; 
     this.nome = '';
-    this.desc = ''; 
+    this.descricao = ''; 
     this.tipo = 0; 
     this.max = 0; 
     this.min = 0;

@@ -3,6 +3,7 @@ export class Alarme {
   idSetor: number;
   idTag: number;
   nome: string;
+  descricao: string;
   tipo: number;
   valorEntrada: number;
   valorSaida: number;
@@ -16,6 +17,7 @@ export class Alarme {
     this.idSetor = 0;
     this.idTag = 0;
     this.nome = '';
+    this.descricao = ''; 
     this.tipo = 0;
     this.valorEntrada = 0;
     this.valorSaida = 0;
