@@ -31,13 +31,13 @@ app.post('/login', (req, res) => {
 
   const response = {
     respostaOK: 1,
-    IdUsuario: 101, //lógica para retornar o ID do usuário
+    IdUsuario: 201, //lógica para retornar o ID do usuário
     PrivilegioUsuario: 2,
     UnidadeUsuario: 3,
     AcessoProducao: 1,
     AcessoEmpresa1: 1,
     AcessoEmpresa2: 0,
-    SessaoID: "abc123xyz" // gerar um ID de sessão real
+    SessaoID: "" // gerar um ID de sessão real
   };
 
   res.json(response);
@@ -53,3 +53,6 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
+
+
+
