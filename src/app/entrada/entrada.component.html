@@ -1,27 +1,25 @@
 <header>
-  <!-- fonte Poppins -->
-   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </header>
 
 <div class="entrada-container">
-    <aside class="sidebar">
-      <img src="../../assets/img/logo-cosanpa.png" alt="Logo" class="logo"> <!-- Ajuste o caminho da logo -->
-      <nav>
-        <ul>
-          <li><a href="#">Opção 1</a></li>
-          <li><a href="#">Opção 2</a></li>
-          <li><a href="#">Opção 3</a></li>
-        </ul>
-      </nav>
-    </aside>
-    
-    <main class="map-container">
-      <!-- <h1>Mapa</h1> -->
-      <!-- integração do mapa -->
-      <div id="map"></div>
-    </main>
-  </div>
-  
+  <aside class="sidebar">
+    <img src="../../assets/img/logo-cosanpa.png" alt="Logo" class="logo">
+    <nav>
+      <ul>
+        <li><a href="#">Opção 1</a></li>
+        <li><a href="#">Opção 2</a></li>
+        <li><a href="#">Opção 3</a></li>
+        <button class = "requisicao" (click)="fazerRequisicaoTeste()">Enviar Requisição de Teste</button>
+        
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="map-container">
+    <div id="map"></div>
+
+  </main>
+</div>

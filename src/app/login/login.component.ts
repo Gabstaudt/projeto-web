@@ -27,7 +27,7 @@ export class LoginComponent implements OnInit {
 
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
-   //inicializa o formulário com campos de vlaidação
+   //inicializa o formulário com campos de validação
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]], //campo de usuário obrigatório
       password: ['', [Validators.required]], // campo de senha obrigatório
@@ -83,6 +83,7 @@ export class LoginComponent implements OnInit {
           console.error('Erro no login:', error);
           this.loginError = 'Usuário ou senha incorretos'; // mensagem de erro
         }
+        
       );
     }
   }

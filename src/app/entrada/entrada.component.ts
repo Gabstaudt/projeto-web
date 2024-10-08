@@ -1,18 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import * as L from 'leaflet'; // importação do mapa
-import{EntradaService} from '../services/auth/entrada.service';
-
-
-interface EntradaData {
-  comandoSupervisao: number;          //resposta 200 OK
-  sessaoID: string;           
-  comandoEstrutura: number;         
-}
-const loginData: EntradaData = {
-  comandoSupervisao: 254,        //resposta 200 OK
-  sessaoID: 'qualquer',           
-  comandoEstrutura: 237
-};
+import * as L from 'leaflet'; // Importação do Leaflet para o mapa
+import { EntradaService } from '../services/auth/entrada.service';
 
 @Component({
   selector: 'app-entrada',
@@ -20,10 +8,14 @@ const loginData: EntradaData = {
   styleUrls: ['./entrada.component.scss']
 })
 export class EntradaComponent implements OnInit {
+  
+  constructor(private entradaService: EntradaService) {}
+
   ngOnInit(): void {
     this.initMap();
   }
 
+  // Inicializa o mapa no componente
   initMap(): void {
     const map = L.map('map').setView([-15.7801, -47.9292], 4); 
 
@@ -31,5 +23,30 @@ export class EntradaComponent implements OnInit {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
+  }
+
+  // sessão id tanto fazz
+  gerarSessaoId(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let sessaoId = '';
+    for (let i = 0; i < 32; i++) {
+      sessaoId += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return sessaoId;
+  }
+
+  // Função para enviar a requisição de teste
+  fazerRequisicaoTeste(): void {
+    const sessaoIdAleatoria = this.gerarSessaoId(); //sess id tanto faz
+
+    // fz a segunda 
+    this.entradaService.fazerSegundaRequisicao(sessaoIdAleatoria).subscribe({
+      next: (response) => {
+        console.log('Resposta recebida:', response); 
+      },
+      error: (error) => {
+        console.error('Erro na requisição de teste:', error); 
+      }
+    });
   }
 }
