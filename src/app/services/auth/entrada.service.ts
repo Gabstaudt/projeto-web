@@ -10,46 +10,62 @@ import { Tag } from '../../models/tag.model';
   providedIn: 'root'
 })
 export class EntradaService {
-  private apiUrl = 'http://10.20.96.221:8043/dados'; 
+  private apiUrl = 'http://10.20.96.221:8043/dados'; // URL da requisição
 
   constructor(private http: HttpClient) {}
 
   // Função para fazer a segunda requisição, recebendo a Sessão ID como parâmetro
-  fazerSegundaRequisicao(sessaoId: string): Observable<any> {
+  fazerSegundaRequisicao(sessaoId: string): Observable<Setor[]> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }); // Define os cabeçalhos da requisição
 
     // Comandos
+<<<<<<< HEAD
     const comandoSupervisao = 254;
+=======
+    const comandoSupervisao = 254; 
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
     const comandoEstrutura = 237; // Comando para ler a estrutura
 
     // Construir os bytes da requisição
     const body = this.gerarBytesRequisicao(sessaoId, comandoSupervisao, comandoEstrutura);
+<<<<<<< HEAD
    
     console.log('Corpo da requisição (bytes):', body);
+=======
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
 
     // Realiza a requisição POST
     return this.http.post(this.apiUrl, body, { headers, responseType: 'arraybuffer' }).pipe(
       // Manipulação da resposta
       map(response => {
         const byteArray = new Uint8Array(response); // Converte a resposta em um array de bytes
+<<<<<<< HEAD
         console.log('Resposta recebida (bytes):', byteArray); // Log da resposta em bytes
 
         const setores = this.parseSecondResponse(byteArray); // Chama a função que interpreta os bytes da resposta
         console.log('Setores processados:', setores); // Log dos setores processados
 
         return setores; // Retorna os setores
+=======
+        return this.parseSecondResponse(byteArray); // Chama a função que interpreta os bytes da resposta
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
       }),
 
       // Tratamento de erros
       catchError(error => {
         console.error('Erro ao fazer a segunda requisição', error); // Loga o erro no console
+<<<<<<< HEAD
         return throwError(() => error);
+=======
+        return throwError(() => error); 
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
       })
     );
   }
 
   // Método para gerar os bytes da requisição
   private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoEstrutura: number): ArrayBuffer {
+<<<<<<< HEAD
     const sessaoIdBytes = this.encodeWithLength(sessaoId); // Converte o ID da sessão em bytes
 
     const comandoSupervisaoBytes = new Uint8Array([comandoSupervisao]); // c.supervisao-bytes
@@ -62,6 +78,20 @@ export class EntradaService {
     combinedBytes.set(comandoEstruturaBytes, comandoSupervisaoBytes.length + sessaoIdBytes.length); // Por último comandoEstrutura
 
     return combinedBytes.buffer;
+=======
+    // Converte tudo para bytes
+    const sessaoIdBytes = this.encodeWithLength(sessaoId); // sessão-bytes
+    const comandoSupervisaoBytes = new Uint8Array([comandoSupervisao]); // c.superv-bytes
+    const comandoEstruturaBytes = new Uint8Array([comandoEstrutura]); // c.estrutura-bytes
+
+    // Junta os arrays de bytes --> cria array buffer
+    const combinedBytes = new Uint8Array(sessaoIdBytes.length + comandoSupervisaoBytes.length + comandoEstruturaBytes.length);
+    combinedBytes.set(sessaoIdBytes, 0);
+    combinedBytes.set(comandoSupervisaoBytes, sessaoIdBytes.length);
+    combinedBytes.set(comandoEstruturaBytes, sessaoIdBytes.length + comandoSupervisaoBytes.length);
+
+    return combinedBytes.buffer; 
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
   }
 
   // Função para interpretar os bytes da resposta da segunda requisição
@@ -70,17 +100,26 @@ export class EntradaService {
 
     // Lê a resposta de status
     const respostaOK = bytes[offset];
+<<<<<<< HEAD
     console.log('Resposta de status:', respostaOK); // Log do status
+=======
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
     offset += 1;
 
     // Última versão
     const ultimaVersao = (bytes[offset] << 8) | bytes[offset + 1];
+<<<<<<< HEAD
     console.log('Última versão:', ultimaVersao); // Log da última versão
+=======
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
     offset += 2;
 
     // Quantidade de setores
     const quantidadeSetores = (bytes[offset] << 8) | bytes[offset + 1];
+<<<<<<< HEAD
     console.log('Quantidade de setores:', quantidadeSetores); // Log da quantidade de setores
+=======
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
     offset += 2;
 
     const setores: Setor[] = []; // Array para armazenamento de setores
@@ -98,6 +137,14 @@ export class EntradaService {
       offset += 2;
       setor.nome = this.bytesToString(bytes.slice(offset, offset + nomeSetorLength)); // Lê o nome do setor e converte de bytes para string
       offset += nomeSetorLength;
+<<<<<<< HEAD
+=======
+
+      // Lê a quantidade de tags no setor
+      const quantidadeTags = bytes[offset];
+      offset += 1;
+      const tags: Map<number, Tag> = new Map(); // Armazena as tags do setor
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
 
       // Lê a quantidade de tags no setor
       const quantidadeTags = bytes[offset];
@@ -123,7 +170,10 @@ export class EntradaService {
 
       // Lê a quantidade de alarmes no setor
       const quantidadeAlarmes = bytes[offset];
+<<<<<<< HEAD
       console.log(`Setor ${setor.nome} - Quantidade de alarmes:`, quantidadeAlarmes); // Log da quantidade de alarmes
+=======
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
       offset += 1;
       const alarmes: Map<number, Alarme> = new Map(); // Cria um mapa para armazenar os alarmes do setor
 
@@ -153,6 +203,7 @@ export class EntradaService {
     return new TextDecoder('utf-8').decode(bytes); // Converte um array de bytes para uma string usando o decodificador UTF-8
   }
 
+<<<<<<< HEAD
   // Converte a string da sessão em bytes com o comprimento
   private encodeWithLength(str: string): Uint8Array {
     const stringBytes = new TextEncoder().encode(str);
@@ -165,6 +216,20 @@ export class EntradaService {
     const combined = new Uint8Array(lengthBytes.length + stringBytes.length);
     combined.set(lengthBytes, 0);
     combined.set(stringBytes, lengthBytes.length);
+=======
+  // string sessão id pra bytes
+  private encodeWithLength(str: string): Uint8Array {
+    const stringBytes = new TextEncoder().encode(str); 
+    const length = stringBytes.length; 
+
+    const lengthBytes = new Uint8Array(2);
+    lengthBytes[0] = (length >> 8) & 0xff; 
+    lengthBytes[1] = length & 0xff;        
+
+    const combined = new Uint8Array(lengthBytes.length + stringBytes.length);
+    combined.set(lengthBytes, 0); 
+    combined.set(stringBytes, lengthBytes.length); 
+>>>>>>> 0a2f62ce5ddde061505699f7adc45c4be121b4f2
 
     return combined;
   }
