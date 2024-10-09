@@ -132,18 +132,27 @@ export class EntradaService {
       console.log("tipo recebido:", setor.tipo);
 
 
-       // tamanho do array gráfico 
-     const tamanhoGrafico = bytes[offset];
-      offset += 1;
+       // Tamanho do array gráfico (1 byte)
+      const tamanhoGrafico = bytes[offset]; 
+      offset += 1; 
+      console.log("Tamanho do gráfico recebido:", tamanhoGrafico);
 
-      //tamanho real do array gráfico 
-      const tamanhoRealArrayGrafico = tamanhoGrafico * 2;
+      // Tamanho real do array gráfico
+      const tamanhoRealArrayGrafico = tamanhoGrafico * 2; 
+      console.log("Tamanho real do gráfico:", tamanhoRealArrayGrafico);
 
-     const arrayGrafico = new Uint16Array(tamanhoRealArrayGrafico);
-      for (let j = 0; j < tamanhoRealArrayGrafico; j++) {
-      arrayGrafico[j] = (bytes[offset] << 8) | bytes[offset + 1];
-      offset += 2;
-     }
+      // Criar o array gráfico com o tamanho real
+      const arrayGrafico = new Uint16Array(tamanhoGrafico); // Aqui usamos tamanhoGrafico ao invés de tamanhoRealArrayGrafico
+
+      // Lê os bytes do array gráfico (tamanhoRealArrayGrafico é a quantidade total de bytes a serem lidos)
+      for (let j = 0; j < tamanhoGrafico; j++) {
+          // Para cada elemento do array gráfico, lemos 2 bytes
+          arrayGrafico[j] = (bytes[offset] << 8) | bytes[offset + 1]; 
+          offset += 2; // Atualiza o offset para os próximos 2 bytes
+      }
+
+      console.log("Array gráfico:", arrayGrafico);
+
 
       // quantidade de tags no setor
       const quantidadeTags = bytes[offset];
