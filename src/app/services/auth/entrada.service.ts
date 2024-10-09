@@ -95,13 +95,15 @@ export class EntradaService {
       offset += nomeSetorLength;
 
       //  campos do Setor
-      setor.endereco = this.bytesToString(bytes.slice(offset, offset + 50)).trim(); // 50 bytes para o endereço
-      offset += 50;
+      const enderecoLength = (bytes[offset] << 8) | bytes[offset + 1];
+      offset += 2;
+      setor.endereco = this.bytesToString(bytes.slice(offset, offset + enderecoLength)); 
+      offset += enderecoLength;
 
-      setor.latitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); // 4 bytes para latitude
+      setor.latitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); 
       offset += 4;
 
-      setor.longitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); // 4 bytes para longitude
+      setor.longitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); 
       offset += 4;
 
       setor.unidade = (bytes[offset] << 8) | bytes[offset + 1];  
@@ -118,13 +120,15 @@ export class EntradaService {
       offset += 2;
 
 
-      const ultimoTempoLength = (bytes[offset] << 8) | bytes[offset + 1];
-      offset += 2;
+      const tamanhoGrafico = bytes[offset]; // Ler tamanho do array gráfico
+      offset += 1;
 
-      // Lê o último tempo como string e converte para Date
-      const ultimoTempoString = this.bytesToString(bytes.slice(offset, offset + ultimoTempoLength));
-      setor.ultimoTempo = new Date(ultimoTempoString); 
-      offset += ultimoTempoLength;
+      // Laço para processar o array gráfico
+      const arrayGrafico = new Uint16Array(tamanhoGrafico);
+      for (let j = 0; j < tamanhoGrafico; j++) {
+        arrayGrafico[j] = (bytes[offset] << 8) | bytes[offset + 1]; // Ler o valor do gráfico
+        offset += 2;
+      }
 
       // quantidade de tags no setor
       const quantidadeTags = bytes[offset];
