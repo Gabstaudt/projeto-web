@@ -16,96 +16,124 @@ export class EntradaService {
 
   // Função para fazer a segunda requisição, recebendo a Sessão ID como parâmetro
   fazerSegundaRequisicao(sessaoId: string): Observable<any> {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }); // Define os cabeçalhos da requisição
+    const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }); 
 
-    // Comandos
+    
     const comandoSupervisao = 254;
-    const comandoEstrutura = 237; // Comando para ler a estrutura
+    const comandoEstrutura = 237; 
 
     // Construir os bytes da requisição
     const body = this.gerarBytesRequisicao(sessaoId, comandoSupervisao, comandoEstrutura);
    
     console.log('Corpo da requisição (bytes):', body);
 
-    // Realiza a requisição POST
+    //requisição POST
     return this.http.post(this.apiUrl, body, { headers, responseType: 'arraybuffer' }).pipe(
+      
       // Manipulação da resposta
       map(response => {
-        const byteArray = new Uint8Array(response); // Converte a resposta em um array de bytes
-        console.log('Resposta recebida (bytes):', byteArray); // Log da resposta em bytes
+        const byteArray = new Uint8Array(response); 
+        console.log('Resposta recebida (bytes):', byteArray); 
 
-        const setores = this.parseSecondResponse(byteArray); // Chama a função que interpreta os bytes da resposta
-        console.log('Setores processados:', setores); // Log dos setores processados
+        const setores = this.parseSecondResponse(byteArray); 
+        console.log('Setores processados:', setores); 
 
-        return setores; // Retorna os setores
+        return setores; 
       }),
 
-      // Tratamento de erros
+      
       catchError(error => {
-        console.error('Erro ao fazer a segunda requisição', error); // Loga o erro no console
+        console.error('Erro ao fazer a segunda requisição', error); 
         return throwError(() => error);
       })
     );
   }
 
-  // Método para gerar os bytes da requisição
+  // gerar os bytes da requisição
   private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoEstrutura: number): ArrayBuffer {
-    const sessaoIdBytes = this.encodeWithLength(sessaoId); // Converte o ID da sessão em bytes
+    const sessaoIdBytes = this.encodeWithLength(sessaoId); 
 
-    const comandoSupervisaoBytes = new Uint8Array([comandoSupervisao]); // c.supervisao-bytes
-    const comandoEstruturaBytes = new Uint8Array([comandoEstrutura]); // c.estrutura-bytes
+    const comandoSupervisaoBytes = new Uint8Array([comandoSupervisao]); 
+    const comandoEstruturaBytes = new Uint8Array([comandoEstrutura]); 
 
-    // Ordem correta: comandoSupervisao -> sessaoId -> comandoEstrutura
     const combinedBytes = new Uint8Array(comandoSupervisaoBytes.length + sessaoIdBytes.length + comandoEstruturaBytes.length);
     combinedBytes.set(comandoSupervisaoBytes, 0); 
     combinedBytes.set(sessaoIdBytes, comandoSupervisaoBytes.length);
-    combinedBytes.set(comandoEstruturaBytes, comandoSupervisaoBytes.length + sessaoIdBytes.length); // Por último comandoEstrutura
+    combinedBytes.set(comandoEstruturaBytes, comandoSupervisaoBytes.length + sessaoIdBytes.length); 
 
     return combinedBytes.buffer;
   }
 
-  // Função para interpretar os bytes da resposta da segunda requisição
+  // interpretar os bytes da resposta 
   private parseSecondResponse(bytes: Uint8Array): Setor[] {
-    let offset = 0; // Variável para rastrear a posição atual no array de bytes
+    let offset = 0; 
 
-    // Lê a resposta de status
     const respostaOK = bytes[offset];
-    console.log('Resposta de status:', respostaOK); // Log do status
+    console.log('Resposta de status:', respostaOK); 
     offset += 1;
 
-    // Última versão
     const ultimaVersao = (bytes[offset] << 8) | bytes[offset + 1];
-    console.log('Última versão:', ultimaVersao); // Log da última versão
+    console.log('Última versão:', ultimaVersao); 
     offset += 2;
 
-    // Quantidade de setores
     const quantidadeSetores = (bytes[offset] << 8) | bytes[offset + 1];
-    console.log('Quantidade de setores:', quantidadeSetores); // Log da quantidade de setores
+    console.log('Quantidade de setores:', quantidadeSetores); 
     offset += 2;
 
-    const setores: Setor[] = []; // Array para armazenamento de setores
+    const setores: Setor[] = []; 
 
-    // Laço 1: para cada setor
+    // Laço 1: setor
     for (let i = 0; i < quantidadeSetores; i++) {
-      const setor = new Setor(); // Cria uma nova instância do modelo Setor
+      const setor = new Setor(); 
 
-      // Lê o ID do setor
       setor.id = (bytes[offset] << 8) | bytes[offset + 1];
       offset += 2;
 
-      // Lê o tamanho do nome do setor
       const nomeSetorLength = (bytes[offset] << 8) | bytes[offset + 1];
       offset += 2;
-      setor.nome = this.bytesToString(bytes.slice(offset, offset + nomeSetorLength)); // Lê o nome do setor e converte de bytes para string
+      setor.nome = this.bytesToString(bytes.slice(offset, offset + nomeSetorLength)); 
       offset += nomeSetorLength;
 
-      // Lê a quantidade de tags no setor
+      //  campos do Setor
+      setor.endereco = this.bytesToString(bytes.slice(offset, offset + 50)).trim(); // 50 bytes para o endereço
+      offset += 50;
+
+      setor.latitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); // 4 bytes para latitude
+      offset += 4;
+
+      setor.longitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); // 4 bytes para longitude
+      offset += 4;
+
+      setor.unidade = (bytes[offset] << 8) | bytes[offset + 1];  
+      offset += 2;
+
+      setor.subunidade = (bytes[offset] << 8) | bytes[offset + 1];
+      offset += 2;
+
+      setor.status = (bytes[offset] << 8) | bytes[offset + 1];  
+      offset += 2;
+
+
+      setor.tipo = (bytes[offset] << 8) | bytes[offset + 1];  
+      offset += 2;
+
+
+      const ultimoTempoLength = (bytes[offset] << 8) | bytes[offset + 1];
+      offset += 2;
+
+      // Lê o último tempo como string e converte para Date
+      const ultimoTempoString = this.bytesToString(bytes.slice(offset, offset + ultimoTempoLength));
+      setor.ultimoTempo = new Date(ultimoTempoString); 
+      offset += ultimoTempoLength;
+
+      // quantidade de tags no setor
       const quantidadeTags = bytes[offset];
-      console.log(`Setor ${setor.nome} - Quantidade de tags:`, quantidadeTags); // Log da quantidade de tags
+      console.log(`Setor ${setor.nome} - Quantidade de tags:`, quantidadeTags); 
       offset += 1;
-      const tags: Map<number, Tag> = new Map(); // Armazena as tags do setor
-     
-      // Laço 2: Para cada tag no setor
+
+      const tags: Tag[] = []; // Armazena as tags
+
+      // Laço 2: tag 
       for (let j = 0; j < quantidadeTags; j++) {
         const tag = new Tag();
         tag.id = (bytes[offset] << 8) | bytes[offset + 1];
@@ -113,21 +141,26 @@ export class EntradaService {
 
         const nomeTagLength = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
-        tag.nome = this.bytesToString(bytes.slice(offset, offset + nomeTagLength)); // Lê o nome da tag e converte de bytes para string
+        tag.nome = this.bytesToString(bytes.slice(offset, offset + nomeTagLength)); 
         offset += nomeTagLength;
 
-        tags.set(tag.id, tag); // Adiciona a tag ao mapa de tags do setor
+        // Lê outros campos da Tag 
+        tag.descricao = this.bytesToString(bytes.slice(offset, offset + 100)).trim(); // Exemplo de descrição com 100 bytes
+        offset += 100;
+
+        tags.push(tag); // Adiciona a tag ao array de tags do setor
       }
 
-      setor.tags = tags; // Atribui o mapa de tags ao setor
+      setor.tags = tags; 
 
-      // Lê a quantidade de alarmes no setor
+      // quantidade de alarmes no setor
       const quantidadeAlarmes = bytes[offset];
-      console.log(`Setor ${setor.nome} - Quantidade de alarmes:`, quantidadeAlarmes); // Log da quantidade de alarmes
+      console.log(`Setor ${setor.nome} - Quantidade de alarmes:`, quantidadeAlarmes); 
       offset += 1;
-      const alarmes: Map<number, Alarme> = new Map(); // Cria um mapa para armazenar os alarmes do setor
 
-      // Laço 3: Para cada alarme no setor
+      const alarmes: Alarme[] = []; //array para armazenar os alarmes do setor
+
+      // Laço 3:  alarme 
       for (let k = 0; k < quantidadeAlarmes; k++) {
         const alarme = new Alarme();
         alarme.id = (bytes[offset] << 8) | bytes[offset + 1];
@@ -138,19 +171,19 @@ export class EntradaService {
         alarme.nome = this.bytesToString(bytes.slice(offset, offset + nomeAlarmeLength));
         offset += nomeAlarmeLength;
 
-        alarmes.set(alarme.id, alarme);
+        alarmes.push(alarme); // array de alarmes do setor
       }
 
       setor.alarmes = alarmes;
       setores.push(setor);
     }
 
-    return setores; // Retorna a lista de setores processada
+    return setores; 
   }
 
   // Função para converter bytes em string
   private bytesToString(bytes: Uint8Array): string {
-    return new TextDecoder('utf-8').decode(bytes); // Converte um array de bytes para uma string usando o decodificador UTF-8
+    return new TextDecoder('utf-8').decode(bytes); 
   }
 
   // Converte a string da sessão em bytes com o comprimento
@@ -167,5 +200,13 @@ export class EntradaService {
     combined.set(stringBytes, lengthBytes.length);
 
     return combined;
+  }
+
+ 
+  private bytesToFloat(bytes: Uint8Array): number {
+    const buffer = new Float32Array(new ArrayBuffer(4));
+    const uint8 = new Uint8Array(buffer.buffer);
+    uint8.set(bytes);
+    return buffer[0];
   }
 }
