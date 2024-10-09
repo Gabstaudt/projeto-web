@@ -106,29 +106,31 @@ export class EntradaService {
       setor.longitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); 
       offset += 4;
 
-      setor.unidade = (bytes[offset] << 8) | bytes[offset + 1];  
-      offset += 2;
-
-      setor.subunidade = (bytes[offset] << 8) | bytes[offset + 1];
-      offset += 2;
-
-      setor.status = (bytes[offset] << 8) | bytes[offset + 1];  
-      offset += 2;
-
-
-      setor.tipo = (bytes[offset] << 8) | bytes[offset + 1];  
-      offset += 2;
-
-
-      const tamanhoGrafico = bytes[offset]; // Ler tamanho do array gráfico
+      setor.unidade = bytes[offset]; 
       offset += 1;
 
-      // Laço para processar o array gráfico
-      const arrayGrafico = new Uint16Array(tamanhoGrafico);
-      for (let j = 0; j < tamanhoGrafico; j++) {
-        arrayGrafico[j] = (bytes[offset] << 8) | bytes[offset + 1]; // Ler o valor do gráfico
-        offset += 2;
-      }
+      setor.subunidade = bytes[offset]; 
+      offset += 1;
+      
+      setor.status = bytes[offset]; 
+      offset += 1;
+
+      setor.tipo = bytes[offset];
+      offset += 1;
+
+
+       // tamanho do array gráfico 
+     const tamanhoGrafico = bytes[offset];
+      offset += 1;
+
+      //tamanho real do array gráfico 
+      const tamanhoRealArrayGrafico = tamanhoGrafico * 2;
+
+     const arrayGrafico = new Uint16Array(tamanhoRealArrayGrafico);
+      for (let j = 0; j < tamanhoRealArrayGrafico; j++) {
+      arrayGrafico[j] = (bytes[offset] << 8) | bytes[offset + 1];
+      offset += 2;
+     }
 
       // quantidade de tags no setor
       const quantidadeTags = bytes[offset];
@@ -208,9 +210,11 @@ export class EntradaService {
 
  
   private bytesToFloat(bytes: Uint8Array): number {
-    const buffer = new Float32Array(new ArrayBuffer(4));
-    const uint8 = new Uint8Array(buffer.buffer);
-    uint8.set(bytes);
-    return buffer[0];
-  }
+    const buffer = new ArrayBuffer(4);
+    const view = new DataView(buffer);
+    for (let i = 0; i < 4; i++) {
+        view.setUint8(i, bytes[i]);
+    }
+    return view.getFloat32(0, true); 
+}
 }
