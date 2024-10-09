@@ -68,6 +68,8 @@ export class EntradaService {
   private parseSecondResponse(bytes: Uint8Array): Setor[] {
     let offset = 0; 
 
+    // this.saveBytesToFile(bytes, 'resposta.bin');
+
     const respostaOK = bytes[offset];
     console.log('Resposta de status:', respostaOK); 
     offset += 1;
@@ -88,35 +90,46 @@ export class EntradaService {
 
       setor.id = (bytes[offset] << 8) | bytes[offset + 1];
       offset += 2;
+      console.log("id do setor", setor.id);
 
       const nomeSetorLength = (bytes[offset] << 8) | bytes[offset + 1];
       offset += 2;
       setor.nome = this.bytesToString(bytes.slice(offset, offset + nomeSetorLength)); 
       offset += nomeSetorLength;
+      console.log("Tamanho do nome", nomeSetorLength);
+      console.log("nome do setor loop 1", setor.nome);
 
       //  campos do Setor
       const enderecoLength = (bytes[offset] << 8) | bytes[offset + 1];
       offset += 2;
       setor.endereco = this.bytesToString(bytes.slice(offset, offset + enderecoLength)); 
       offset += enderecoLength;
-
+      console.log('Tamanho do endereço:', enderecoLength);
+      console.log("nome do endereço", setor.endereco);
+      
       setor.latitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); 
       offset += 4;
+      console.log("Latitude recebida:", setor.latitude);
 
       setor.longitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); 
       offset += 4;
+      console.log("Longitude recebida", setor.longitude);
 
       setor.unidade = bytes[offset]; 
       offset += 1;
+      console.log("unidade recebida", setor.unidade);
 
       setor.subunidade = bytes[offset]; 
       offset += 1;
+      console.log("subunidade recebida", setor.subunidade);
       
       setor.status = bytes[offset]; 
       offset += 1;
+      console.log("status recebido", setor.status);
 
       setor.tipo = bytes[offset];
       offset += 1;
+      console.log("tipo recebido:", setor.tipo);
 
 
        // tamanho do array gráfico 
@@ -142,23 +155,52 @@ export class EntradaService {
       // Laço 2: tag 
       for (let j = 0; j < quantidadeTags; j++) {
         const tag = new Tag();
+        
         tag.id = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
+        console.log("id da tag recebida:", tag.id);
+
 
         const nomeTagLength = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
         tag.nome = this.bytesToString(bytes.slice(offset, offset + nomeTagLength)); 
         offset += nomeTagLength;
-
+        console.log("tamanho do nome do setor", nomeTagLength);
+        console.log("nome do setor", tag.nome);
+      
         // Lê outros campos da Tag 
-        tag.descricao = this.bytesToString(bytes.slice(offset, offset + 100)).trim(); // Exemplo de descrição com 100 bytes
-        offset += 100;
 
-        tags.push(tag); // Adiciona a tag ao array de tags do setor
+        const descricaoLength = (bytes[offset] << 8) | bytes[offset + 1];
+        offset += 2;
+        tag.descricao = this.bytesToString(bytes.slice(offset, offset + descricaoLength)); 
+        offset += descricaoLength;
+        console.log("tamanho da descrição:",descricaoLength);
+        console.log("descrição da tag", tag.descricao);
+
+        tag.tipo = bytes[offset]; 
+        offset += 1;
+        console.log("tipos", tag.tipo);
+
+        tag.max = bytes[offset]; 
+        offset += 4;
+        console.log ("máximo", tag.max);
+
+        tag.min = bytes[offset]; 
+        offset += 4;
+        console.log("minimo", tag.min);
+
+        tag.subunidade = bytes[offset];
+        offset += 1;
+        console.log("subunidade", tag.subunidade);
+
+        tag.status = bytes[offset];
+        offset += 1;
+        console.log("status", tag.status);
+
+        tags.push(tag); 
       }
 
       setor.tags = tags; 
-
       // quantidade de alarmes no setor
       const quantidadeAlarmes = bytes[offset];
       console.log(`Setor ${setor.nome} - Quantidade de alarmes:`, quantidadeAlarmes); 
@@ -169,13 +211,34 @@ export class EntradaService {
       // Laço 3:  alarme 
       for (let k = 0; k < quantidadeAlarmes; k++) {
         const alarme = new Alarme();
+
         alarme.id = (bytes[offset] << 8) | bytes[offset + 1];
+        offset += 2;
+
+        alarme.idTag = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
 
         const nomeAlarmeLength = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
         alarme.nome = this.bytesToString(bytes.slice(offset, offset + nomeAlarmeLength));
         offset += nomeAlarmeLength;
+
+        const descricaoLength = (bytes[offset] << 8) | bytes[offset + 1];
+        offset += 2;
+        alarme.descricao = this.bytesToString(bytes.slice(offset, offset + descricaoLength)); 
+        offset += descricaoLength;
+
+        alarme.tipo = bytes[offset]; 
+        offset += 1;
+
+        alarme.valorEntrada = bytes[offset]; 
+        offset += 4;
+
+        alarme.valorSaida = bytes[offset]; 
+        offset += 4;
+
+        alarme.ativo = bytes[offset]; 
+        offset += 1;
 
         alarmes.push(alarme); // array de alarmes do setor
       }
@@ -217,4 +280,26 @@ export class EntradaService {
     }
     return view.getFloat32(0, true); 
 }
+// // Função para salvar o Uint8Array em um arquivo
+// private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
+//   // Converte o Uint8Array para um Blob
+//   const blob = new Blob([bytes], { type: 'application/octet-stream' });
+  
+//   // Cria uma URL para o Blob
+//   const url = window.URL.createObjectURL(blob);
+
+//   // Cria um elemento de link para baixar o arquivo
+//   const a = document.createElement('a');
+//   a.href = url;
+//   a.download = fileName;
+//   document.body.appendChild(a);
+//   a.click(); // Dispara o clique para baixar o arquivo
+
+//   // Remove o elemento de link da página
+//   document.body.removeChild(a);
+
+//   // Libera a URL criada para o Blob
+//   window.URL.revokeObjectURL(url);
+// }
+
 }
