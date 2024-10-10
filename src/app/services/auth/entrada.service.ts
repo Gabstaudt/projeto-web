@@ -10,7 +10,7 @@ import { Tag } from '../../models/tag.model';
   providedIn: 'root'
 })
 export class EntradaService {
-  private apiUrl = 'http://10.20.96.221:8043/dados'; 
+  private apiUrl = 'http://172.74.0.154:8043/dados'; 
 
   constructor(private http: HttpClient) {}
 
@@ -37,6 +37,8 @@ export class EntradaService {
 
         const setores = this.parseSecondResponse(byteArray); 
         console.log('Setores processados:', setores); 
+        console.log('Lista completa de setores:', JSON.stringify(setores, null, 2));
+
 
         return setores; 
       }),
@@ -153,6 +155,9 @@ export class EntradaService {
 
       console.log("Array gráfico:", arrayGrafico);
 
+      console.log("--------------FINAL DE 1 LOOPING DE SETOR--------------")
+
+
 
       // quantidade de tags no setor
       const quantidadeTags = bytes[offset];
@@ -198,16 +203,16 @@ export class EntradaService {
         offset += 4;
         console.log("minimo", tag.min);
 
-        tag.subunidade = bytes[offset];
-        offset += 1;
-        console.log("subunidade", tag.subunidade);
-
         tag.status = bytes[offset];
         offset += 1;
         console.log("status", tag.status);
 
+        console.log("--------------FINAL DE 1 LOOPING DE TAG--------------")
+
         tags.push(tag); 
       }
+
+      console.log("---------------FINAL DO LOOPING DE TAGS-------")
 
       setor.tags = tags; 
       // quantidade de alarmes no setor
@@ -223,31 +228,46 @@ export class EntradaService {
 
         alarme.id = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
+        console.log("id do alarme", alarme.id);
 
         alarme.idTag = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
+        console.log("id tag de alarme", alarme.idTag);
 
         const nomeAlarmeLength = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
         alarme.nome = this.bytesToString(bytes.slice(offset, offset + nomeAlarmeLength));
         offset += nomeAlarmeLength;
+        console.log("tamanho do nome do alarme", nomeAlarmeLength);
+        console.log("nome do alarme", alarme.nome);
+
 
         const descricaoLength = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
         alarme.descricao = this.bytesToString(bytes.slice(offset, offset + descricaoLength)); 
         offset += descricaoLength;
+        console.log("tamanho da descrição do alarme", descricaoLength);
+        console.log("descrição alarme", alarme.descricao);
 
         alarme.tipo = bytes[offset]; 
         offset += 1;
+        console.log("tipo do alarme", alarme.tipo);
 
         alarme.valorEntrada = bytes[offset]; 
         offset += 4;
+        console.log("entrada alarme", alarme.valorEntrada);
 
         alarme.valorSaida = bytes[offset]; 
         offset += 4;
+        console.log("valor da saida do alarme", alarme.valorSaida);
+
 
         alarme.ativo = bytes[offset]; 
         offset += 1;
+        console.log ("atividade alarme", alarme.ativo);
+
+        console.log("--------------FINAL DE 1 LOOPING DE ALARME--------------")
+
 
         alarmes.push(alarme); // array de alarmes do setor
       }
@@ -282,13 +302,18 @@ export class EntradaService {
 
  
   private bytesToFloat(bytes: Uint8Array): number {
-    const buffer = new ArrayBuffer(4);
-    const view = new DataView(buffer);
-    for (let i = 0; i < 4; i++) {
-        view.setUint8(i, bytes[i]);
+    if (bytes.length !== 4) {
+        throw new Error('O array de bytes para conversão em float deve ter 4 bytes.');
     }
-    return view.getFloat32(0, true); 
+
+   
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    
+    
+    return view.getFloat32(0, false); 
 }
+
+
 // // Função para salvar o Uint8Array em um arquivo
 // private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
 //   // Converte o Uint8Array para um Blob

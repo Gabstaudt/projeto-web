@@ -7,7 +7,7 @@ export class Alarme {
   tipo: number;
   valorEntrada: number;
   valorSaida: number;
-  ativo: boolean;
+  ativo: number;
   adicionado: boolean;
   reconhecido: boolean;
   registrado: boolean;
@@ -21,7 +21,7 @@ export class Alarme {
     this.tipo = 0;
     this.valorEntrada = 0;
     this.valorSaida = 0;
-    this.ativo = false;
+    this.ativo = 0;
     this.adicionado = false;
     this.reconhecido = false;
     this.registrado = false;
