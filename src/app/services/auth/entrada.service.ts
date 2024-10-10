@@ -148,9 +148,8 @@ export class EntradaService {
 
       // Lê os bytes do array gráfico (tamanhoRealArrayGrafico é a quantidade total de bytes a serem lidos)
       for (let j = 0; j < tamanhoGrafico; j++) {
-          // Para cada elemento do array gráfico, lemos 2 bytes
           arrayGrafico[j] = (bytes[offset] << 8) | bytes[offset + 1]; 
-          offset += 2; // Atualiza o offset para os próximos 2 bytes
+          offset += 2; 
       }
 
       console.log("Array gráfico:", arrayGrafico);
