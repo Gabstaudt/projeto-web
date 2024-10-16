@@ -59,8 +59,7 @@ export class TerceiraRequisicaoService {
     return combined;
   }
 
-  // Função para processar a resposta da terceira requisição
-  // Função para processar a resposta da terceira requisição
+  
 private processarResposta(buffer: ArrayBuffer): any {
   let offset = 0; 
   const dataView = new DataView(buffer);
@@ -144,6 +143,15 @@ private processarResposta(buffer: ArrayBuffer): any {
       console.log('ids dos alarmes', idAlarme);
       console.log('tempo dos alarmes', tempoAlarme);
       alarmes.push({ id: idAlarme, tempo: new Date(tempoAlarme * 1000) }); // Converte Unix para Data
+    }
+    const quantidadeBytesAlarmes = Math.ceil(quantidadeAlarmes / 8);
+    const valoresAlarmes: boolean[] = [];
+    for (let j = 0; j < quantidadeBytesAlarmes; j++) {
+      const byteValores = dataView.getUint8(offset); // Lê um byte de valores booleanos
+      offset += 1;
+      for (let bit = 0; bit < 8 && (j * 8 + bit) < quantidadeAlarmes; bit++) {
+        valoresAlarmes.push((byteValores & (1 << bit)) !== 0); // Extrai o bit e converte para boolean
+      }
     }
 
     // Adiciona os dados do setor ao array de setores

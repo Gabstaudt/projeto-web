@@ -137,8 +137,7 @@ export class AuthService {
 
     // leitura do nome de usuário recebido com o comprimento especificado nos 2 bytes anteriores
     const NomeUsuario = this.bytesToString(bytes.slice(offset, offset + nomeUsuarioLength));
-    offset += nomeUsuarioLength; // Avança o deslocamento 
-
+    offset += nomeUsuarioLength; 
     // 4 bytes: PrivilegioUsuario 
     const PrivilegioUsuario = this.bytesToInt32(bytes.slice(offset, offset + 4));
     offset += 4;

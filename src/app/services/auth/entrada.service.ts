@@ -1,18 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { Alarme } from '../../models/alarme.model';
 import { Setor } from '../../models/setor.model';
 import { Tag } from '../../models/tag.model';
+import {TerceiraRequisicaoService} from '../authdados/dados.service'
 
 @Injectable({
   providedIn: 'root'
 })
 export class EntradaService {
-  private apiUrl = 'http://172.74.0.154:8043/dados'; 
+  private apiUrl = 'http://172.74.0.167:8043/dados'; 
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,
+    private TerceiraRequisicaoService: TerceiraRequisicaoService 
+  ) {}
 
   // Função para fazer a segunda requisição, recebendo a Sessão ID como parâmetro
   fazerSegundaRequisicao(sessaoId: string): Observable<any> {
@@ -42,7 +45,12 @@ export class EntradaService {
 
         return setores; 
       }),
-
+      switchMap(setores => {
+        console.log('Chamando a terceira requisição após a segunda');
+        return this.TerceiraRequisicaoService.enviarComandoSalvar(sessaoId);  // Chama a terceira requisição aqui
+      }),
+      
+     
       
       catchError(error => {
         console.error('Erro ao fazer a segunda requisição', error); 
@@ -211,7 +219,7 @@ export class EntradaService {
         tags.push(tag); 
       }
 
-      console.log("---------------FINAL DO LOOPING DE TAGS-------")
+      console.log("---------------FINAL DO LOOPING DE TAGS------------")
 
       setor.tags = tags; 
       // quantidade de alarmes no setor
