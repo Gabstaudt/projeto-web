@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable, throwError, interval } from 'rxjs';
+import { catchError, map, switchMap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TerceiraRequisicaoService {
+
   private apiUrl = 'http://172.74.0.167:8043/dados'; 
+ // private intervaloRequisicao = 60000;
 
   constructor(private http: HttpClient) {}
 
@@ -28,6 +30,14 @@ export class TerceiraRequisicaoService {
       })
     );
   }
+//função para atualizar // realizar a requisição de novo
+  // iniciarRequisicoesPeriodicas(sessaoId:string): Observable<any>{
+  //   return interval (this.intervaloRequisicao).pipe(
+  //     switchMap(()=>
+  //     this.enviarComandoSalvar(sessaoId))
+  //   );
+  //   }
+  
 
   // Função para gerar os bytes 
   private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoLerDados: number): ArrayBuffer {
