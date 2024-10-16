@@ -17,7 +17,7 @@ export class EntradaService {
     private TerceiraRequisicaoService: TerceiraRequisicaoService 
   ) {}
 
-  // Função para fazer a segunda requisição, recebendo a Sessão ID como parâmetro
+  // Função para fazer a segunda requisição, recebendo a Sessão ID como parâmetro ---  redefinir na pasta entrada depois para receber o id
   fazerSegundaRequisicao(sessaoId: string): Observable<any> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }); 
 
@@ -28,9 +28,9 @@ export class EntradaService {
     // Construir os bytes da requisição
     const body = this.gerarBytesRequisicao(sessaoId, comandoSupervisao, comandoEstrutura);
    
-    console.log('Corpo da requisição (bytes):', body);
+  
 
-    //requisição POST
+   
     return this.http.post(this.apiUrl, body, { headers, responseType: 'arraybuffer' }).pipe(
       
       // Manipulação da resposta
@@ -47,7 +47,7 @@ export class EntradaService {
       }),
       switchMap(setores => {
         console.log('Chamando a terceira requisição após a segunda');
-        return this.TerceiraRequisicaoService.enviarComandoSalvar(sessaoId);  // Chama a terceira requisição aqui
+        return this.TerceiraRequisicaoService.enviarComandoSalvar(sessaoId);  // Chama a terceira requisição 
       }),
       
      

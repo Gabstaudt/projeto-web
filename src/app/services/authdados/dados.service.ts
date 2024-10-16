@@ -7,11 +7,11 @@ import { catchError, map } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class TerceiraRequisicaoService {
-  private apiUrl = 'http://172.74.0.167:8043/dados'; // URL da terceira requisição
+  private apiUrl = 'http://172.74.0.167:8043/dados'; 
 
   constructor(private http: HttpClient) {}
 
-  // Função para enviar a terceira requisição
+  // Função para enviar a  requisição
   enviarComandoSalvar(sessaoId: string): Observable<any> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
     const comandoSupervisao = 254;
@@ -29,7 +29,7 @@ export class TerceiraRequisicaoService {
     );
   }
 
-  // Função para gerar os bytes da terceira requisição
+  // Função para gerar os bytes 
   private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoLerDados: number): ArrayBuffer {
     const sessaoIdBytes = this.encodeWithLength(sessaoId);
     const comandoSupervisaoBytes = new Uint8Array([comandoSupervisao]);
@@ -80,22 +80,22 @@ private processarResposta(buffer: ArrayBuffer): any {
 
   // Laço 1: Processa cada setor
   for (let i = 0; i < quantidadeSetores; i++) {
-    const idSetor = dataView.getUint16(offset); // Lê o ID do setor
+    const idSetor = dataView.getUint16(offset); 
     offset += 2;
 
-    const tempoInformacao = Number(dataView.getBigUint64(offset)); // Lê o tempo da informação (Unix)
+    const tempoInformacao = Number(dataView.getBigUint64(offset)); // (Unix)
     offset += 8;
 
-    const status = dataView.getUint8(offset); // Lê o status
+    const status = dataView.getUint8(offset); 
     offset += 1;
 
-    const quantidadeInteiros = dataView.getUint8(offset); // Lê a quantidade de inteiros
+    const quantidadeInteiros = dataView.getUint8(offset); 
     offset += 1;
 
-    const quantidadeBooleanos = dataView.getUint8(offset); // Lê a quantidade de booleanos
+    const quantidadeBooleanos = dataView.getUint8(offset); 
     offset += 1;
 
-    const quantidadeAlarmes = dataView.getUint8(offset); // Lê a quantidade de alarmes
+    const quantidadeAlarmes = dataView.getUint8(offset); 
     offset += 1;
 
     // Arrays para armazenar os dados processados
@@ -105,9 +105,9 @@ private processarResposta(buffer: ArrayBuffer): any {
 
     // Laço 2: Processa as tags inteiras
     for (let j = 0; j < quantidadeInteiros; j++) {
-      const idTagInteira = dataView.getUint16(offset); // Lê o ID da tag inteira
+      const idTagInteira = dataView.getUint16(offset); 
       offset += 2;
-      const valorTagInteira = dataView.getUint32(offset); // Lê o valor da tag inteira
+      const valorTagInteira = dataView.getUint32(offset); 
       offset += 4;
       console.log('id das tags inteiras', idTagInteira);
       console.log('valor das tags inteiras', valorTagInteira);
@@ -117,7 +117,7 @@ private processarResposta(buffer: ArrayBuffer): any {
 
     // Laço 3: Processa as tags booleanas (somente o ID)
     for (let j = 0; j < quantidadeBooleanos; j++) {
-      const idTagBooleana = dataView.getUint16(offset); // Lê o ID da tag booleana
+      const idTagBooleana = dataView.getUint16(offset);
       offset += 2;
       console.log('id das tags booleanas', idTagBooleana);
       booleanos.push({ id: idTagBooleana });
@@ -136,9 +136,9 @@ private processarResposta(buffer: ArrayBuffer): any {
 
     // Laço 5: Processa os alarmes (ID e tempo)
     for (let j = 0; j < quantidadeAlarmes; j++) {
-      const idAlarme = dataView.getUint16(offset); // Lê o ID do alarme
+      const idAlarme = dataView.getUint16(offset); 
       offset += 2;
-      const tempoAlarme = Number(dataView.getBigUint64(offset)); // Lê o tempo do alarme (Unix)
+      const tempoAlarme = Number(dataView.getBigUint64(offset)); // (Unix)
       offset += 8;
       console.log('ids dos alarmes', idAlarme);
       console.log('tempo dos alarmes', tempoAlarme);
@@ -147,10 +147,10 @@ private processarResposta(buffer: ArrayBuffer): any {
     const quantidadeBytesAlarmes = Math.ceil(quantidadeAlarmes / 8);
     const valoresAlarmes: boolean[] = [];
     for (let j = 0; j < quantidadeBytesAlarmes; j++) {
-      const byteValores = dataView.getUint8(offset); // Lê um byte de valores booleanos
+      const byteValores = dataView.getUint8(offset); 
       offset += 1;
       for (let bit = 0; bit < 8 && (j * 8 + bit) < quantidadeAlarmes; bit++) {
-        valoresAlarmes.push((byteValores & (1 << bit)) !== 0); // Extrai o bit e converte para boolean
+        valoresAlarmes.push((byteValores & (1 << bit)) !== 0); // Extrai o bit
       }
     }
 
@@ -166,6 +166,6 @@ private processarResposta(buffer: ArrayBuffer): any {
     });
   }
 
-  return setores; // Retorna os dados processados dos setores
+  return setores; 
 }
 }

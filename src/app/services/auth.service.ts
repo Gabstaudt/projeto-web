@@ -8,7 +8,7 @@ import{EntradaService} from '../services/auth/entrada.service';
 
 // o que a interface irá receber de login
 interface LoginResponse {
-  respostaOK: number;          //resposta 200 OK
+  respostaOK: number;          
   IdUsuario: number;           
   NomeUsuario: string;         
   PrivilegioUsuario: number;  
@@ -24,7 +24,7 @@ interface LoginResponse {
 })
 export class AuthService {
  
-  private apiUrl = 'http://10.20.96.221:8043/dados';
+  private apiUrl = 'http://172.74.0.167:8043/dados';
 
   constructor(
     private http: HttpClient,
@@ -34,10 +34,10 @@ export class AuthService {
 
   // realizar o login, recebendo usuário e senha
   login(username: string, password: string): Observable<LoginResponse> {
-    const AppCommand = 240;   // Comando da aplicação - fixo
-    const Plataform = 3;      // Plataforma do dispositivo - fixo
-    const Version = 1;        // Versão da aplicação - fixo 
-    const GadjetID = biri();  // id único gerado pela biblioteca biri
+    const AppCommand = 240;   
+    const Plataform = 3;      
+    const Version = 1;        
+    const GadjetID = biri();  
 
     // cabeçalho para a requisição HTTP
     const headers = new HttpHeaders({
@@ -46,7 +46,7 @@ export class AuthService {
 
 
     const salt = 'super teste do carai';
-    const passwordHash = this.encryptPassword(password, salt); // Criptografa a senha
+    const passwordHash = this.encryptPassword(password, salt); 
 
     // Converte os comandos e parâmetros em arrays de bytes
     const appCommandBytes = this.numberToBytes({ num: AppCommand }).subarray(3);
@@ -67,7 +67,7 @@ export class AuthService {
     );
 
     // Preenche o array combinado com os bytes individuais
-    let offset = 0; // Inicializa o deslocamento
+    let offset = 0; 
 
     combinedBytes.set(appCommandBytes, offset);
     offset += appCommandBytes.length;
@@ -89,7 +89,7 @@ export class AuthService {
         // Chama a função para interpretar os bytes da resposta
         const parsedResponse = this.parseLoginResponse(byteArray);
         
-        // Armazena os dados no localstorage
+        // Armazenamento no LocalStorage
         if (parsedResponse) {
           localStorage.setItem('SessaoID', parsedResponse.SessaoID);
           localStorage.setItem('IdUsuario', parsedResponse.IdUsuario.toString());
@@ -101,11 +101,12 @@ export class AuthService {
           localStorage.setItem('AcessoEmpresa2', parsedResponse.AcessoEmpresa2.toString());
         }
 
-        return parsedResponse; // Retorna a resposta analisada
+        return parsedResponse; 
       }),
       switchMap((loginResponse: any) => { 
         const sessaoId = localStorage.getItem('SessaoID');
         if (sessaoId) {
+
           // Faz a segunda requisição no EntradaService
           return this.entradaService.fazerSegundaRequisicao(sessaoId);
         }
@@ -113,7 +114,7 @@ export class AuthService {
       }),
       
       catchError(error => {
-        console.error('Erro ao fazer login', error); // Loga o erro no console
+        console.error('Erro ao fazer login', error);
         return throwError(() => error); 
       })
     );
@@ -121,7 +122,7 @@ export class AuthService {
 
   //------------ Função para interpretar os bytes da resposta do login-------------
   private parseLoginResponse(bytes: Uint8Array): LoginResponse {
-    let offset = 0; // Inicializa o deslocamento
+    let offset = 0; 
 
     // 1 byte: respostaOK - status da resposta -- que sempre vai ser 200 OK
     const respostaOK = bytes[offset];
@@ -200,7 +201,7 @@ export class AuthService {
 
   // Função para codificar uma string com o comprimento em bytes
   private encodeWithLength(str: string): Uint8Array {
-    const stringBytes = new TextEncoder().encode(str); // Converte a string em bytes
+    const stringBytes = new TextEncoder().encode(str);
     const length = stringBytes.length; // Obtém o comprimento da string
 
     // Cria um array para armazenar o comprimento em 2 bytes
@@ -212,7 +213,7 @@ export class AuthService {
     const combined = new Uint8Array(lengthBytes.length + stringBytes.length);
     combined.set(lengthBytes, 0); // Adiciona os bytes do comprimento
     combined.set(stringBytes, lengthBytes.length); // Adiciona os bytes da string
-    return combined; // Retorna o array combinado
+    return combined; 
   }
 
   // Função para converter um número em um array de 4 bytes
@@ -221,7 +222,7 @@ export class AuthService {
     for (let i = 0; i < 4; i++) {
       byteArray[3 - i] = (num >> (i * 8)) & 0xff; 
     }
-    return byteArray; // Retorna o array de bytes
+    return byteArray; 
   }
 
   // Função para converter a versão em um array de 2 bytes
@@ -229,6 +230,6 @@ export class AuthService {
     const byteArray = new Uint8Array(2);
     byteArray[0] = (version >> 8) & 0xff; 
     byteArray[1] = version & 0xff;       
-    return byteArray; // Retorna o array de bytes
+    return byteArray;
   }
 }
