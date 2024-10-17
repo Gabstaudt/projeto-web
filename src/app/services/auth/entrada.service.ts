@@ -285,6 +285,8 @@ export class EntradaService {
       setores.push(setor);
     }
     this.listaGlobal = setores;
+    this.atualizarListaGlobal(setores);
+
 
     console.log("Lista global :", this.listaGlobal);
     console.log("Lista de setor", setores)
@@ -324,6 +326,64 @@ export class EntradaService {
     
     
     return view.getFloat32(0, false); 
+}
+private atualizarListaGlobal(setoresRecebidos: Setor[]): void {
+  setoresRecebidos.forEach(novoSetor => {
+    // Procura o setor na lista global
+    const indiceExistente = this.listaGlobal.findIndex(setor => setor.id === novoSetor.id);
+
+    if (indiceExistente !== -1) {
+      // Atualiza o setor existente
+      const setorExistente = this.listaGlobal[indiceExistente];
+      setorExistente.status = novoSetor.status; // Atualiza o status
+      setorExistente.ultimoTempo = novoSetor.ultimoTempo; // Atualiza o último tempo
+      
+      // Atualiza tags
+      novoSetor.tags.forEach(novaTag => {
+        const indiceTagExistente = setorExistente.tags.findIndex(tag => tag.id === novaTag.id);
+        if (indiceTagExistente !== -1) {
+          // Atualiza a tag existente
+          const tagExistente = setorExistente.tags[indiceTagExistente];
+          tagExistente.leituraInt = novaTag.leituraInt; // Atualiza a leitura inteira
+          tagExistente.leituraBool = novaTag.leituraBool; // Atualiza a leitura booleana
+        }
+      });
+
+      // Atualiza alarmes
+      novoSetor.alarmes.forEach(novoAlarme => {
+        const indiceAlarmeExistente = setorExistente.alarmes.findIndex(alarme => alarme.id === novoAlarme.id);
+        if (indiceAlarmeExistente !== -1) {
+          // Atualiza o alarme existente
+          const alarmeExistente = setorExistente.alarmes[indiceAlarmeExistente];
+          alarmeExistente.tempo = novoAlarme.tempo; // Atualiza o tempo
+        }
+      });
+    }
+  });
+
+  
+  
+  this.listaGlobal.forEach(setor => {
+    console.log("ID do Setor:ATUALIZAÇÃO DO SERVICE", setor.id);
+    console.log("Status do SetorATUALIZAÇÃO DO SERVICE:", setor.status);
+    console.log("Último Tempo do Setor:ATUALIZAÇÃO DO SERVICE", setor.ultimoTempo);
+    
+    // Exibir tags
+    console.log("Tags ATUALIZAÇÃO DO SERVICE:");
+    setor.tags.forEach(tag => {
+      console.log(`  IDATUALIZAÇÃO DO SERVICE: ${tag.id}, Leitura Int: ${tag.leituraInt}, Leitura Bool: ${tag.leituraBool}`);
+    });
+
+    // Exibir alarmes
+    console.log("AlarmesATUALIZAÇÃO DO SERVICE:");
+    setor.alarmes.forEach(alarme => {
+      console.log(`  ATUALIZAÇÃO DO SERVICEID: ${alarme.id}, Tempo: ${alarme.tempo}`);
+    });
+
+    console.log('-----------------------------------'); 
+  });
+
+  console.log("Lista global atualizada--- entrada servs:", this.listaGlobal);
 }
 
 
