@@ -175,7 +175,7 @@ private processarResposta(buffer: ArrayBuffer): any {
       alarmes: alarmes
     });
   }
-
+console.log("setores recebids", setores)
   return setores; 
 }
 }

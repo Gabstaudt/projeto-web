@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Alarme } from '../../models/alarme.model';
 import { Setor } from '../../models/setor.model';
@@ -12,6 +12,8 @@ import {TerceiraRequisicaoService} from '../authdados/dados.service'
 })
 export class EntradaService {
   private apiUrl = 'http://172.74.0.167:8043/dados'; 
+  
+  listaGlobal: Setor[] = []; 
 
   constructor(private http: HttpClient,
     private TerceiraRequisicaoService: TerceiraRequisicaoService 
@@ -47,7 +49,7 @@ export class EntradaService {
       }),
       switchMap(setores => {
         console.log('Chamando a terceira requisição após a segunda');
-        return this.TerceiraRequisicaoService.enviarComandoSalvar(sessaoId);  // Chama a terceira requisição 
+        return this.TerceiraRequisicaoService.enviarComandoSalvar(sessaoId);  // Chama a terceira requisição aqui
       }),
       
      
@@ -282,6 +284,10 @@ export class EntradaService {
       setor.alarmes = alarmes;
       setores.push(setor);
     }
+    this.listaGlobal = setores;
+
+    console.log("Lista global :", this.listaGlobal);
+    console.log("Lista de setor", setores)
 
     return setores; 
   }
