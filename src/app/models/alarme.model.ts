@@ -11,6 +11,7 @@ export class Alarme {
   adicionado: boolean;
   reconhecido: boolean;
   registrado: boolean;
+  tempo: Date;
 
   constructor() {
     this.id = 0;
@@ -25,5 +26,7 @@ export class Alarme {
     this.adicionado = false;
     this.reconhecido = false;
     this.registrado = false;
+    this.tempo = new Date();
+
   }
 }
