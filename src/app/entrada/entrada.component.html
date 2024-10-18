@@ -1,6 +1,8 @@
 <header>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </header>
 
@@ -12,14 +14,15 @@
         <li><a href="#">Opção 1</a></li>
         <li><a href="#">Opção 2</a></li>
         <li><a href="#">Opção 3</a></li>
-        <button class = "requisicao" (click)="fazerRequisicaoTeste()">Enviar Requisição de Teste</button>
-        
+        <li>
+          <button class="requisicao" (click)="fazerRequisicaoTeste()">Enviar Requisição de Teste</button>
+        </li>
       </ul>
     </nav>
   </aside>
 
   <main class="map-container">
     <div id="map"></div>
-
+    
   </main>
 </div>
