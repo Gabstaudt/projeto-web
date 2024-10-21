@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet'; // Importação do Leaflet para o mapa
 import { EntradaService } from '../services/auth/entrada.service';
-import { Alarme } from '../models/alarme.model';
 import { Setor } from '../models/setor.model';
-import { Tag } from '../models/tag.model';
 
 @Component({
   selector: 'app-entrada',
@@ -11,45 +9,55 @@ import { Tag } from '../models/tag.model';
   styleUrls: ['./entrada.component.scss']
 })
 export class EntradaComponent implements OnInit {
-  
-  
-  constructor(private entradaService: EntradaService) {}
-  map!: L.Map; 
+  private map: any;
+  private setores: Setor[] = []; 
 
-  // Array 
-  coordinates: { name: string; lat: number; lng: number }[] = [
-    { name: 'ATNT', lat: -15.7801, lng: -47.9292 },
-    { name: 'ADAS', lat: -15.7801, lng: -47.9292},
-    { name: 'ADAS', lat: -15.7801, lng: -47.9292 },
-    { name: 'SADAS', lat: -15.7801, lng: -47.9292 }
-  ];
+  constructor(private entradaService: EntradaService) {}
 
   ngOnInit(): void {
-    this.initMap();
+    this.iniciarMapa();
+    this.carregarSetores();
   }
 
-  initMap(): void {
-    this.map = L.map('map').setView([-15.7801, -47.9292], 4); 
-
+  private iniciarMapa(): void {
+    this.map = L.map('map').setView([-1.4558300, -48.5044400], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(this.map);
+  }
 
-    // marcadores para cada coordenada
-    this.coordinates.forEach(coord => {
-      this.addMarker(coord.lat, coord.lng, coord.name);
+  private carregarSetores(): void {
+    const sessaoId = this.gerarSessaoId();
+
+    this.entradaService.fazerSegundaRequisicao(sessaoId).subscribe(
+      (resposta: ArrayBuffer) => {
+        console.log('Resposta recebida da requisição:', resposta); // Log da resposta
+        const arrayBufferView = new Uint8Array(resposta);
+        console.log('ArrayBuffer convertido:', arrayBufferView); // Log do arrayBuffer
+
+        this.setores = this.entradaService.parseSecondResponse(arrayBufferView);
+        console.log('Setores recebidos:', this.setores); // Verifique a estrutura de setores
+
+        this.adicionarPontosNoMapa(this.setores);
+      },
+      error => {
+        console.error('Erro ao carregar setores:', error);
+      }
+    );
+  }
+
+  private adicionarPontosNoMapa(setores: Setor[]): void {
+    setores.forEach(setor => {
+      const lat = setor.latitude;
+      const lng = setor.longitude;
+
+      if (lat && lng) {
+        const marker = L.marker([lat, lng]).addTo(this.map);
+        marker.bindPopup(`<b>Setor ID:</b> ${setor.id}<br><b>Status:</b> ${setor.status}`).openPopup();
+      }
     });
   }
-
-  // adicionar um marcador ao mapa
-  addMarker(lat: number, lng: number, name: string): void {
-    const marker = L.marker([lat, lng]).addTo(this.map);
-    marker.bindPopup(name); // Exibe o nome no popup
-  }
-
-
-  /////////////////////////////////////////////////////////////////////////
+  
   // sessão id tanto fazz
   gerarSessaoId(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
