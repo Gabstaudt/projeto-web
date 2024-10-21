@@ -15,12 +15,22 @@ export class EntradaService {
   
   listaGlobal: Setor[] = []; 
 
+  private setoresSubject = new BehaviorSubject<Setor[]>([]);
+  setores$=this.setoresSubject.asObservable();
+
   constructor(private http: HttpClient,
     private TerceiraRequisicaoService: TerceiraRequisicaoService 
   ) {}
+  
+  public carregarSetores(sessaoId:string): void{
+    this.fazerSegundaRequisicao(sessaoId).subscribe(
+      (setores)=> this.setoresSubject.next(setores),
+      (error)=> console.error('Erro ao carregar setores:', error)
+    );
+  }
 
   // Função para fazer a segunda requisição, recebendo a Sessão ID como parâmetro ---  redefinir na pasta entrada depois para receber o id
-  fazerSegundaRequisicao(sessaoId: string): Observable<any> {
+  public fazerSegundaRequisicao(sessaoId: string): Observable<any> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }); 
 
     
@@ -77,7 +87,7 @@ export class EntradaService {
   }
 
   // interpretar os bytes da resposta 
-  private parseSecondResponse(bytes: Uint8Array): Setor[] {
+  public parseSecondResponse(bytes: Uint8Array): Setor[] {
     let offset = 0; 
 
     // this.saveBytesToFile(bytes, 'resposta.bin');
@@ -387,7 +397,7 @@ private atualizarListaGlobal(setoresRecebidos: Setor[]): void {
 }
 
 
-// // Função para salvar o Uint8Array em um arquivo
+// // // Função para salvar o Uint8Array em um arquivo
 // private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
 //   // Converte o Uint8Array para um Blob
 //   const blob = new Blob([bytes], { type: 'application/octet-stream' });

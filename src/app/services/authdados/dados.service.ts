@@ -72,6 +72,8 @@ export class TerceiraRequisicaoService {
   }
 
   private processarResposta(buffer: ArrayBuffer): any {
+    this.saveBytesToFile(new Uint8Array(buffer), 'respostadaterceira.bin'); // Aqui é onde salvamos a resposta
+
     let offset = 0; 
     const dataView = new DataView(buffer);
 
@@ -198,5 +200,25 @@ export class TerceiraRequisicaoService {
       }
     });
     console.log("Lista global atualizada:", this.setoresGlobais);
+  }
+  private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
+    // Converte o Uint8Array para um Blob
+    const blob = new Blob([bytes], { type: 'application/octet-stream' });
+    
+    // Cria uma URL para o Blob
+    const url = window.URL.createObjectURL(blob);
+  
+    // Cria um elemento de link para baixar o arquivo
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click(); // Dispara o clique para baixar o arquivo
+  
+    // Remove o elemento de link da página
+    document.body.removeChild(a);
+  
+    // Libera a URL criada para o Blob
+    window.URL.revokeObjectURL(url);
   }
 }
