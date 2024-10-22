@@ -28,22 +28,25 @@ export class EntradaComponent implements OnInit {
 
   private carregarSetores(): void {
     const sessaoId = this.gerarSessaoId();
-
+  
     this.entradaService.fazerSegundaRequisicao(sessaoId).subscribe(
       (resposta: ArrayBuffer) => {
-        console.log('Resposta recebida da requisição:', resposta); // Log da resposta
+        console.log('Resposta recebida da requisição:', resposta);
         const arrayBufferView = new Uint8Array(resposta);
-        console.log('ArrayBuffer convertido:', arrayBufferView); // Log do arrayBuffer
-
-        this.setores = this.entradaService.parseSecondResponse(arrayBufferView);
-        console.log('Setores recebidos:', this.setores); // Verifique a estrutura de setores
-
-        this.adicionarPontosNoMapa(this.setores);
+        console.log("array buffer convertid", arrayBufferView)
+  
+        // Atualiza a lista de setores no serviço
+        this.entradaService.parseSecondResponse(arrayBufferView);
       },
       error => {
         console.error('Erro ao carregar setores:', error);
       }
     );
+
+    // Se inscreve nas atualizações da lista de setores
+    this.entradaService.setores$.subscribe(setores => {
+      this.adicionarPontosNoMapa(setores);
+    });
   }
 
   private adicionarPontosNoMapa(setores: Setor[]): void {
@@ -51,13 +54,20 @@ export class EntradaComponent implements OnInit {
       const lat = setor.latitude;
       const lng = setor.longitude;
 
-      if (lat && lng) {
+      console.log(`Adicionando ponto para o Setor ID ${setor.id}: lat=${lat}, lng=${lng}`);
+
+      if (this.isValido(lat) && this.isValido(lng)) {
         const marker = L.marker([lat, lng]).addTo(this.map);
         marker.bindPopup(`<b>Setor ID:</b> ${setor.id}<br><b>Status:</b> ${setor.status}`).openPopup();
+      } else {
+        console.warn(`Coordenadas inválidas para o Setor ID ${setor.id}`);
       }
     });
   }
-  
+
+  private isValido(coordenada: number): boolean {
+    return typeof coordenada === 'number' && !isNaN(coordenada);
+  }
   // sessão id tanto fazz
   gerarSessaoId(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

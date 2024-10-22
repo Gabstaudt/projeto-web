@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, interval} from 'rxjs';
 import { catchError, map, switchMap} from 'rxjs/operators';
+import { EntradaService } from '../auth/entrada.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +10,18 @@ import { catchError, map, switchMap} from 'rxjs/operators';
 export class TerceiraRequisicaoService {
   private apiUrl = 'http://172.74.0.167:8043/dados'; 
   private setoresGlobais: any[] = []; // Lista global de setores
- private intervaloRequisicao = 60000 ;
-  constructor(private http: HttpClient) {}
+  private intervaloRequisicao = 60000 ;
+  private entradaService?: EntradaService;
+  constructor(
+    private injector: Injector,
+    private http: HttpClient) {}
+
+    private getEntradaService(): EntradaService {
+      if (!this.entradaService) {
+        this.entradaService = this.injector.get(EntradaService);
+      }
+      return this.entradaService;
+    }
 
   //-------------------------------------------- Função para enviar a requisição ----------------------------------------------------------------
   enviarComandoSalvar(sessaoId: string): Observable<any> {
@@ -187,20 +198,24 @@ export class TerceiraRequisicaoService {
     return setores; 
   }
 
-  private atualizarSetoresGlobais(setoresRecebidos: any[]): void {
+  public atualizarSetoresGlobais(setoresRecebidos: any[]): void {
+    const listaGlobal = this.getEntradaService().listaGlobal; // Acessando a listaGlobal
+
     setoresRecebidos.forEach(setor => {
-      // Verifica se o setor já existe na lista global
-      const setorExistente = this.setoresGlobais.find(s => s.id === setor.id);
+      const setorExistente = listaGlobal.find((s: any) => s.id === setor.id);
+      
       if (setorExistente) {
-        // Atualiza o setor existente
         Object.assign(setorExistente, setor);
       } else {
-        // Adiciona novo setor à lista global
-        this.setoresGlobais.push(setor);
+        console.log(`Setor com ID ${setor.id} não encontrado na lista global.`);
       }
     });
-    console.log("Lista global atualizada:", this.setoresGlobais);
+
+    console.log("Lista global atualizada:", listaGlobal);
   }
+
+  
+  
   private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
     // Converte o Uint8Array para um Blob
     const blob = new Blob([bytes], { type: 'application/octet-stream' });

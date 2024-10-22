@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { Alarme } from '../../models/alarme.model';
 import { Setor } from '../../models/setor.model';
 import { Tag } from '../../models/tag.model';
@@ -13,15 +13,17 @@ import {TerceiraRequisicaoService} from '../authdados/dados.service'
 export class EntradaService {
   private apiUrl = 'http://172.74.0.167:8043/dados'; 
   
-  listaGlobal: Setor[] = []; 
+  public listaGlobal: Setor[] = []; 
 
   private setoresSubject = new BehaviorSubject<Setor[]>([]);
-  setores$=this.setoresSubject.asObservable();
+  setores$ = this.setoresSubject.asObservable();
 
   constructor(private http: HttpClient,
     private TerceiraRequisicaoService: TerceiraRequisicaoService 
   ) {}
+
   
+ 
   public carregarSetores(sessaoId:string): void{
     this.fazerSegundaRequisicao(sessaoId).subscribe(
       (setores)=> this.setoresSubject.next(setores),
