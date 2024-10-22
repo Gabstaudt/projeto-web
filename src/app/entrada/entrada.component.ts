@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet'; // Importação do Leaflet para o mapa
 import { EntradaService } from '../services/auth/entrada.service';
 import { Setor } from '../models/setor.model';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-entrada',
@@ -10,9 +11,11 @@ import { Setor } from '../models/setor.model';
 })
 export class EntradaComponent implements OnInit {
   private map: any;
-  private setores: Setor[] = []; 
+  public setores$: Observable<Setor[]>;
 
-  constructor(private entradaService: EntradaService) {}
+  constructor(private entradaService: EntradaService) {
+    this.setores$ = this.entradaService.setores$;
+  }
 
   ngOnInit(): void {
     this.iniciarMapa();
@@ -31,31 +34,32 @@ export class EntradaComponent implements OnInit {
   
     this.entradaService.fazerSegundaRequisicao(sessaoId).subscribe(
       (resposta: ArrayBuffer) => {
-        console.log('Resposta recebida da requisição:', resposta);
+        console.log('Resposta recebida da requisição:', resposta); // Log da resposta
         const arrayBufferView = new Uint8Array(resposta);
-        console.log("array buffer convertid", arrayBufferView)
+        console.log('ArrayBuffer convertido:', arrayBufferView); // Log do arrayBuffer
   
-        // Atualiza a lista de setores no serviço
-        this.entradaService.parseSecondResponse(arrayBufferView);
+        // Aqui você deve garantir que o retorno é do tipo Setor[]
+        this.entradaService.parseSecondResponse(arrayBufferView); // Chama a função para atualizar setores
+
+        // Adiciona pontos no mapa após os setores serem atualizados
+        this.setores$.subscribe(setores => {
+          this.adicionarPontosNoMapa(setores);
+        });
       },
       error => {
         console.error('Erro ao carregar setores:', error);
       }
     );
-
-    // Se inscreve nas atualizações da lista de setores
-    this.entradaService.setores$.subscribe(setores => {
-      this.adicionarPontosNoMapa(setores);
-    });
   }
 
   private adicionarPontosNoMapa(setores: Setor[]): void {
     setores.forEach(setor => {
       const lat = setor.latitude;
       const lng = setor.longitude;
-
+  
+      // Log para verificar os valores de latitude e longitude
       console.log(`Adicionando ponto para o Setor ID ${setor.id}: lat=${lat}, lng=${lng}`);
-
+  
       if (this.isValido(lat) && this.isValido(lng)) {
         const marker = L.marker([lat, lng]).addTo(this.map);
         marker.bindPopup(`<b>Setor ID:</b> ${setor.id}<br><b>Status:</b> ${setor.status}`).openPopup();
@@ -68,6 +72,8 @@ export class EntradaComponent implements OnInit {
   private isValido(coordenada: number): boolean {
     return typeof coordenada === 'number' && !isNaN(coordenada);
   }
+
+
   // sessão id tanto fazz
   gerarSessaoId(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

@@ -302,7 +302,8 @@ export class EntradaService {
 
     console.log("Lista global :", this.listaGlobal);
     console.log("Lista de setor", setores)
-
+    
+    this.setoresSubject.next(setores); 
     return setores; 
   }
 
