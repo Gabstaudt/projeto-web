@@ -5,6 +5,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import CryptoJS from 'crypto-js';
 import biri from 'biri';
 import{EntradaService} from '../services/auth/entrada.service';
+import {encodeWithLength,} from '../utils/encoder.utils';
 
 // o que a interface irá receber de login
 interface LoginResponse {
@@ -52,9 +53,9 @@ export class AuthService {
     const appCommandBytes = this.numberToBytes({ num: AppCommand }).subarray(3);
     const plataformBytes = this.numberToBytes({ num: Plataform }).subarray(3);
     const versionBytes = this.versionToBytes(Version);
-    const gadjetIDBytes = this.encodeWithLength(GadjetID);
-    const usernameBytes = this.encodeWithLength(username);
-    const passwordBytes = this.encodeWithLength(passwordHash);
+    const gadjetIDBytes = encodeWithLength(GadjetID);  
+    const usernameBytes = encodeWithLength(username);  
+    const passwordBytes = encodeWithLength(passwordHash);
 
     // Combina todos os arrays de bytes em um único array
     const combinedBytes = new Uint8Array(
@@ -198,24 +199,6 @@ export class AuthService {
     const hash = CryptoJS.SHA256(saltedPassword); // Gera o hash usando SHA256
     return CryptoJS.enc.Base64.stringify(hash); // Retorna o hash em formato Base64
   }
-
-  // Função para codificar uma string com o comprimento em bytes
-  private encodeWithLength(str: string): Uint8Array {
-    const stringBytes = new TextEncoder().encode(str);
-    const length = stringBytes.length; // Obtém o comprimento da string
-
-    // Cria um array para armazenar o comprimento em 2 bytes
-    const lengthBytes = new Uint8Array(2);
-    lengthBytes[0] = (length >> 8) & 0xff; //byte alto
-    lengthBytes[1] = length & 0xff;       
-
-    // Combina os bytes do comprimento e da string
-    const combined = new Uint8Array(lengthBytes.length + stringBytes.length);
-    combined.set(lengthBytes, 0); // Adiciona os bytes do comprimento
-    combined.set(stringBytes, lengthBytes.length); // Adiciona os bytes da string
-    return combined; 
-  }
-
   // Função para converter um número em um array de 4 bytes
   private numberToBytes({ num }: { num: number; }): Uint8Array {
     const byteArray = new Uint8Array(4);

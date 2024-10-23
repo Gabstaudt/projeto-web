@@ -3,6 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, interval} from 'rxjs';
 import { catchError, map, switchMap} from 'rxjs/operators';
 import { EntradaService } from '../auth/entrada.service';
+import { encodeWithLength } from '../../../app/utils/encoder.utils'; 
+
 
 @Injectable({
   providedIn: 'root'
@@ -53,7 +55,7 @@ export class TerceiraRequisicaoService {
   
   //------------------------------------------------ Função para gerar os bytes -----------------------------------------------------------------------
   private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoLerDados: number): ArrayBuffer {
-    const sessaoIdBytes = this.encodeWithLength(sessaoId);
+    const sessaoIdBytes = encodeWithLength(sessaoId);
     const comandoSupervisaoBytes = new Uint8Array([comandoSupervisao]);
     const comandoLerDadosBytes = new Uint8Array([comandoLerDados]);
 
@@ -63,23 +65,6 @@ export class TerceiraRequisicaoService {
     combinedBytes.set(comandoLerDadosBytes, comandoSupervisaoBytes.length + sessaoIdBytes.length);
 
     return combinedBytes.buffer;
-  }
-
-
-  //-------------------------------------------- Função para codificar a sessão com o tamanho-----------------------------------------------------------
-  private encodeWithLength(str: string): Uint8Array {
-    const stringBytes = new TextEncoder().encode(str);
-    const length = stringBytes.length;
-
-    const lengthBytes = new Uint8Array(2);
-    lengthBytes[0] = (length >> 8) & 0xff;
-    lengthBytes[1] = length & 0xff;
-
-    const combined = new Uint8Array(lengthBytes.length + stringBytes.length);
-    combined.set(lengthBytes, 0);
-    combined.set(stringBytes, lengthBytes.length);
-
-    return combined;
   }
 
   private processarResposta(buffer: ArrayBuffer): any {

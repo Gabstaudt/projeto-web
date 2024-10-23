@@ -6,6 +6,7 @@ import { Alarme } from '../../models/alarme.model';
 import { Setor } from '../../models/setor.model';
 import { Tag } from '../../models/tag.model';
 import {TerceiraRequisicaoService} from '../authdados/dados.service'
+import { encodeWithLength } from 'src/app/utils/encoder.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -75,7 +76,7 @@ export class EntradaService {
 
   // gerar os bytes da requisição
   private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoEstrutura: number): ArrayBuffer {
-    const sessaoIdBytes = this.encodeWithLength(sessaoId); 
+    const sessaoIdBytes = encodeWithLength(sessaoId);  
 
     const comandoSupervisaoBytes = new Uint8Array([comandoSupervisao]); 
     const comandoEstruturaBytes = new Uint8Array([comandoEstrutura]); 
@@ -312,23 +313,6 @@ export class EntradaService {
   private bytesToString(bytes: Uint8Array): string {
     return new TextDecoder('utf-8').decode(bytes); 
   }
-
-  // Converte a string da sessão em bytes com o comprimento
-  private encodeWithLength(str: string): Uint8Array {
-    const stringBytes = new TextEncoder().encode(str);
-    const length = stringBytes.length;
-
-    const lengthBytes = new Uint8Array(2);
-    lengthBytes[0] = (length >> 8) & 0xff;
-    lengthBytes[1] = length & 0xff;        
-
-    const combined = new Uint8Array(lengthBytes.length + stringBytes.length);
-    combined.set(lengthBytes, 0);
-    combined.set(stringBytes, lengthBytes.length);
-
-    return combined;
-  }
-
  
   private bytesToFloat(bytes: Uint8Array): number {
     if (bytes.length !== 4) {
