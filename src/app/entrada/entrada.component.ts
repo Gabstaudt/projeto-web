@@ -11,6 +11,8 @@ import { Observable } from 'rxjs';
 })
 export class EntradaComponent implements OnInit {
   private map: any;
+    private initialCoordinates = [-1.3849999904632568, -48.44940185546875]; // Armazenando as coordenadas iniciais
+
   public setores$: Observable<Setor[]>;
 
   constructor(private entradaService: EntradaService) {
@@ -23,11 +25,13 @@ export class EntradaComponent implements OnInit {
   }
 
   private iniciarMapa(): void {
-    this.map = L.map('map').setView([-1.4558300, -48.5044400], 13);
+    this.map = L.map('map').setView([-1.3849999904632568, -48.44940185546875], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(this.map);
+    console.log('Mapa inicializado com sucesso'); // Log para verificar se o mapa foi criado
   }
+  
 
   private carregarSetores(): void {
     const sessaoId = this.gerarSessaoId();
@@ -42,9 +46,10 @@ export class EntradaComponent implements OnInit {
         this.entradaService.parseSecondResponse(arrayBufferView); // Chama a função para atualizar setores
 
         // Adiciona pontos no mapa após os setores serem atualizados
-        this.setores$.subscribe(setores => {
-          this.adicionarPontosNoMapa(setores);
-        });
+       this.setores$.subscribe(setores => {
+       console.log('Setores recebidos no mapa:', setores); // Verifique aqui se a lista está vazia
+        this.adicionarPontosNoMapa(setores);
+});
       },
       error => {
         console.error('Erro ao carregar setores:', error);
@@ -56,18 +61,57 @@ export class EntradaComponent implements OnInit {
     setores.forEach(setor => {
       const lat = setor.latitude;
       const lng = setor.longitude;
+      const status = setor.status; 
+      const tags = setor.tags; 
+      const nomeSetor = setor.nome; 
   
-      // Log para verificar os valores de latitude e longitude
-      console.log(`Adicionando ponto para o Setor ID ${setor.id}: lat=${lat}, lng=${lng}`);
-  
-      if (this.isValido(lat) && this.isValido(lng)) {
-        const marker = L.marker([lat, lng]).addTo(this.map);
-        marker.bindPopup(`<b>Setor ID:</b> ${setor.id}<br><b>Status:</b> ${setor.status}`).openPopup();
+      // Verific ultimoTempo
+      let ultimoTempoFormatado: string;
+      if (setor.ultimoTempo instanceof Date) {
+        ultimoTempoFormatado = this.formatarData(setor.ultimoTempo);
       } else {
-        console.warn(`Coordenadas inválidas para o Setor ID ${setor.id}`);
+        ultimoTempoFormatado = 'Data inválida';
+      }
+  
+      // Verifica se as coordenadas e o status são válidos
+      if (this.isValido(lat) && this.isValido(lng) && !(lat === 0 && lng === 0) && status !== 0) {
+        const marker = L.marker([lat, lng]).addTo(this.map);
+        
+        let tagsString = '';
+        if (tags && tags.length > 0) {
+          tagsString = tags.filter(tag => !tag.vazia) 
+                           .map(tag => `<li>${tag.nome}</li>`).join('');
+        }
+    
+        // Criando popup
+        marker.bindPopup(`
+          <div class="leaflet-popup-content">
+            <b>Setor:</b> ${nomeSetor}<br>
+            <b>Último Tempo:</b> ${ultimoTempoFormatado}<br>
+            <b>Tags:</b>
+            <ul>${tagsString || '<li>Nenhuma tag disponível</li>'}</ul>
+          </div>
+        `).openPopup();
       }
     });
   }
+  
+  //função pra exibir a data
+  
+  private formatarData(data: Date): string {
+    const dia = data.getDate().toString().padStart(2, '0');
+    const mes = (data.getMonth() + 1).toString().padStart(2, '0'); 
+    const ano = data.getFullYear();
+    const horas = data.getHours().toString().padStart(2, '0');
+    const minutos = data.getMinutes().toString().padStart(2, '0');
+    const segundos = data.getSeconds().toString().padStart(2, '0');
+  
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+  }
+  
+  
+  
+  
 
   private isValido(coordenada: number): boolean {
     return typeof coordenada === 'number' && !isNaN(coordenada);

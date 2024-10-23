@@ -16,7 +16,7 @@ export class EntradaService {
   public listaGlobal: Setor[] = []; 
 
   private setoresSubject = new BehaviorSubject<Setor[]>([]);
-  setores$ = this.setoresSubject.asObservable();
+  public setores$: Observable<Setor[]> = this.setoresSubject.asObservable();
 
   constructor(private http: HttpClient,
     private TerceiraRequisicaoService: TerceiraRequisicaoService 
@@ -90,6 +90,7 @@ export class EntradaService {
 
   // interpretar os bytes da resposta 
   public parseSecondResponse(bytes: Uint8Array): Setor[] {
+
     let offset = 0; 
 
     // this.saveBytesToFile(bytes, 'resposta.bin');
