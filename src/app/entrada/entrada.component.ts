@@ -3,6 +3,8 @@ import * as L from 'leaflet'; // Importação do Leaflet para o mapa
 import { EntradaService } from '../services/auth/entrada.service';
 import { Setor } from '../models/setor.model';
 import { Observable } from 'rxjs';
+import { TagService } from '../services/tag/tag.service'; // Importando o TagService
+
 
 @Component({
   selector: 'app-entrada',
@@ -32,7 +34,6 @@ export class EntradaComponent implements OnInit {
     console.log('Mapa inicializado com sucesso'); // Log para verificar se o mapa foi criado
   }
   
-
   private carregarSetores(): void {
     const sessaoId = this.gerarSessaoId();
   
@@ -44,18 +45,28 @@ export class EntradaComponent implements OnInit {
   
         // Aqui você deve garantir que o retorno é do tipo Setor[]
         this.entradaService.parseSecondResponse(arrayBufferView); // Chama a função para atualizar setores
-
+  
         // Adiciona pontos no mapa após os setores serem atualizados
-       this.setores$.subscribe(setores => {
-       console.log('Setores recebidos no mapa:', setores); // Verifique aqui se a lista está vazia
-        this.adicionarPontosNoMapa(setores);
-});
+        this.setores$.subscribe(setores => {
+          console.log('Setores recebidos no mapa:', setores); // Verifique aqui se a lista está vazia
+  
+          // Iterando sobre cada setor e suas tags para formatar a leitura
+          setores.forEach(setor => {
+            setor.tags.forEach(tag => {
+              // Converte a leitura da tag e atribui à propriedade leituraFormatada
+              tag.leituraFormatada = tag.converterLeitura(tag.leituraInt); // Chame o método converterLeitura aqui
+            });
+          });
+  
+          this.adicionarPontosNoMapa(setores);
+        });
       },
       error => {
         console.error('Erro ao carregar setores:', error);
       }
     );
   }
+  
 
   private adicionarPontosNoMapa(setores: Setor[]): void {
     setores.forEach(setor => {
@@ -65,7 +76,7 @@ export class EntradaComponent implements OnInit {
       const tags = setor.tags; 
       const nomeSetor = setor.nome; 
   
-      // Verific ultimoTempo
+      // Verifica ultimoTempo
       let ultimoTempoFormatado: string;
       if (setor.ultimoTempo instanceof Date) {
         ultimoTempoFormatado = this.formatarData(setor.ultimoTempo);
@@ -80,9 +91,9 @@ export class EntradaComponent implements OnInit {
         let tagsString = '';
         if (tags && tags.length > 0) {
           tagsString = tags.filter(tag => !tag.vazia) 
-                           .map(tag => `<li>${tag.nome}</li>`).join('');
+          .map(tag => `<a>${tag.nome}</a>:   ${tag.leituraFormatada}`).join('<br>'); // Alterado aqui
         }
-    
+  
         // Criando popup
         marker.bindPopup(`
           <div class="leaflet-popup-content">
@@ -95,6 +106,7 @@ export class EntradaComponent implements OnInit {
       }
     });
   }
+  
   
   //função pra exibir a data
   

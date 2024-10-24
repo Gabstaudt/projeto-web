@@ -13,6 +13,7 @@ import {converterLeitura} from './converter.model'
   vazia: boolean; 
   leituraInt: number; 
   leituraBool: boolean; 
+  leituraFormatada: string;
 
   // Construtor da classe
   constructor() {
@@ -26,6 +27,7 @@ import {converterLeitura} from './converter.model'
     this.vazia = false;
     this.leituraInt = 0; 
     this.leituraBool = false; 
+    this.leituraFormatada = ''
     
   }
   getDescricaoTipo(): string {
@@ -33,7 +35,7 @@ import {converterLeitura} from './converter.model'
       case TipoTag.Booleano:
         return 'Valor:';
       case TipoTag.Vazao0:
-        return 'Vazão: )';
+        return 'Vazão:  ';
       case TipoTag.Vazao1:
         return 'Vazão: ';
       case TipoTag.Nivel:
