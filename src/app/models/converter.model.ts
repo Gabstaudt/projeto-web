@@ -1,4 +1,4 @@
-import { TipoTag } from './tipo.model'; // Importe o enum TipoTag de onde você o definiu
+import { TipoTag } from './tipo.model'; 
 
 export function converterLeitura(tagTipo: TipoTag, valor: number): string {
   switch (tagTipo) {
