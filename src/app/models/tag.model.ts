@@ -31,10 +31,10 @@ import {converterLeitura} from './converter.model'
     
 
   }
-  public lerValor(): number | boolean {
+  public lerValor(): number {
     if (this.tipo === TipoTag.Booleano) {
         console.log(`Tag ${this.nome} - Tipo: Booleano, Valor: ${this.leituraBool}`);
-        return this.leituraBool; 
+        return this.leituraBool ? 1 : 0; 
     } else if (this.tipo >= TipoTag.Vazao0 && this.tipo <= TipoTag.Abertura) {
         console.log(`Tag ${this.nome} - Tipo: Inteiro, Valor: ${this.leituraInt}`);
         return this.leituraInt; 
@@ -42,6 +42,7 @@ import {converterLeitura} from './converter.model'
     console.log(`Tag ${this.nome} - Tipo desconhecido`);
     return 0; 
 }
+
 
 
   getDescricaoTipo(): string {

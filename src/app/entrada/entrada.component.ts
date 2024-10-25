@@ -39,21 +39,23 @@ export class EntradaComponent implements OnInit {
   
     this.entradaService.fazerSegundaRequisicao(sessaoId).subscribe(
       (resposta: ArrayBuffer) => {
-        console.log('Resposta recebida da requisição:', resposta); // Log da resposta
+        console.log('Resposta recebida da requisição:', resposta); 
         const arrayBufferView = new Uint8Array(resposta);
-        console.log('ArrayBuffer convertido:', arrayBufferView); // Log do arrayBuffer
+        console.log('ArrayBuffer convertido:', arrayBufferView); 
   
+        // Processa a resposta e atualiza a lista global de setores
         this.entradaService.parseSecondResponse(arrayBufferView); 
   
         // Adiciona pontos no mapa após os setores serem atualizados
         this.setores$.subscribe(setores => {
-          console.log('Setores recebidos no mapa:', setores); // Verifique aqui se a lista está vazia
+          console.log('Setores recebidos no mapa:', setores); 
   
-          // Iterando sobre cada setor e suas tags para formatar a leitura
           setores.forEach(setor => {
             setor.tags.forEach(tag => {
               // Converte a leitura da tag e atribui à propriedade leituraFormatada
-              tag.leituraFormatada = tag.converterLeitura(tag.leituraInt); 
+              const valorFinal = tag.lerValor(); // Lê o valor da tag
+              console.log(`Valor final da tag ${tag.nome}:`, valorFinal); 
+              tag.leituraFormatada = tag.converterLeitura(valorFinal); 
             });
           });
   
@@ -74,14 +76,14 @@ export class EntradaComponent implements OnInit {
         const status = setor.status; 
         const tags = setor.tags; 
         const nomeSetor = setor.nome; 
-
+  
         let ultimoTempoFormatado: string;
         if (setor.ultimoTempo instanceof Date) {
             ultimoTempoFormatado = this.formatarData(setor.ultimoTempo);
         } else {
             ultimoTempoFormatado = 'Data inválida';
         }
-
+  
         if (this.isValido(lat) && this.isValido(lng) && !(lat === 0 && lng === 0) && status !== 0) {
             const marker = L.marker([lat, lng]).addTo(this.map);
             
@@ -89,16 +91,16 @@ export class EntradaComponent implements OnInit {
             if (tags && tags.length > 0) {
                 tagsString = tags.filter(tag => !tag.vazia)
                 .map(tag => {
-                    const valorFinal = tag.lerValor();
-                    console.log(`Valor final da tag ${tag.nome}:`, valorFinal); // Log do valor final
-                    return `<a>${tag.nome}</a>: ${valorFinal}`;
+                    const valorFinal = tag.lerValor(); 
+                    console.log(`Valor final da tag ${tag.nome}:`, valorFinal); 
+                    return `<a>${tag.nome}</a>: ${tag.leituraFormatada}`;
                 })
                 .join('<br>');
-
+  
                 // Log das tags antes de serem adicionadas ao popup
                 console.log(`Tags para o setor ${nomeSetor}:`, tagsString);
             }
-
+  
             // Criando popup
             marker.bindPopup(`
                 <div class="leaflet-popup-content">
@@ -112,8 +114,8 @@ export class EntradaComponent implements OnInit {
             console.log(`Setor ${nomeSetor} não é válido para exibição: (lat: ${lat}, lng: ${lng}, status: ${status})`);
         }
     });
-}
-
+  }
+  
 
 
   

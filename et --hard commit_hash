@@ -1,0 +1,50 @@
+[33m522c813[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: commit: BO dos pontos do mapa resolvidos
+[33m4cffe3c[m HEAD@{1}: commit: alterações 1 para quant 0
+[33m5f1f096[m HEAD@{2}: commit: alteração erro array '00'
+[33m8bdf576[m HEAD@{3}: commit: alterações
+[33mca1fa1d[m HEAD@{4}: commit: marcadores de mapa
+[33m27b8141[m HEAD@{5}: commit: alteração para encontrar na lista
+[33mecd735f[m HEAD@{6}: commit: tempo
+[33m80a0ddb[m HEAD@{7}: commit: global list
+[33mce4a308[m HEAD@{8}: commit: atualizar a página
+[33m45c2b69[m HEAD@{9}: commit: ajustes
+[33m196bd1e[m HEAD@{10}: commit: alteração para receber corretamente
+[33me91323d[m HEAD@{11}: commit: auth de dados
+[33m73e71b2[m HEAD@{12}: commit: coment
+[33m53b4c80[m HEAD@{13}: commit: alterações + visualização da lista
+[33m8c13fb3[m HEAD@{14}: commit: consoles
+[33me91b947[m HEAD@{15}: commit: recebe o primeiro corretamente
+[33md22a40b[m HEAD@{16}: commit: looping for 1 (setor) funcionando
+[33mf28e562[m HEAD@{17}: commit: alteração para ler tamanho da string
+[33m64c3d7d[m HEAD@{18}: commit: alteração para receber short
+[33m3b48f41[m HEAD@{19}: commit: ajuste dos obj
+[33mc040b05[m HEAD@{20}: commit: alt
+[33m773f3d4[m HEAD@{21}: commit (merge): entrada + req e resp
+[33m6ffcae5[m HEAD@{22}: commit: entrada e resposta
+[33m712d5c1[m HEAD@{23}: commit: requisição + resposta + id aleatório
+[33mea75fdf[m HEAD@{24}: commit: log
+[33mf9040c4[m HEAD@{25}: commit: ajustes
+[33maef4672[m HEAD@{26}: commit: requisição 2
+[33m4ec41a8[m HEAD@{27}: commit: comentários
+[33m960b567[m HEAD@{28}: commit: adicionando objetos e nova lógica
+[33m9e8938e[m HEAD@{29}: commit: alteração
+[33m64ffeb2[m HEAD@{30}: commit: correção
+[33m0ce3583[m HEAD@{31}: commit: commit entrada
+[33mc363c0b[m HEAD@{32}: commit: Alteração para reconhecer o tamanho da string de usuário e de id da sessao e armazenar corretamente
+[33me8f6643[m HEAD@{33}: commit: ler resposta de bytes
+[33m76b9073[m HEAD@{34}: commit: troca para application/x-www-form-urlencoded
+[33m2687653[m HEAD@{35}: commit (merge): resolução de conflitos + comentários
+[33m141febb[m HEAD@{36}: commit: comentários
+[33mf80b1eb[m HEAD@{37}: commit: lendo bytes
+[33md7a5c23[m HEAD@{38}: commit: atualização para versão correta
+[33m7227273[m HEAD@{39}: commit: comentando código + ajustes
+[33mfcc8fff[m HEAD@{40}: commit: atualização
+[33m8ba3b38[m HEAD@{41}: commit (merge): aa
+[33mfc9e34c[m HEAD@{42}: commit: UTF-8
+[33mc485664[m HEAD@{43}: commit: alteração para UTF-8
+[33mb389a2c[m HEAD@{44}: commit: add
+[33m5361105[m HEAD@{45}: commit: Alterações
+[33m2573f64[m HEAD@{46}: Branch: renamed refs/heads/master to refs/heads/main
+[33m2573f64[m HEAD@{48}: reset: moving to HEAD
+[33m2573f64[m HEAD@{49}: reset: moving to 2573f64
+[33m2573f64[m HEAD@{50}: commit (initial): initial commit
