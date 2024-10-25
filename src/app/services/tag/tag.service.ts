@@ -14,4 +14,5 @@ export class TagService {
   public formatarLeitura(tag: Tag, valor: number): void {
     tag.leituraFormatada = converterLeitura(tag.tipo, valor);
   }
+  
 }

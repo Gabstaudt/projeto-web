@@ -1,13 +1,17 @@
 import { TipoTag } from './tipo.model'; 
 
 export function converterLeitura(tagTipo: TipoTag, valor: number): string {
+ 
+  console.log('Valores recebidos - tagTipo:', tagTipo, ', valor:', valor);
   switch (tagTipo) {
+    
+
     case TipoTag.Booleano:
       return valor === 0 ? 'Desligada' : 'Ligada';
     case TipoTag.Vazao0:
-      return `${valor.toFixed(0)} m³/h`; // Vazão0 com 0 casas decimais
+      return `${valor.toFixed(0)} m³/h`; 
     case TipoTag.Vazao1:
-      return `${valor.toFixed(2)} m³/h`; // Vazão1 com 2 casas decimais
+      return `${valor.toFixed(2)} m³/h`; 
     case TipoTag.Nivel:
       return `${valor.toFixed(2)} m`; 
     case TipoTag.Pressao:

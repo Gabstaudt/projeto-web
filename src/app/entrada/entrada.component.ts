@@ -13,7 +13,7 @@ import { TagService } from '../services/tag/tag.service'; // Importando o TagSer
 })
 export class EntradaComponent implements OnInit {
   private map: any;
-    private initialCoordinates = [-1.3849999904632568, -48.44940185546875]; // Armazenando as coordenadas iniciais
+    private initialCoordinates = [-1.3849999904632568, -48.44940185546875]; 
 
   public setores$: Observable<Setor[]>;
 
@@ -31,7 +31,7 @@ export class EntradaComponent implements OnInit {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(this.map);
-    console.log('Mapa inicializado com sucesso'); // Log para verificar se o mapa foi criado
+    console.log('Mapa inicializado com sucesso'); 
   }
   
   private carregarSetores(): void {
@@ -43,8 +43,7 @@ export class EntradaComponent implements OnInit {
         const arrayBufferView = new Uint8Array(resposta);
         console.log('ArrayBuffer convertido:', arrayBufferView); // Log do arrayBuffer
   
-        // Aqui você deve garantir que o retorno é do tipo Setor[]
-        this.entradaService.parseSecondResponse(arrayBufferView); // Chama a função para atualizar setores
+        this.entradaService.parseSecondResponse(arrayBufferView); 
   
         // Adiciona pontos no mapa após os setores serem atualizados
         this.setores$.subscribe(setores => {
@@ -54,7 +53,7 @@ export class EntradaComponent implements OnInit {
           setores.forEach(setor => {
             setor.tags.forEach(tag => {
               // Converte a leitura da tag e atribui à propriedade leituraFormatada
-              tag.leituraFormatada = tag.converterLeitura(tag.leituraInt); // Chame o método converterLeitura aqui
+              tag.leituraFormatada = tag.converterLeitura(tag.leituraInt); 
             });
           });
   
@@ -70,42 +69,53 @@ export class EntradaComponent implements OnInit {
 
   private adicionarPontosNoMapa(setores: Setor[]): void {
     setores.forEach(setor => {
-      const lat = setor.latitude;
-      const lng = setor.longitude;
-      const status = setor.status; 
-      const tags = setor.tags; 
-      const nomeSetor = setor.nome; 
-  
-      // Verifica ultimoTempo
-      let ultimoTempoFormatado: string;
-      if (setor.ultimoTempo instanceof Date) {
-        ultimoTempoFormatado = this.formatarData(setor.ultimoTempo);
-      } else {
-        ultimoTempoFormatado = 'Data inválida';
-      }
-  
-      // Verifica se as coordenadas e o status são válidos
-      if (this.isValido(lat) && this.isValido(lng) && !(lat === 0 && lng === 0) && status !== 0) {
-        const marker = L.marker([lat, lng]).addTo(this.map);
-        
-        let tagsString = '';
-        if (tags && tags.length > 0) {
-          tagsString = tags.filter(tag => !tag.vazia) 
-          .map(tag => `<a>${tag.nome}</a>:   ${tag.leituraFormatada}`).join('<br>'); // Alterado aqui
+        const lat = setor.latitude;
+        const lng = setor.longitude;
+        const status = setor.status; 
+        const tags = setor.tags; 
+        const nomeSetor = setor.nome; 
+
+        let ultimoTempoFormatado: string;
+        if (setor.ultimoTempo instanceof Date) {
+            ultimoTempoFormatado = this.formatarData(setor.ultimoTempo);
+        } else {
+            ultimoTempoFormatado = 'Data inválida';
         }
-  
-        // Criando popup
-        marker.bindPopup(`
-          <div class="leaflet-popup-content">
-            <b>Setor:</b> ${nomeSetor}<br>
-            <b>Último Tempo:</b> ${ultimoTempoFormatado}<br>
-            <b>Tags:</b>
-            <ul>${tagsString || '<li>Nenhuma tag disponível</li>'}</ul>
-          </div>
-        `).openPopup();
-      }
+
+        if (this.isValido(lat) && this.isValido(lng) && !(lat === 0 && lng === 0) && status !== 0) {
+            const marker = L.marker([lat, lng]).addTo(this.map);
+            
+            let tagsString = '';
+            if (tags && tags.length > 0) {
+                tagsString = tags.filter(tag => !tag.vazia)
+                .map(tag => {
+                    const valorFinal = tag.lerValor();
+                    console.log(`Valor final da tag ${tag.nome}:`, valorFinal); // Log do valor final
+                    return `<a>${tag.nome}</a>: ${valorFinal}`;
+                })
+                .join('<br>');
+
+                // Log das tags antes de serem adicionadas ao popup
+                console.log(`Tags para o setor ${nomeSetor}:`, tagsString);
+            }
+
+            // Criando popup
+            marker.bindPopup(`
+                <div class="leaflet-popup-content">
+                    <b>Setor:</b> ${nomeSetor}<br>
+                    <b>Último Tempo:</b> ${ultimoTempoFormatado}<br>
+                    <b>Tags:</b>
+                    <ul>${tagsString || '<li>Nenhuma tag disponível</li>'}</ul>
+                </div>
+            `).openPopup();
+        } else {
+            console.log(`Setor ${nomeSetor} não é válido para exibição: (lat: ${lat}, lng: ${lng}, status: ${status})`);
+        }
     });
-  }
+}
+
+
+
   
   
   //função pra exibir a data

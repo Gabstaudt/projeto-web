@@ -11,9 +11,11 @@ import { encodeWithLength } from '../../../app/utils/encoder.utils';
 })
 export class TerceiraRequisicaoService {
   private apiUrl = 'http://172.74.0.167:8043/dados'; 
+
   private setoresGlobais: any[] = []; // Lista global de setores
   private intervaloRequisicao = 60000 ;
   private entradaService?: EntradaService;
+
   constructor(
     private injector: Injector,
     private http: HttpClient) {}
@@ -112,17 +114,23 @@ export class TerceiraRequisicaoService {
       const booleanos: { id: number }[] = [];
       const alarmes: { id: number, tempo: Date }[] = [];
 
-      // Laço 2: Processa as tags inteiras
-      for (let j = 0; j < quantidadeInteiros; j++) {
-        const idTagInteira = dataView.getUint16(offset); 
-        offset += 2;
-        const valorTagInteira = dataView.getUint32(offset); 
-        offset += 4;
-        console.log('id das tags inteiras', idTagInteira);
-        console.log('valor das tags inteiras', valorTagInteira);
+        
+        
+      
+     // Laço 2: Processa as tags inteiras
+        for (let j = 0; j < quantidadeInteiros; j++) {
+          const idTagInteira = dataView.getUint16(offset); 
+          offset += 2;
+          const valorTagInteira = dataView.getUint32(offset); 
+          offset += 4;
 
-        inteiros.push({ id: idTagInteira, valor: valorTagInteira });
-      }
+          console.log('Tag Inteira - ID:', idTagInteira, 'Valor:', valorTagInteira);
+          inteiros.push({ id: idTagInteira, valor: valorTagInteira });
+        }
+
+        // Verifica o conteúdo do array de inteiros
+        console.log('Inteiros processados:', inteiros);
+
 
       // Laço 3: Processa as tags booleanas (somente o ID)
       for (let j = 0; j < quantidadeBooleanos; j++) {
@@ -140,6 +148,8 @@ export class TerceiraRequisicaoService {
         offset += 1;
         for (let bit = 0; bit < 8 && (j * 8 + bit) < quantidadeBooleanos; bit++) {
           valoresBooleanos.push((byteValores & (1 << bit)) !== 0); // Extrai o bit e converte para boolean
+
+          console.log(`Valor booleano - Setor ${i}, Bit ${bit}:`, valoresBooleanos);
         }
         console.log("valor das tags boleanas", valoresBooleanos )
       }
@@ -197,6 +207,7 @@ export class TerceiraRequisicaoService {
     });
 
     console.log("Lista global atualizada:", listaGlobal);
+
   }
 
   

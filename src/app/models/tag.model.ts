@@ -29,7 +29,21 @@ import {converterLeitura} from './converter.model'
     this.leituraBool = false; 
     this.leituraFormatada = ''
     
+
   }
+  public lerValor(): number | boolean {
+    if (this.tipo === TipoTag.Booleano) {
+        console.log(`Tag ${this.nome} - Tipo: Booleano, Valor: ${this.leituraBool}`);
+        return this.leituraBool; 
+    } else if (this.tipo >= TipoTag.Vazao0 && this.tipo <= TipoTag.Abertura) {
+        console.log(`Tag ${this.nome} - Tipo: Inteiro, Valor: ${this.leituraInt}`);
+        return this.leituraInt; 
+    }
+    console.log(`Tag ${this.nome} - Tipo desconhecido`);
+    return 0; 
+}
+
+
   getDescricaoTipo(): string {
     switch (this.tipo) {
       case TipoTag.Booleano:
