@@ -62,33 +62,31 @@ export class EntradaComponent implements OnInit {
       console.error('Erro ao carregar setores:', error);
     });
   }
-
   private adicionarPontosNoMapa(setores: Setor[]): void {
     setores.forEach(setor => {
         const lat = setor.latitude;
         const lng = setor.longitude;
         const status = setor.status;
-        const nomeSetor = setor.nome;
+        const nomeSetor = setor.nome || `Setor ${setor.id}`;
+        
         let ultimoTempoFormatado: string;
-
-        if (setor.ultimoTempo instanceof Date) {
+        try {
             ultimoTempoFormatado = this.formatarData(setor.ultimoTempo);
-        } else {
+        } catch {
             ultimoTempoFormatado = 'Data inválida';
         }
 
-        if (this.isValido(lat) && this.isValido(lng) && !(lat === 0 && lng === 0) && status !== 0) {
+        if (this.isValido(lat) && this.isValido(lng) && lat !== 0 && lng !== 0 && status !== 0) {
             const marker = L.marker([lat, lng]).addTo(this.map);
 
-            // Filtragem e mapeamento os inteiros e booleanos das tags
-            let inteirosString = setor.tags
-                .filter(tag => tag.tipo !== TipoTag.Booleano)  
-                .map(tag => `<li>ID: ${tag.id}, Valor: ${tag.leituraInt}</li>`)
+            const inteirosString = setor.tags
+                .filter(tag => tag.tipo !== TipoTag.Booleano)
+                .map(tag => `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraInt)}</li>`)
                 .join('');
 
-            let booleanosString = setor.tags
-                .filter(tag => tag.tipo === TipoTag.Booleano)  
-                .map(tag => `<li>ID: ${tag.id}, Valor: ${tag.leituraBool}</li>`)
+            const booleanosString = setor.tags
+                .filter(tag => tag.tipo === TipoTag.Booleano)
+                .map(tag => `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraBool ? 1 : 0)}</li>`)
                 .join('');
 
             const popupContent = `
@@ -101,8 +99,7 @@ export class EntradaComponent implements OnInit {
                     <ul>${booleanosString || '<li>Nenhuma tag booleana disponível</li>'}</ul>
                 </div>
             `;
-            console.log("Popup Content ENTRADA1234:", popupContent);
-
+            console.log("Popup Content:", popupContent);
 
             marker.bindPopup(popupContent).openPopup();
         } else {
@@ -112,16 +109,24 @@ export class EntradaComponent implements OnInit {
 }
 
 
-  private formatarData(data: Date): string {
-    const dia = data.getDate().toString().padStart(2, '0');
-    const mes = (data.getMonth() + 1).toString().padStart(2, '0');
-    const ano = data.getFullYear();
-    const horas = data.getHours().toString().padStart(2, '0');
-    const minutos = data.getMinutes().toString().padStart(2, '0');
-    const segundos = data.getSeconds().toString().padStart(2, '0');
 
-    return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+
+
+private formatarData(data: Date): string {
+  if (isNaN(data.getTime())) {
+      return 'Data inválida';
   }
+
+  const dia = data.getDate().toString().padStart(2, '0');
+  const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+  const ano = data.getFullYear();
+  const horas = data.getHours().toString().padStart(2, '0');
+  const minutos = data.getMinutes().toString().padStart(2, '0');
+  const segundos = data.getSeconds().toString().padStart(2, '0');
+
+  return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+}
+
 
   private isValido(coordenada: number): boolean {
     return typeof coordenada === 'number' && !isNaN(coordenada);
