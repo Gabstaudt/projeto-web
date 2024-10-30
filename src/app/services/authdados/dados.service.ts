@@ -164,6 +164,7 @@ export class TerceiraRequisicaoService {
         console.log('tempo dos alarmes', tempoAlarme);
         alarmes.push({ id: idAlarme, tempo: new Date(tempoAlarme * 1000) }); // Converte Unix para Data
       }
+
       const quantidadeBytesAlarmes = Math.ceil(quantidadeAlarmes / 8);
       const valoresAlarmes: boolean[] = [];
       for (let j = 0; j < quantidadeBytesAlarmes; j++) {
@@ -193,22 +194,43 @@ export class TerceiraRequisicaoService {
     return setores; 
   }
 
-  public atualizarSetoresGlobais(setoresRecebidos: any[]): void {
-    const listaGlobal = this.getEntradaService().listaGlobal; // Acessando a listaGlobal
+ // Após interpretar a resposta
+public atualizarSetoresGlobais(setoresRecebidos: any[]): void {
+  const listaGlobal = this.getEntradaService().listaGlobal;
 
-    setoresRecebidos.forEach(setor => {
-      const setorExistente = listaGlobal.find((s: any) => s.id === setor.id);
-      
+  setoresRecebidos.forEach(novoSetor => {
+      const setorExistente = listaGlobal.find((s: any) => s.id === novoSetor.id);
+
       if (setorExistente) {
-        Object.assign(setorExistente, setor);
+          // Atualiza propriedades básicas do setor
+          setorExistente.status = novoSetor.status;
+          setorExistente.ultimoTempo = novoSetor.ultimoTempo;
+
+          // Atualiza tags inteiras (leituraInt)
+          novoSetor.inteiros.forEach((novaTagInt: any) => {
+              const tagExistente = setorExistente.tags.find((tag: any) => tag.id === novaTagInt.id);
+              if (tagExistente) {
+                  tagExistente.leituraInt = novaTagInt.valor;
+              }
+          });
+
+          // Atualiza tags booleanas (leituraBool)
+          novoSetor.booleanos.forEach((novaTagBool: any, index: number) => {
+              const tagExistente = setorExistente.tags.find((tag: any) => tag.id === novaTagBool.id);
+              if (tagExistente && novoSetor.valoresBooleanos[index] !== undefined) {
+                  tagExistente.leituraBool = novoSetor.valoresBooleanos[index];
+              }
+          });
       } else {
-        console.log(`Setor com ID ${setor.id} não encontrado na lista global.`);
+          console.log(`Setor com ID ${novoSetor.id} não encontrado na lista global.`);
       }
-    });
+  });
 
-    console.log("Lista global atualizada:", listaGlobal);
+  console.log("Lista global atualizada:", listaGlobal);
+}
 
-  }
+
+
 
   
   
