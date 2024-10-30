@@ -62,33 +62,54 @@ export class EntradaComponent implements OnInit {
       console.error('Erro ao carregar setores:', error);
     });
   }
+ 
   private adicionarPontosNoMapa(setores: Setor[]): void {
     setores.forEach(setor => {
         const lat = setor.latitude;
         const lng = setor.longitude;
         const status = setor.status;
         const nomeSetor = setor.nome || `Setor ${setor.id}`;
+
         
+        console.log("Processando setor:", setor);
+        console.log("Valor de setor.ultimoTempo:", setor.ultimoTempo);
+        console.log("Tipo de setor.ultimoTempo:", typeof setor.ultimoTempo);
+
         let ultimoTempoFormatado: string;
-        try {
-            ultimoTempoFormatado = this.formatarData(setor.ultimoTempo);
-        } catch {
-            ultimoTempoFormatado = 'Data inválida';
+        
+        if (setor.ultimoTempo) {
+            const data = new Date(setor.ultimoTempo);
+            ultimoTempoFormatado = this.formatarData(data);
+        } else {
+            // Caso 'ultimoTempo' esteja indefinido
+            const dataPadrao = new Date(); 
+            ultimoTempoFormatado = this.formatarData(dataPadrao); // Formata a data padrão
         }
 
+        console.log("Data formatada para último tempo:", ultimoTempoFormatado);
+
+        // Confere coordenadas e status
         if (this.isValido(lat) && this.isValido(lng) && lat !== 0 && lng !== 0 && status !== 0) {
             const marker = L.marker([lat, lng]).addTo(this.map);
 
+            // Mapeia tags inteiras e booleanas com unidade
             const inteirosString = setor.tags
                 .filter(tag => tag.tipo !== TipoTag.Booleano)
-                .map(tag => `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraInt)}</li>`)
+                .map(tag => {
+                    console.log("Tag inteira encontrada:", tag.nome, "Valor:", tag.leituraInt);
+                    return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraInt)}</li>`;
+                })
                 .join('');
 
             const booleanosString = setor.tags
                 .filter(tag => tag.tipo === TipoTag.Booleano)
-                .map(tag => `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraBool ? 1 : 0)}</li>`)
+                .map(tag => {
+                    console.log("Tag booleana encontrada:", tag.nome, "Valor:", tag.leituraBool);
+                    return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraBool ? 1 : 0)}</li>`;
+                })
                 .join('');
 
+            // Cria o conteúdo do popup
             const popupContent = `
                 <div class="leaflet-popup-content">
                     <b>Setor:</b> ${nomeSetor}<br>
@@ -99,33 +120,33 @@ export class EntradaComponent implements OnInit {
                     <ul>${booleanosString || '<li>Nenhuma tag booleana disponível</li>'}</ul>
                 </div>
             `;
-            console.log("Popup Content:", popupContent);
+            console.log("Conteúdo do popup:", popupContent);
 
+            // Adiciona o popup ao marcador
             marker.bindPopup(popupContent).openPopup();
         } else {
-            console.log(`Setor ${nomeSetor} não é válido para exibição: (lat: ${lat}, lng: ${lng}, status: ${status})`);
+            console.warn(`Setor ${nomeSetor} não é válido para exibição: (lat: ${lat}, lng: ${lng}, status: ${status})`);
         }
     });
 }
 
 
-
-
-
 private formatarData(data: Date): string {
-  if (isNaN(data.getTime())) {
-      return 'Data inválida';
-  }
+    if (isNaN(data.getTime())) {
+        return 'Data inválida';
+    }
 
-  const dia = data.getDate().toString().padStart(2, '0');
-  const mes = (data.getMonth() + 1).toString().padStart(2, '0');
-  const ano = data.getFullYear();
-  const horas = data.getHours().toString().padStart(2, '0');
-  const minutos = data.getMinutes().toString().padStart(2, '0');
-  const segundos = data.getSeconds().toString().padStart(2, '0');
+    const dia = data.getDate().toString().padStart(2, '0');
+    const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+    const ano = data.getFullYear();
+    const horas = data.getHours().toString().padStart(2, '0');
+    const minutos = data.getMinutes().toString().padStart(2, '0');
+    const segundos = data.getSeconds().toString().padStart(2, '0');
 
-  return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
 }
+
+
 
 
   private isValido(coordenada: number): boolean {
