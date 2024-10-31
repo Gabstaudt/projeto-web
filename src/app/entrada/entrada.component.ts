@@ -13,7 +13,6 @@ import { TipoTag } from '../models/tipo.model';
 })
 export class EntradaComponent implements OnInit {
   private map: any;
-  private initialCoordinates = [-1.3849999904632568, -48.44940185546875];
 
   public setores$: Observable<Setor[]>;
 
