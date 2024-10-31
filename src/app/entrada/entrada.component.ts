@@ -33,7 +33,6 @@ export class EntradaComponent implements OnInit {
     }).addTo(this.map);
     console.log('Mapa inicializado com sucesso'); 
   }
-
   private carregarSetores(): void {
     const sessaoId = this.gerarSessaoId();
 
@@ -45,18 +44,10 @@ export class EntradaComponent implements OnInit {
 
         this.entradaService.parseSecondResponse(arrayBufferView);
 
-        // Observable atualizado de setores
         return this.setores$;
       })
     ).subscribe(setores => {
       console.log('Setores recebidos no mapa:', setores);
-      setores.forEach(setor => {
-        setor.tags.forEach(tag => {
-          const valorFinal = tag.lerValor();
-          console.log(`Valor final da tag ${tag.nome}:`, valorFinal);
-          tag.leituraFormatada = tag.converterLeitura(valorFinal);
-        });
-      });
       this.adicionarPontosNoMapa(setores);
     }, error => {
       console.error('Erro ao carregar setores:', error);
@@ -70,46 +61,35 @@ export class EntradaComponent implements OnInit {
         const status = setor.status;
         const nomeSetor = setor.nome || `Setor ${setor.id}`;
 
-        
-        console.log("Processando setor:", setor);
-        console.log("Valor de setor.ultimoTempo:", setor.ultimoTempo);
-        console.log("Tipo de setor.ultimoTempo:", typeof setor.ultimoTempo);
-
         let ultimoTempoFormatado: string;
         
         if (setor.ultimoTempo) {
             const data = new Date(setor.ultimoTempo);
             ultimoTempoFormatado = this.formatarData(data);
         } else {
-            // Caso 'ultimoTempo' esteja indefinido
             const dataPadrao = new Date(); 
-            ultimoTempoFormatado = this.formatarData(dataPadrao); // Formata a data padrão
+            ultimoTempoFormatado = this.formatarData(dataPadrao); 
         }
 
-        console.log("Data formatada para último tempo:", ultimoTempoFormatado);
-
-        // Confere coordenadas e status
         if (this.isValido(lat) && this.isValido(lng) && lat !== 0 && lng !== 0 && status !== 0) {
             const marker = L.marker([lat, lng]).addTo(this.map);
 
-            // Mapeia tags inteiras e booleanas com unidade
             const inteirosString = setor.tags
-                .filter(tag => tag.tipo !== TipoTag.Booleano)
+                .filter(tag => tag.tipo !== TipoTag.Booleano && !tag.vazia)
                 .map(tag => {
-                    console.log("Tag inteira encontrada:", tag.nome, "Valor:", tag.leituraInt);
+                    console.log("Exibindo Tag Inteira no Mapa:", tag.nome, "Vazia:", tag.vazia, "Valor:", tag.leituraInt);
                     return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraInt)}</li>`;
                 })
                 .join('');
 
             const booleanosString = setor.tags
-                .filter(tag => tag.tipo === TipoTag.Booleano)
+                .filter(tag => tag.tipo === TipoTag.Booleano && !tag.vazia)
                 .map(tag => {
-                    console.log("Tag booleana encontrada:", tag.nome, "Valor:", tag.leituraBool);
+                    console.log("Exibindo Tag Booleana no Mapa:", tag.nome, "Vazia:", tag.vazia, "Valor:", tag.leituraBool);
                     return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraBool ? 1 : 0)}</li>`;
                 })
                 .join('');
 
-            // Cria o conteúdo do popup
             const popupContent = `
                 <div class="leaflet-popup-content">
                     <b>Setor:</b> ${nomeSetor}<br>
@@ -120,15 +100,12 @@ export class EntradaComponent implements OnInit {
                     <ul>${booleanosString || '<li>Nenhuma tag booleana disponível</li>'}</ul>
                 </div>
             `;
-            console.log("Conteúdo do popup:", popupContent);
-
-            // Adiciona o popup ao marcador
             marker.bindPopup(popupContent).openPopup();
-        } else {
-            console.warn(`Setor ${nomeSetor} não é válido para exibição: (lat: ${lat}, lng: ${lng}, status: ${status})`);
         }
     });
 }
+
+
 
 
 private formatarData(data: Date): string {
@@ -170,13 +147,16 @@ private formatarData(data: Date): string {
 
             const setoresInterpretados = this.entradaService.listaGlobal;
 
-            // função para adicionar os setores ao mapa
-            this.adicionarPontosNoMapa(setoresInterpretados);
+            if (setoresInterpretados && setoresInterpretados.length > 0) {
+                this.adicionarPontosNoMapa(setoresInterpretados);
+                console.log("Setores adicionados ao mapa com sucesso.");
+            } else {
+                console.warn("Nenhum setor disponível para exibição no mapa.");
+            }
         },
         error: (error) => {
             console.error('Erro na requisição de teste:', error);
         }
     });
 }
-
 }

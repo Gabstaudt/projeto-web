@@ -4,25 +4,39 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <nav class="navbar">
+    <img src="../../assets/image/logo-cosanpa.png" alt="Logo" class="logo">
+    <ul class="nav-links">
+      <li><a href="#" onclick="event.preventDefault()">Opção 1</a></li>
+      <li><a href="#" onclick="event.preventDefault()">Opção 2</a></li>
+      <li>
+        <a href="#" class="search-toggle" onclick="event.preventDefault()">Opção 3</a>
+        <div class="search-popup">
+          <input type="text" class="search-bar" placeholder="Pesquisar...">
+        </div>
+      </li>
+    </ul>
+    <button class="requisicao" (click)="fazerRequisicaoTeste()">Enviar Requisição de Teste</button>
+  </nav>
 </header>
 
 <div class="entrada-container">
-  <aside class="sidebar">
-    <img src="../../assets/image/logo-cosanpa.png" alt="Logo" class="logo">
-    <nav>
-      <ul>
-        <li><a href="#">Opção 1</a></li>
-        <li><a href="#">Opção 2</a></li>
-        <li><a href="#">Opção 3</a></li>
-        <li>
-          <button class="requisicao" (click)="fazerRequisicaoTeste()">Enviar Requisição de Teste</button>
-        </li>
-      </ul>
-    </nav>
-  </aside>
-
   <main class="map-container">
     <div id="map"></div>
-    
   </main>
 </div>
+
+   
+   
+   
+  
+
+
+
+
+
+
+
+
+

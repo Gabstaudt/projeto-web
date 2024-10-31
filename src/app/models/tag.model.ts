@@ -1,49 +1,56 @@
-import {TipoTag} from './tipo.model'
-import {converterLeitura} from './converter.model'
-  
-  export class Tag {
+import { TipoTag } from './tipo.model';
+import { converterLeitura } from './converter.model';
+
+export class Tag {
   // Propriedades da tag
-  id: number; 
-  nome: string; 
-  descricao: string; 
-  tipo: TipoTag; 
-  max: number; 
+  id: number;
+  nome: string;
+  descricao: string;
+  tipo: TipoTag;
+  max: number;
   min: number;
-  status: number; 
-  vazia: boolean; 
-  leituraInt: number; 
-  leituraBool: boolean; 
+  status: number;
+  vazia: boolean = true; // Inicializa como true
+  leituraInt: number;
+  leituraBool: boolean;
   leituraFormatada: string;
 
   // Construtor da classe
   constructor() {
-    this.id = 0; 
+    this.id = 0;
     this.nome = '';
-    this.descricao = ''; 
+    this.descricao = '';
     this.tipo = TipoTag.Booleano;
-    this.max = 0; 
+    this.max = 0;
     this.min = 0;
-    this.status = 0; 
-    this.vazia = false;
-    this.leituraInt = 0; 
-    this.leituraBool = false; 
-    this.leituraFormatada = ''
-    
-
+    this.status = 0;
+    this.leituraInt = 0;
+    this.leituraBool = false;
+    this.leituraFormatada = '';
   }
+
+  // Atualiza o valor e marca 'vazia' como false ao receber dados
+  public atualizarValor(valor: number | boolean): void {
+    this.vazia = false; // Marca como não vazia ao receber dados
+    console.log(`Atualizando Tag ${this.nome} - vazia: ${this.vazia}, valor recebido:`, valor);
+
+    if (this.tipo === TipoTag.Booleano) {
+      this.leituraBool = valor === 1;
+    } else {
+      this.leituraInt = valor as number;
+    }
+
+    this.leituraFormatada = this.converterLeitura(this.lerValor());
+  }
+
   public lerValor(): number {
     if (this.tipo === TipoTag.Booleano) {
-        console.log(`Tag ${this.nome} - Tipo: Booleano, Valor: ${this.leituraBool}`);
-        return this.leituraBool ? 1 : 0; 
+      return this.leituraBool ? 1 : 0;
     } else if (this.tipo >= TipoTag.Vazao0 && this.tipo <= TipoTag.Abertura) {
-        console.log(`Tag ${this.nome} - Tipo: Inteiro, Valor: ${this.leituraInt}`);
-        return this.leituraInt; 
+      return this.leituraInt;
     }
-    console.log(`Tag ${this.nome} - Tipo desconhecido`);
-    return 0; 
-}
-
-
+    return 0;
+  }
 
   getDescricaoTipo(): string {
     switch (this.tipo) {
@@ -70,8 +77,8 @@ import {converterLeitura} from './converter.model'
       default:
         return 'Tipo desconhecido';
     }
-
   }
+
   converterLeitura(valor: number): string {
     return converterLeitura(this.tipo, valor);
   }

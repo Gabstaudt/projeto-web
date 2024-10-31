@@ -194,41 +194,45 @@ export class TerceiraRequisicaoService {
     return setores; 
   }
 
- // Após interpretar a resposta
-public atualizarSetoresGlobais(setoresRecebidos: any[]): void {
-  const listaGlobal = this.getEntradaService().listaGlobal;
-
-  setoresRecebidos.forEach(novoSetor => {
-      const setorExistente = listaGlobal.find((s: any) => s.id === novoSetor.id);
-
-      if (setorExistente) {
-          // Atualiza propriedades básicas do setor
-          setorExistente.status = novoSetor.status;
-          setorExistente.ultimoTempo = novoSetor.ultimoTempo;
-
-          // Atualiza tags inteiras (leituraInt)
-          novoSetor.inteiros.forEach((novaTagInt: any) => {
-              const tagExistente = setorExistente.tags.find((tag: any) => tag.id === novaTagInt.id);
-              if (tagExistente) {
-                  tagExistente.leituraInt = novaTagInt.valor;
-              }
-          });
-
-          // Atualiza tags booleanas (leituraBool)
-          novoSetor.booleanos.forEach((novaTagBool: any, index: number) => {
-              const tagExistente = setorExistente.tags.find((tag: any) => tag.id === novaTagBool.id);
-              if (tagExistente && novoSetor.valoresBooleanos[index] !== undefined) {
-                  tagExistente.leituraBool = novoSetor.valoresBooleanos[index];
-              }
-          });
-      } else {
-          console.log(`Setor com ID ${novoSetor.id} não encontrado na lista global.`);
-      }
-  });
-
-  console.log("Lista global atualizada:", listaGlobal);
-}
-
+  public atualizarSetoresGlobais(setoresRecebidos: any[]): void {
+    const listaGlobal = this.getEntradaService().listaGlobal;
+  
+    setoresRecebidos.forEach(novoSetor => {
+        const setorExistente = listaGlobal.find((s: any) => s.id === novoSetor.id);
+  
+        if (setorExistente) {
+            // Atualiza propriedades do setor
+            setorExistente.status = novoSetor.status;
+            setorExistente.ultimoTempo = novoSetor.ultimoTempo;
+  
+            // Inicializa todas as tags como vazias
+            setorExistente.tags.forEach((tag: any) => tag.vazia = true);
+  
+            // Atualiza tags inteiras (leituraInt)
+            novoSetor.inteiros.forEach((novaTagInt: any) => {
+                const tagExistente = setorExistente.tags.find((tag: any) => tag.id === novaTagInt.id);
+                if (tagExistente) {
+                    tagExistente.leituraInt = novaTagInt.valor;
+                    tagExistente.vazia = false; 
+                }
+            });
+  
+            // Atualiza tags booleanas (leituraBool)
+            novoSetor.booleanos.forEach((novaTagBool: any, index: number) => {
+                const tagExistente = setorExistente.tags.find((tag: any) => tag.id === novaTagBool.id);
+                if (tagExistente && novoSetor.valoresBooleanos[index] !== undefined) {
+                    tagExistente.leituraBool = novoSetor.valoresBooleanos[index];
+                    tagExistente.vazia = false; 
+                }
+            });
+        } else {
+            console.log(`Setor com ID ${novoSetor.id} não encontrado na lista global.`);
+        }
+    });
+  
+    console.log("Lista global atualizada após receber dados.");
+  }
+  
 
 
 
