@@ -11,6 +11,8 @@ import { encodeWithLength } from '../../../app/utils/encoder.utils';
 })
 export class TerceiraRequisicaoService {
   private apiUrl = 'http://172.74.0.167:8043/dados'; 
+  // private apiUrl = 'http://localhost:3000/resposta2';
+
 
   private setoresGlobais: any[] = []; // Lista global de setores
   private intervaloRequisicao = 60000 ;

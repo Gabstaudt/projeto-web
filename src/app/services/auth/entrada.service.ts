@@ -13,6 +13,8 @@ import { encodeWithLength } from 'src/app/utils/encoder.utils';
 })
 export class EntradaService {
   private apiUrl = 'http://172.74.0.167:8043/dados'; 
+  // private apiUrl = 'http://localhost:3000/resposta1';
+
   
   public listaGlobal: Setor[] = []; 
 
@@ -94,7 +96,7 @@ export class EntradaService {
 
     let offset = 0; 
 
-    // this.saveBytesToFile(bytes, 'resposta.bin');
+     this.saveBytesToFile(bytes, 'resposta.bin');
 
     const respostaOK = bytes[offset];
     console.log('Resposta de status:', respostaOK); 
@@ -384,26 +386,26 @@ private atualizarListaGlobal(setoresRecebidos: Setor[]): void {
 }
 
 
-// // // Função para salvar o Uint8Array em um arquivo
-// private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
-//   // Converte o Uint8Array para um Blob
-//   const blob = new Blob([bytes], { type: 'application/octet-stream' });
+// // Função para salvar o Uint8Array em um arquivo
+private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
+  // Converte o Uint8Array para um Blob
+  const blob = new Blob([bytes], { type: 'application/octet-stream' });
   
-//   // Cria uma URL para o Blob
-//   const url = window.URL.createObjectURL(blob);
+  // Cria uma URL para o Blob
+  const url = window.URL.createObjectURL(blob);
 
-//   // Cria um elemento de link para baixar o arquivo
-//   const a = document.createElement('a');
-//   a.href = url;
-//   a.download = fileName;
-//   document.body.appendChild(a);
-//   a.click(); // Dispara o clique para baixar o arquivo
+  // Cria um elemento de link para baixar o arquivo
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click(); // Dispara o clique para baixar o arquivo
 
-//   // Remove o elemento de link da página
-//   document.body.removeChild(a);
+  // Remove o elemento de link da página
+  document.body.removeChild(a);
 
-//   // Libera a URL criada para o Blob
-//   window.URL.revokeObjectURL(url);
-// }
+  // Libera a URL criada para o Blob
+  window.URL.revokeObjectURL(url);
+}
 
 }
