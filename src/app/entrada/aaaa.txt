@@ -1,0 +1,50 @@
+ private adicionarPontosNoMapa(setores: Setor[]): void {
+    setores.forEach(setor => {
+        const lat = setor.latitude;
+        const lng = setor.longitude;
+        const status = setor.status;
+        const nomeSetor = setor.nome || `Setor ${setor.id}`;
+
+        let ultimoTempoFormatado: string;
+        
+        if (setor.ultimoTempo) {
+            const data = new Date(setor.ultimoTempo);
+            ultimoTempoFormatado = this.formatarData(data);
+        } else {
+            const dataPadrao = new Date(); 
+            ultimoTempoFormatado = this.formatarData(dataPadrao); 
+        }
+
+        if (this.isValido(lat) && this.isValido(lng) && lat !== 0 && lng !== 0 && status !== 0) {
+            const marker = L.marker([lat, lng]).addTo(this.map);
+
+            const inteirosString = setor.tags
+                .filter(tag => tag.tipo !== TipoTag.Booleano && !tag.vazia)
+                .map(tag => {
+                    console.log("Exibindo Tag Inteira no Mapa:", tag.nome, "Vazia:", tag.vazia, "Valor:", tag.leituraInt);
+                    return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraInt)}</li>`;
+                })
+                .join('');
+
+            const booleanosString = setor.tags
+                .filter(tag => tag.tipo === TipoTag.Booleano && !tag.vazia)
+                .map(tag => {
+                    console.log("Exibindo Tag Booleana no Mapa:", tag.nome, "Vazia:", tag.vazia, "Valor:", tag.leituraBool);
+                    return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraBool ? 1 : 0)}</li>`;
+                })
+                .join('');
+
+            const popupContent = `
+                <div class="leaflet-popup-content">
+                    <b>Setor:</b> ${nomeSetor}<br>
+                    <b>Último Tempo:</b> ${ultimoTempoFormatado}<br>
+                    <b>Inteiros:</b>
+                    <ul>${inteirosString || '<li>Nenhuma tag inteira disponível</li>'}</ul>
+                    <b>Booleanos:</b>
+                    <ul>${booleanosString || '<li>Nenhuma tag booleana disponível</li>'}</ul>
+                </div>
+            `;
+            marker.bindPopup(popupContent).openPopup();
+        }
+    });
+}
