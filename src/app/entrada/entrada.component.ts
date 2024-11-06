@@ -68,32 +68,32 @@ export class EntradaComponent implements OnInit {
   }
 
   private carregarSetores(): void {
-    const sessaoId = this.gerarSessaoId();
-
-    this.entradaService.fazerSegundaRequisicao(sessaoId).pipe(
-      switchMap((resposta: ArrayBuffer) => {
-        console.log('Resposta recebida da requisição:', resposta);
-        const arrayBufferView = new Uint8Array(resposta);
-        this.entradaService.parseSecondResponse(arrayBufferView);
-
-        return this.setores$;
-      })
-    ).subscribe(setores => {
-      console.log('Setores recebidos no mapa:', setores);
-
-      // Organizar setores na lista global por unidade
-      setores.forEach(setor => {
-        const unidade = this.getUnidadeDoSetor(setor);
-        if (unidade) {
-          this.listaGlobal[unidade].push(setor);
+    const sessaoIdAleatoria = this.gerarSessaoId();
+    this.entradaService.fazerSegundaRequisicao(sessaoIdAleatoria).subscribe({
+      next: (response) => {
+        const setoresInterpretados = this.entradaService.listaGlobal;
+        if (setoresInterpretados && setoresInterpretados.length > 0) {
+          this.adicionarPontosNoMapa(setoresInterpretados);
+          console.log("Setores adicionados ao mapa com sucesso.");
+        } else {
+          console.warn("Nenhum setor disponível para exibição no mapa.");
         }
-      });
-
-      this.adicionarPontosNoMapa(setores);
-    }, error => {
-      console.error('Erro ao carregar setores:', error);
+      },
+      error: (error) => {
+        console.error('Erro na requisição de teste:', error);
+      }
     });
   }
+
+
+
+
+
+
+
+
+
+
 
  private adicionarPontosNoMapa(setores: Setor[]): void {
     setores.forEach(setor => {
@@ -135,9 +135,7 @@ export class EntradaComponent implements OnInit {
                 <div class="leaflet-popup-content">
                     <b>Setor:</b> ${nomeSetor}<br>
                     <b>Último Tempo:</b> ${ultimoTempoFormatado}<br>
-                    <b>Inteiros:</b>
                     <ul>${inteirosString || '<li>Nenhuma tag inteira disponível</li>'}</ul>
-                    <b>Booleanos:</b>
                     <ul>${booleanosString || '<li>Nenhuma tag booleana disponível</li>'}</ul>
                 </div>
             `;

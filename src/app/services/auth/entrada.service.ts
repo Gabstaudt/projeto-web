@@ -17,45 +17,86 @@ export class EntradaService {
 
   
   public listaGlobal: Setor[] = []; 
+  
 
   private setoresSubject = new BehaviorSubject<Setor[]>([]);
   public setores$: Observable<Setor[]> = this.setoresSubject.asObservable();
 
+
   constructor(private http: HttpClient,
     private TerceiraRequisicaoService: TerceiraRequisicaoService 
   ) {}
-
+//////////////////////////////////////////////////////////////////////////////////////////////
   
- 
-  public carregarSetores(sessaoId: string): void {
-    this.obterPermissoesUsuario().pipe(
-      switchMap(permissoes =>
-        this.fazerSegundaRequisicao(sessaoId).pipe(
-          map((setores: Setor[]) => setores.filter((setor: Setor) => this.validarPermissaoSetor(setor, permissoes)))
-        )
-      )
-    ).subscribe(
+public carregarSetores(sessaoId: string): void {
+  // Carregar permissões do local storage
+  const permissoes = this.carregarPermissoesDoLocalStorage();
+  console.log('Permissões obtidas:', permissoes);
+
+  this.fazerSegundaRequisicao(sessaoId).pipe(
+      map((setores: Setor[]) => {
+          const setoresFiltrados = setores.filter((setor: Setor) => 
+              this.validarPermissaoSetor(setor, permissoes) // Passa o objeto de permissões
+          );
+          console.log('Setores filtrados:', setoresFiltrados);
+          return setoresFiltrados;
+      })
+  ).subscribe(
       setoresPermitidos => {
-        this.setoresSubject.next(setoresPermitidos);
-        this.listaGlobal = setoresPermitidos;
+          if (setoresPermitidos.length > 0) {
+              this.setoresSubject.next(setoresPermitidos);
+              this.listaGlobal = setoresPermitidos;
+              console.log("Setores permitidos carregados com sucesso.");
+          } else {
+              console.warn("Nenhum setor permitido encontrado.");
+          }
       },
       error => console.error('Erro ao carregar setores:', error)
-    );
-  }
-  
-  private obterPermissoesUsuario(): Observable<{ UnidadeUsuario: number, AcessoProducao: boolean, AcessoEmpresa1: boolean, AcessoEmpresa2: boolean, PrivilegioUsuario: number }> {
-    return this.http.get<{ UnidadeUsuario: number, AcessoProducao: boolean, AcessoEmpresa1: boolean, AcessoEmpresa2: boolean, PrivilegioUsuario: number }>('http://localhost:3000/usuario');
-  }
-
-  // Função para validar permissão de setor
-  private validarPermissaoSetor(setor: Setor, permissoes: { UnidadeUsuario: number, AcessoProducao: boolean, AcessoEmpresa1: boolean, AcessoEmpresa2: boolean, PrivilegioUsuario: number }): boolean {
-    const { UnidadeUsuario, AcessoProducao, AcessoEmpresa1, AcessoEmpresa2, PrivilegioUsuario } = permissoes;
-
-    return !((PrivilegioUsuario === 3 || PrivilegioUsuario === 5) && setor.unidade !== UnidadeUsuario && setor.unidade !== 0) &&
-           (AcessoProducao || setor.unidade !== 0) &&
-           (AcessoEmpresa1 || setor.unidade !== 11) &&
-           (AcessoEmpresa2 || setor.unidade !== 12);
+  );
 }
+
+// Método para carregar permissões do local storage
+private carregarPermissoesDoLocalStorage(): { UnidadeUsuario: number, AcessoProducao: boolean, AcessoEmpresa1: boolean, AcessoEmpresa2: boolean, PrivilegioUsuario: number } {
+  const usuario = localStorage.getItem('usuario'); 
+  if (usuario) {
+      return JSON.parse(usuario);
+  }
+  return {
+      UnidadeUsuario: 0,
+      AcessoProducao: false,
+      AcessoEmpresa1: false,
+      AcessoEmpresa2: false,
+      PrivilegioUsuario: 0
+  }; 
+}
+
+private validarPermissaoSetor(setor: Setor, permissoes: { UnidadeUsuario: number, AcessoProducao: boolean, AcessoEmpresa1: boolean, AcessoEmpresa2: boolean, PrivilegioUsuario: number }): boolean {
+  const { UnidadeUsuario, AcessoProducao, AcessoEmpresa1, AcessoEmpresa2, PrivilegioUsuario } = permissoes;
+
+  if ((PrivilegioUsuario === 3 || PrivilegioUsuario === 5) && (setor.unidade !== UnidadeUsuario) && (setor.unidade !== 0)) {
+      return false;
+  }
+
+  if (!AcessoProducao && (setor.unidade === 0)) {
+      return false; 
+  }
+
+  if (!AcessoEmpresa1 && (setor.unidade === 11)) {
+      return false; 
+  }
+
+  if (!AcessoEmpresa2 && (setor.unidade === 12)) {
+      return false;
+  }
+
+  return true; 
+}
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////
 
 
   // Função para fazer a segunda requisição, recebendo a Sessão ID como parâmetro ---  redefinir na pasta entrada depois para receber o id
@@ -86,19 +127,18 @@ export class EntradaService {
 
         return setores; 
       }),
-      switchMap(setores => {
+      switchMap(_ => {
         console.log('Chamando a terceira requisição após a segunda');
-        return this.TerceiraRequisicaoService.enviarComandoSalvar(sessaoId);  // Chama a terceira requisição aqui
+        return this.TerceiraRequisicaoService.enviarComandoSalvar(sessaoId);  // Chama a terceira requisição automaticamente
       }),
-      
-     
-      
+      tap(() => console.log('Terceira requisição concluída com sucesso')),
       catchError(error => {
-        console.error('Erro ao fazer a segunda requisição', error); 
+        console.error('Erro ao fazer a segunda requisição ou na terceira requisição', error); 
         return throwError(() => error);
       })
     );
   }
+  
 
   // gerar os bytes da requisição
   private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoEstrutura: number): ArrayBuffer {
@@ -119,10 +159,7 @@ export class EntradaService {
   public parseSecondResponse(bytes: Uint8Array): Setor[] {
 
   // Variáveis de controle de acesso e privilégios
-  const acessoProducao = true;   
-  const acessoEmpresa1 = true;   
-  const acessoEmpresa2 = true;   
-  const priv = 3;               
+              
 
     let offset = 0; 
 
@@ -324,23 +361,41 @@ export class EntradaService {
         console.log("--------------FINAL DE 1 LOOPING DE ALARME--------------")
 
 
-        alarmes.push(alarme); // array de alarmes do setor
+        alarmes.push(alarme); // Adiciona o alarme ao array
       }
 
-      
-      setor.alarmes = alarmes;
-      setores.push(setor);
-    }
-    this.listaGlobal = setores;
-    this.atualizarListaGlobal(setores);
+      setor.alarmes = alarmes; // Atribui os alarmes ao setor
 
+      // Carregar permissões do local storage
+      const permissoes = this.carregarPermissoesDoLocalStorage(); // Método que retorna um objeto de permissões
+      console.log("Permissões carregadas:", permissoes); // Debug para verificar se as permissões estão corretas
 
-    console.log("Lista global :", this.listaGlobal);
-    console.log("Lista de setor", setores)
-    
-    this.setoresSubject.next(setores); 
-    return setores; 
+      // Verifica se o setor é permitido
+      if (this.validarPermissaoSetor(setor, permissoes)) {
+          setores.push(setor); // Adiciona o setor à lista se permitido
+      } else {
+          console.warn(`Setor ${setor.nome} não permitido para o usuário.`);
+      }
   }
+
+  this.listaGlobal = setores; // Atualiza a lista global com os setores processados
+  this.atualizarListaGlobal(setores); // Atualiza a lista global conforme necessário
+
+  console.log("Lista global :", this.listaGlobal);
+  console.log("Lista de setores:", setores);
+  
+  this.setoresSubject.next(setores); // Emite a lista de setores
+  return setores; 
+}
+
+
+  public atualizarSetoresSubject(): void {
+    this.setoresSubject.next(this.listaGlobal);
+    
+}
+
+
+
 
   // Função para converter bytes em string
   private bytesToString(bytes: Uint8Array): string {

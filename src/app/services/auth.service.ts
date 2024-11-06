@@ -6,7 +6,7 @@ import CryptoJS from 'crypto-js';
 import biri from 'biri';
 import{EntradaService} from '../services/auth/entrada.service';
 import {encodeWithLength,} from '../utils/encoder.utils';
-
+///////////////////////////////aqui a primeira requisição, de autenticação de usuário/////////////////////////////////////////////////////
 
 // o que a interface irá receber de login
 interface LoginResponse {
@@ -174,7 +174,7 @@ export class AuthService {
 
     
     // Retorna o objeto mapeado com todos os dados
-    return {
+    const loginResponse = {
       respostaOK,
       IdUsuario,
       NomeUsuario,
@@ -184,8 +184,13 @@ export class AuthService {
       AcessoEmpresa1,
       AcessoEmpresa2,
       SessaoID
-    };
-  }
+  };
+
+  // Armazena no local storage
+  localStorage.setItem('usuario', JSON.stringify(loginResponse));
+
+  return loginResponse; // Retorna o objeto mapeado
+}
 
   // Função para converter 4 bytes em um inteiro 
   private bytesToInt32(bytes: Uint8Array): number {
