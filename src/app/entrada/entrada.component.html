@@ -7,16 +7,32 @@
 
   <nav class="navbar">
     <img src="../../assets/image/logo-cosanpa.png" alt="Logo" class="logo">
+    
     <ul class="nav-links">
       <li><a href="#" onclick="event.preventDefault()">Opção 1</a></li>
       <li><a href="#" onclick="event.preventDefault()">Opção 2</a></li>
       <li>
         <a href="#" class="search-toggle" onclick="event.preventDefault()">Opção 3</a>
         <div class="search-popup">
-          <input type="text" class="search-bar" placeholder="Pesquisar...">
+          <input type="text" class="search-bar" placeholder="Pesquisar setor..." [(ngModel)]="searchTerm" (input)="filtrarSetores()" />
+          <ul *ngIf="setoresFiltrados.length > 0">
+            <li *ngFor="let setor of setoresFiltrados" (click)="exibirPopupSetor(setor)">
+              {{ setor.nome }}
+            </li>
+          </ul>
         </div>
       </li>
+
+      <!-- Botões das Unidades -->
+      <li><button class="setor-button" (click)="togglePopup('producao')">Produção</button></li>
+      <li><button class="setor-button" (click)="togglePopup('unsul')">UNSUL</button></li>
+      <li><button class="setor-button" (click)="togglePopup('unbr')">UNBR</button></li>
+      <li><button class="setor-button" (click)="togglePopup('unnorte')">UNNORTE</button></li>
+      <li><button class="setor-button" (click)="togglePopup('unam')">UNAM</button></li>
+      <li><button class="setor-button" (click)="togglePopup('unne')">UNNE</button></li>
+      <li><button class="setor-button" (click)="togglePopup('uste')">USTE</button></li>
     </ul>
+    
     <button class="requisicao" (click)="fazerRequisicaoTeste()">Enviar Requisição de Teste</button>
   </nav>
 </header>
@@ -25,18 +41,104 @@
   <main class="map-container">
     <div id="map"></div>
   </main>
+
+  <div *ngIf="activePopup === 'producao'" class="popup">
+    <h3>Produção</h3>
+    <div class="setor-grid">
+      <div *ngFor="let setor of listaGlobal['producao']" class="setor-info">
+        <p><strong>{{ setor.nome }}</strong></p>
+        <p>Endereço: {{ setor.endereco }}</p>
+        <p>Tags: 
+          <ul>
+            <li *ngFor="let tag of setor.tags">{{ tag.nome }}: {{ tag.leituraInt || tag.leituraBool }}</li>
+          </ul>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activePopup === 'unsul'" class="popup">
+    <h3>UNSUL</h3>
+    <div class="setor-grid">
+      <div *ngFor="let setor of listaGlobal['unsul']" class="setor-info">
+        <p><strong>{{ setor.nome }}</strong></p>
+        <p>Endereço: {{ setor.endereco }}</p>
+        <p>Tags: 
+          <ul>
+            <li *ngFor="let tag of setor.tags">{{ tag.nome }}: {{ tag.leituraInt || tag.leituraBool }}</li>
+          </ul>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activePopup === 'unbr'" class="popup">
+    <h3>UNBR</h3>
+    <div class="setor-grid">
+      <div *ngFor="let setor of listaGlobal['unbr']" class="setor-info">
+        <p><strong>{{ setor.nome }}</strong></p>
+        <p>Endereço: {{ setor.endereco }}</p>
+        <p>Tags: 
+          <ul>
+            <li *ngFor="let tag of setor.tags">{{ tag.nome }}: {{ tag.leituraInt || tag.leituraBool }}</li>
+          </ul>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activePopup === 'unnorte'" class="popup">
+    <h3>UNNORTE</h3>
+    <div class="setor-grid">
+      <div *ngFor="let setor of listaGlobal['unnorte']" class="setor-info">
+        <p><strong>{{ setor.nome }}</strong></p>
+        <p>Endereço: {{ setor.endereco }}</p>
+        <p>Tags: 
+          <ul>
+            <li *ngFor="let tag of setor.tags">{{ tag.nome }}: {{ tag.leituraInt || tag.leituraBool }}</li>
+          </ul>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activePopup === 'unam'" class="popup">
+    <h3>UNAM</h3>
+    <div class="setor-grid">
+      <div *ngFor="let setor of listaGlobal['unam']" class="setor-info">
+        <p><strong>{{ setor.nome }}</strong></p>
+        <p>Endereço: {{ setor.endereco }}</p>
+        <p>Tags: 
+          <ul>
+            <li *ngFor="let tag of setor.tags">{{ tag.nome }}: {{ tag.leituraInt || tag.leituraBool }}</li>
+          </ul>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activePopup === 'unne'" class="popup">
+    <h3>UNNE</h3>
+    <div class="setor-grid">
+      <div *ngFor="let setor of listaGlobal['unne']" class="setor-info">
+        <p><strong>{{ setor.nome }}</strong></p>
+        <p>Endereço: {{ setor.endereco }}</p>
+        <p>Tags: 
+          <ul>
+            <li *ngFor="let tag of setor.tags">{{ tag.nome }}: {{ tag.leituraInt || tag.leituraBool }}</li>
+          </ul>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activePopup === 'uste'" class="popup">
+    <h3>USTE</h3>
+    <div class="setor-grid">
+      <div *ngFor="let setor of listaGlobal['uste']" class="setor-info">
+        <p><strong>{{ setor.nome }}</strong></p>
+        <p>Endereço: {{ setor.endereco }}</p>
+        <p>Tags: 
+          <ul>
+            <li *ngFor="let tag of setor.tags">{{ tag.nome }}: {{ tag.leituraInt || tag.leituraBool }}</li>
+          </ul>
+      </div>
+    </div>
+  </div>
 </div>
 
-   
-   
-   
-  
-
-
-
-
-
-
-
-
-
+<router-outlet></router-outlet>

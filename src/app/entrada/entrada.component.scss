@@ -20,7 +20,7 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: rgba(180, 180, 180, 0.9);
+    background-color: rgba(252, 234, 234, 0.9);
     padding: 10px 20px;
     position: fixed;
     top: 0;
@@ -151,42 +151,84 @@ body, html {
         text-align: center;
         padding: 10px 0;
         margin: 20px 0; 
+    }
+}
 
-    }
-     /* Estilo do pop-up de pesquisa  */
-     .search-popup {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 100%; 
-        margin-left: 10px;
-        background-color: white;
-        padding: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 5px;
-        z-index: 100;
-        width: 200px;
-    }
+/* Popup */
+.popup {
+    position: absolute; 
+    background-color: white; 
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); 
+    padding: 15px; 
+    max-width: 600px; 
+    z-index: 1000; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    top: 100px; 
+    display: block; 
+    opacity: 1; 
+}
 
-    .search-popup .search-bar {
-        width: 100%;
-        padding: 8px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-    }
+.setor-grid {
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 15px; 
+}
 
-    /* Ajuste da sidebar */
-    .entrada-container {
-        flex-direction: row;
-        margin-left: 250px;
-    }
+.setor-info {
+    flex: 1 1 calc(33% - 10px); 
+    border: 1px solid #ccc;
+    border-radius: 5px; 
+    padding: 40px; 
+    text-align: center; 
+    background-color: #f9f9f9; 
+}
 
-    .map-container {
-        margin-top: 0;
-        padding: 20px;
+@media (max-width: 768px) {
+    .setor-info {
+        flex: 1 1 calc(33% - 10px); 
     }
+}
 
-    #map {
-        height: calc(100vh - 20px); 
+@media (max-width: 480px) {
+    .setor-info {
+        flex: 1 1 100%; 
     }
+}
+
+.setor-info h4 {
+    margin: 0; 
+    font-size: 16px;
+}
+
+.setor-info p {
+    margin: 5px 0; 
+    color: #555; 
+}
+
+.setor-info ul {
+    padding-left: 15px; 
+    list-style-type: disc; 
+}
+
+.setor-info ul li {
+    color: #666; 
+}
+
+/* Estilo do botão dos setores */
+.setor-button {
+    background-color: #28166F; 
+    color: white;
+    border: none; 
+    border-radius: 5px; 
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px; 
+    display: block; 
+}
+
+.setor-button:hover {
+    background-color: rgba(0, 17, 255, 0.8); 
 }

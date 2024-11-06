@@ -27,12 +27,36 @@ export class EntradaService {
 
   
  
-  public carregarSetores(sessaoId:string): void{
-    this.fazerSegundaRequisicao(sessaoId).subscribe(
-      (setores)=> this.setoresSubject.next(setores),
-      (error)=> console.error('Erro ao carregar setores:', error)
+  public carregarSetores(sessaoId: string): void {
+    this.obterPermissoesUsuario().pipe(
+      switchMap(permissoes =>
+        this.fazerSegundaRequisicao(sessaoId).pipe(
+          map((setores: Setor[]) => setores.filter((setor: Setor) => this.validarPermissaoSetor(setor, permissoes)))
+        )
+      )
+    ).subscribe(
+      setoresPermitidos => {
+        this.setoresSubject.next(setoresPermitidos);
+        this.listaGlobal = setoresPermitidos;
+      },
+      error => console.error('Erro ao carregar setores:', error)
     );
   }
+  
+  private obterPermissoesUsuario(): Observable<{ UnidadeUsuario: number, AcessoProducao: boolean, AcessoEmpresa1: boolean, AcessoEmpresa2: boolean, PrivilegioUsuario: number }> {
+    return this.http.get<{ UnidadeUsuario: number, AcessoProducao: boolean, AcessoEmpresa1: boolean, AcessoEmpresa2: boolean, PrivilegioUsuario: number }>('http://localhost:3000/usuario');
+  }
+
+  // Função para validar permissão de setor
+  private validarPermissaoSetor(setor: Setor, permissoes: { UnidadeUsuario: number, AcessoProducao: boolean, AcessoEmpresa1: boolean, AcessoEmpresa2: boolean, PrivilegioUsuario: number }): boolean {
+    const { UnidadeUsuario, AcessoProducao, AcessoEmpresa1, AcessoEmpresa2, PrivilegioUsuario } = permissoes;
+
+    return !((PrivilegioUsuario === 3 || PrivilegioUsuario === 5) && setor.unidade !== UnidadeUsuario && setor.unidade !== 0) &&
+           (AcessoProducao || setor.unidade !== 0) &&
+           (AcessoEmpresa1 || setor.unidade !== 11) &&
+           (AcessoEmpresa2 || setor.unidade !== 12);
+}
+
 
   // Função para fazer a segunda requisição, recebendo a Sessão ID como parâmetro ---  redefinir na pasta entrada depois para receber o id
   public fazerSegundaRequisicao(sessaoId: string): Observable<any> {
@@ -93,6 +117,12 @@ export class EntradaService {
 
   // interpretar os bytes da resposta 
   public parseSecondResponse(bytes: Uint8Array): Setor[] {
+
+  // Variáveis de controle de acesso e privilégios
+  const acessoProducao = true;   
+  const acessoEmpresa1 = true;   
+  const acessoEmpresa2 = true;   
+  const priv = 3;               
 
     let offset = 0; 
 
@@ -297,6 +327,7 @@ export class EntradaService {
         alarmes.push(alarme); // array de alarmes do setor
       }
 
+      
       setor.alarmes = alarmes;
       setores.push(setor);
     }

@@ -7,6 +7,7 @@ import biri from 'biri';
 import{EntradaService} from '../services/auth/entrada.service';
 import {encodeWithLength,} from '../utils/encoder.utils';
 
+
 // o que a interface irá receber de login
 interface LoginResponse {
   respostaOK: number;          
@@ -32,13 +33,16 @@ export class AuthService {
     private entradaService: EntradaService 
   ) {}
   
-
+  private gerarSessaoId(): string {
+    return biri(); // Gera um ID aleatório usando a biblioteca biri
+  }
+  
   // realizar o login, recebendo usuário e senha
   login(username: string, password: string): Observable<LoginResponse> {
     const AppCommand = 240;   
     const Plataform = 3;      
     const Version = 1;        
-    const GadjetID = biri();  
+    const GadjetID = this.gerarSessaoId();
 
     // cabeçalho para a requisição HTTP
     const headers = new HttpHeaders({

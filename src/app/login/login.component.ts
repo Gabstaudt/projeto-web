@@ -89,11 +89,11 @@ export class LoginComponent implements OnInit {
   }
   
 
-  openModal(): void { // abre o modal (solicitação)
+  openModal(): void { 
     this.isModalOpen = true;
   }
 
-  closeModal(): void { //fecha o modal (solicitação)
+  closeModal(): void { 
     this.isModalOpen = false;
   }
 

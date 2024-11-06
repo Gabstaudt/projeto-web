@@ -5,6 +5,7 @@ import { Setor } from '../models/setor.model';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { TipoTag } from '../models/tipo.model';
+import biri from 'biri';
 
 @Component({
   selector: 'app-entrada',
@@ -13,8 +14,21 @@ import { TipoTag } from '../models/tipo.model';
 })
 export class EntradaComponent implements OnInit {
   private map: any;
-
   public setores$: Observable<Setor[]>;
+  public searchTerm: string = ''; 
+  public setoresFiltrados: Setor[] = []; 
+  public activePopup: string | null = null; 
+
+  // Lista global com setores organizados por unidade
+  public listaGlobal: { [key: string]: Setor[] } = {
+    producao: [],
+    unsul: [],
+    unbr: [],
+    unnorte: [],
+    unam: [],
+    unne: [],
+    uste: []
+  };
 
   constructor(private entradaService: EntradaService) {
     this.setores$ = this.entradaService.setores$;
@@ -32,6 +46,27 @@ export class EntradaComponent implements OnInit {
     }).addTo(this.map);
     console.log('Mapa inicializado com sucesso'); 
   }
+
+  filtrarSetores(): void {
+    this.entradaService.setores$.subscribe((setores) => {
+      this.setoresFiltrados = setores.filter(setor => 
+        setor.nome.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    });
+  }
+
+  public exibirPopupSetor(setor: Setor): void {
+    L.popup()
+      .setLatLng([setor.latitude, setor.longitude])
+      .setContent(
+        `<div><strong>Nome:</strong> ${setor.nome}</div>
+         <div><strong>Endereço:</strong> ${setor.endereco}</div>
+         <div><strong>Status:</strong> ${setor.status}</div>
+         <div><strong>Último Tempo:</strong> ${this.formatarData(new Date(setor.ultimoTempo))}</div>`
+      )
+      .openOn(this.map);
+  }
+
   private carregarSetores(): void {
     const sessaoId = this.gerarSessaoId();
 
@@ -39,21 +74,28 @@ export class EntradaComponent implements OnInit {
       switchMap((resposta: ArrayBuffer) => {
         console.log('Resposta recebida da requisição:', resposta);
         const arrayBufferView = new Uint8Array(resposta);
-        console.log('ArrayBuffer convertido:', arrayBufferView);
-
         this.entradaService.parseSecondResponse(arrayBufferView);
 
         return this.setores$;
       })
     ).subscribe(setores => {
       console.log('Setores recebidos no mapa:', setores);
+
+      // Organizar setores na lista global por unidade
+      setores.forEach(setor => {
+        const unidade = this.getUnidadeDoSetor(setor);
+        if (unidade) {
+          this.listaGlobal[unidade].push(setor);
+        }
+      });
+
       this.adicionarPontosNoMapa(setores);
     }, error => {
       console.error('Erro ao carregar setores:', error);
     });
   }
- 
-  private adicionarPontosNoMapa(setores: Setor[]): void {
+
+ private adicionarPontosNoMapa(setores: Setor[]): void {
     setores.forEach(setor => {
         const lat = setor.latitude;
         const lng = setor.longitude;
@@ -105,57 +147,50 @@ export class EntradaComponent implements OnInit {
 }
 
 
-
-
-private formatarData(data: Date): string {
-    if (isNaN(data.getTime())) {
-        return 'Data inválida';
-    }
-
-    const dia = data.getDate().toString().padStart(2, '0');
-    const mes = (data.getMonth() + 1).toString().padStart(2, '0');
-    const ano = data.getFullYear();
-    const horas = data.getHours().toString().padStart(2, '0');
-    const minutos = data.getMinutes().toString().padStart(2, '0');
-    const segundos = data.getSeconds().toString().padStart(2, '0');
-
-    return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
-}
-
-
-
+  private formatarData(data: Date): string {
+    return isNaN(data.getTime()) ? 'Data inválida' : 
+      `${data.getDate().toString().padStart(2, '0')}/${(data.getMonth() + 1).toString().padStart(2, '0')}/${data.getFullYear()} ${data.getHours().toString().padStart(2, '0')}:${data.getMinutes().toString().padStart(2, '0')}:${data.getSeconds().toString().padStart(2, '0')}`;
+  }
 
   private isValido(coordenada: number): boolean {
     return typeof coordenada === 'number' && !isNaN(coordenada);
   }
 
-  gerarSessaoId(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let sessaoId = '';
-    for (let i = 0; i < 32; i++) {
-      sessaoId += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return sessaoId;
+  public gerarSessaoId(): string {
+    return biri(); // Gera um ID aleatório usando a biblioteca biri
+}
+
+
+  private getUnidadeDoSetor(setor: Setor): string | null {
+    if (setor.nome.includes('EAB') || setor.nome.includes('Lago')) return 'producao';
+    if (setor.nome.includes('São Brás') || (parseInt(setor.nome) >= 1 && parseInt(setor.nome) <= 8)) return 'unsul';
+    if (setor.nome.includes('Cidade Nova') || setor.nome.includes('Ananindeua') || setor.nome.includes('Marituba')) return 'unbr';
+    if (setor.nome.includes('Reservatório C3') || setor.nome.includes('Marambaia') || setor.nome.includes('CDP') || setor.nome.includes('5º Setor')) return 'unnorte';
+    if (setor.nome.includes('Bengui') || setor.nome.includes('Catalina') || setor.nome.includes('Tenoné') || setor.nome.includes('Icoaraci') || setor.nome.includes('Águas Negras') || setor.nome.includes('São Roque') || setor.nome.includes('Mosqueiro') || setor.nome.includes('Carananduba') || setor.nome.includes('Outeiro')) return 'unam';
+    if (setor.nome.includes('Inhangapi')) return 'unne';
+    if (setor.nome.includes('Bengui V') || setor.nome.includes('Bougainville')) return 'uste';
+    return null;
   }
+
+  togglePopup(popup: string): void {
+    this.activePopup = this.activePopup === popup ? null : popup;
+  }
+
   fazerRequisicaoTeste(): void {
     const sessaoIdAleatoria = this.gerarSessaoId();
-
     this.entradaService.fazerSegundaRequisicao(sessaoIdAleatoria).subscribe({
-        next: (response) => {
-            console.log('Resposta recebida e interpretada:', response);
-
-            const setoresInterpretados = this.entradaService.listaGlobal;
-
-            if (setoresInterpretados && setoresInterpretados.length > 0) {
-                this.adicionarPontosNoMapa(setoresInterpretados);
-                console.log("Setores adicionados ao mapa com sucesso.");
-            } else {
-                console.warn("Nenhum setor disponível para exibição no mapa.");
-            }
-        },
-        error: (error) => {
-            console.error('Erro na requisição de teste:', error);
+      next: (response) => {
+        const setoresInterpretados = this.entradaService.listaGlobal;
+        if (setoresInterpretados && setoresInterpretados.length > 0) {
+          this.adicionarPontosNoMapa(setoresInterpretados);
+          console.log("Setores adicionados ao mapa com sucesso.");
+        } else {
+          console.warn("Nenhum setor disponível para exibição no mapa.");
         }
+      },
+      error: (error) => {
+        console.error('Erro na requisição de teste:', error);
+      }
     });
-}
+  }
 }
