@@ -5,9 +5,9 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
   <nav class="navbar">
     <img src="../../assets/image/logocosanpa2.png" alt="Logo" class="logo">
-    
     <ul class="nav-links">
       <li><a href="#" onclick="event.preventDefault()">Principal</a></li>
       <li><a href="#" onclick="event.preventDefault()">Produção</a></li>
@@ -18,17 +18,38 @@
       <li><a href="#" onclick="event.preventDefault()">UNNE</a></li>
       <li><a href="#" onclick="event.preventDefault()">UESTE</a></li>
     </ul>
-
-    <img src="../../assets/image/iconebranco.svg" alt="Icon" class="icon"> <!-- Ícone após o último item da navbar -->
+    <img src="../../assets/image/iconebranco.svg" alt="Icon" class="icon" (click)="toggleSidebar()">  
   </nav>
+
+  <div class="sidebar-right" *ngIf="isSidebarOpen" [ngClass]="{'sidebar-open': isSidebarOpen}">
+    <img src="../../assets/image/iconexazul.svg" alt="Fechar" class="close-icon" (click)="toggleSidebar()">    
+    <div class="search-pill">
+      <input type="text" placeholder="Pesquisar setor..." class="search-input" [(ngModel)]="searchTerm" (input)="filtrarSetores()">
+      <img src="../../assets/image/iconepesquisa.png" alt="Ícone de Pesquisa" class="search-icon" (click)="toggleSearchResults()">
+    </div>
+    
+    <!-- Lista de resultados da pesquisa -->
+    <ul *ngIf="setoresFiltrados.length > 0" class="search-results">
+      <li *ngFor="let setor of setoresFiltrados" (click)="exibirPopupSetor(setor)">
+        {{ setor.nome }}
+      </li>
+    </ul>
+    
+    <!-- Lista de Nomes na Sidebar -->
+    <ul class="sidebar-menu">
+      <li>Histórico</li>
+      <li>Exibir</li>
+      <li>Pitometria</li>
+      <li>Configurações</li>
+      <li>Ajuda</li>
+    </ul>
+  </div>
 </header>
 
 <div class="entrada-container">
   <main class="map-container">
     <div id="map"></div>
   </main>
-
-  <!-- Pop-ups para cada setor aqui (Produção, UNSUL, etc.) -->
 </div>
 
 <router-outlet></router-outlet>

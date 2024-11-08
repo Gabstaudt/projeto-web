@@ -19,6 +19,7 @@ export class EntradaComponent implements OnInit {
   public setoresFiltrados: Setor[] = []; 
   public activePopup: string | null = null; 
   isSidebarOpen = false;
+  exibirResultados: boolean = false;
 
   // Lista global com setores organizados por unidade
   public listaGlobal: { [key: string]: Setor[] } = {
@@ -49,12 +50,23 @@ export class EntradaComponent implements OnInit {
   }
 
   filtrarSetores(): void {
-    this.entradaService.setores$.subscribe((setores) => {
-      this.setoresFiltrados = setores.filter(setor => 
+    if (this.searchTerm.trim() === '') {
+      // Se o termo de pesquisa estiver vazio, oculta a lista de resultados
+      this.exibirResultados = false;
+      this.setoresFiltrados = [];
+      return;
+    }
+  
+    // Filtra setores com base no termo de pesquisa
+    this.setores$.subscribe(setores => {
+      this.setoresFiltrados = setores.filter(setor =>
         setor.nome.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
+      // Exibe a lista de resultados se houver correspondências
+      this.exibirResultados = this.setoresFiltrados.length > 0;
     });
   }
+  
 //////////////////popup de pesquisa//////////////////////
 public exibirPopupSetor(setor: Setor): void {
   const nomeSetor = setor.nome || `Setor ${setor.id}`;
@@ -62,18 +74,12 @@ public exibirPopupSetor(setor: Setor): void {
 
   const inteirosString = setor.tags
       .filter(tag => tag.tipo !== TipoTag.Booleano && !tag.vazia)
-      .map(tag => {
-          console.log("Exibindo Tag Inteira:", tag.nome, "Valor:", tag.leituraInt);
-          return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraInt)}</li>`;
-      })
+      .map(tag => `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraInt)}</li>`)
       .join('');
 
   const booleanosString = setor.tags
       .filter(tag => tag.tipo === TipoTag.Booleano && !tag.vazia)
-      .map(tag => {
-          console.log("Exibindo Tag Booleana:", tag.nome, "Valor:", tag.leituraBool);
-          return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraBool ? 1 : 0)}</li>`;
-      })
+      .map(tag => `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraBool ? 1 : 0)}</li>`)
       .join('');
 
   const popupContent = `
@@ -89,9 +95,12 @@ public exibirPopupSetor(setor: Setor): void {
     .setLatLng([setor.latitude, setor.longitude])
     .setContent(popupContent)
     .openOn(this.map);
+
+  this.exibirResultados = false; // Fecha a lista após exibir o popup
 }
 
 ///////////////////////////////////////////////////////////////
+
   private carregarSetores(): void {
     const sessaoIdAleatoria = this.gerarSessaoId();
     this.entradaService.fazerSegundaRequisicao(sessaoIdAleatoria).subscribe({
@@ -199,8 +208,25 @@ public exibirPopupSetor(setor: Setor): void {
     this.activePopup = this.activePopup === popup ? null : popup;
   }
   toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
+    this.isSidebarOpen = !this.isSidebarOpen; // Alterna o estado da sidebar
 
+    const navbar = document.querySelector('.navbar') as HTMLElement;
+    const sidebar = document.querySelector('.sidebar-right') as HTMLElement;
+
+    if (this.isSidebarOpen) {
+        navbar.classList.add('hidden'); // Oculta a navbar
+        sidebar.classList.add('sidebar-open'); // Adiciona a classe para mostrar a sidebar
+    } else {
+        navbar.classList.remove('hidden'); // Mostra a navbar novamente
+        sidebar.classList.remove('sidebar-open'); // Remove a classe para esconder a sidebar
+    }
+}
+
+
+
+
+  toggleSearchResults(): void {
+    this.exibirResultados = !this.exibirResultados;
+  }
  
 }

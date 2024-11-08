@@ -15,6 +15,7 @@ body, html {
     height: 100vh;
 }
 
+/* ////////////////////////////NAVBAR TELA GRANDE///////////////////////////////// */
 .navbar {
     display: flex;
     align-items: center;
@@ -32,7 +33,7 @@ body, html {
     width: 70px;
     height: 70px;
     border-radius: 50%;
-    margin-right: 80px; 
+    margin-right: 80px;
 }
 
 .nav-links {
@@ -42,14 +43,15 @@ body, html {
 }
 
 .nav-links li a {
-    font-size: 20px; 
+    font-size: 20px;
     font-weight: bold;
     color: white;
     text-decoration: none;
 }
+
 .nav-links li a:hover {
-    color: #A8C1E7; 
-    transition: color 0.3s ease; 
+    color: #A8C1E7;
+    transition: color 0.3s ease;
 }
 
 .icon {
@@ -60,19 +62,440 @@ body, html {
 }
 
 .icon:hover {
-    content: url('../../assets/image/iconeazul.svg'); 
+    content: url('../../assets/image/iconeazul.svg');
 }
 
-
-
-/* Mapa */ 
+/* ////////////////////MAPA TELAS GRANDES///////////////////////////////////// */
 .map-container {
     flex-grow: 1;
-    margin-top: 100px; 
+    margin-top: 60px;
 }
 
 #map {
     width: 100%;
-    height: calc(104vh - 150px);
+    height: calc(100vh - 100px);
     border-radius: 8px;
+}
+
+/*//////////////////////////////// SIDE BAR DE PESQUISA E + ITENS/////////////////////////// */
+.sidebar-right {
+    position: fixed;
+    right: 0; /* Mova para a direita para telas grandes */
+    top: 0;
+    width: 332px; /* Largura padrão da sidebar em telas grandes */
+    height: 100vh;
+    background-color: #09041D;
+    opacity: 0.94;
+    z-index: 1001; /* Acima da navbar */
+    transform: translateX(100%); /* Oculta a sidebar fora da tela à direita */
+    transition: transform 0.3s ease;
+}
+
+.sidebar-right.sidebar-open {
+    transform: translateX(0); 
+}
+
+.sidebar-right::-webkit-scrollbar {
+    width: 8px; 
+}
+
+.sidebar-right::-webkit-scrollbar-thumb {
+    background-color: #A8C1E7;
+    border-radius: 4px; 
+}
+
+.sidebar-right::-webkit-scrollbar-thumb:hover {
+    background-color: #7A9DBA; 
+}
+
+.navbar.sidebar-open .icon {
+    display: none; 
+}
+
+.navbar.sidebar-open .nav-links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 65px; 
+    padding-left: 20px;
+    margin-top: 30px;
+}
+
+.close-icon {
+    position: absolute;
+    top: 20px;
+    right: 50px; /* Distância de 64px da borda direita da página */
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: filter 0.3s ease;
+}
+
+.close-icon:hover {
+    content: url('../../assets/image/iconexbranco.svg'); /* Altere para a imagem desejada ao passar o mouse */
+}
+
+/*/////////////////////////////// BARRA DE PESQUISA DA SIDEBAR/////////////////////////////////////// */
+.search-pill {
+    position: relative;
+    width: 227px;
+    height: 58px;
+    background-color: white;
+    border-radius: 100px;
+    margin-top: 115px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.search-input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #333;
+    background-color: transparent;
+}
+
+.search-icon {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+}
+
+/* ESTILO RESULTADO DA PESQUISA */
+.search-results {
+    list-style: none;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #F8F9FA;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.search-results li {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    color: #333;
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+}
+
+.search-results li:hover {
+    background-color: #A8C1E7;
+    color: white;
+}
+
+
+/* LISTA DE NOMES DA SIDEBAR */
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 79px auto 0 auto; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 115px; 
+}
+
+.sidebar-menu li {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    font-weight: 600; 
+    color: white;
+    cursor: pointer;
+    transition: color 0.3s ease; 
+}
+
+.sidebar-menu li:hover {
+    color: #A8C1E7; 
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* /////////////////////////////////////abaixo de 768px/////////////////////////////////////////////////// */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: center; 
+        justify-content: flex-start;
+        background-color: #09041D;
+        height: 100vh;
+        width: 180px;
+        padding-top: 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        transform: translateX(0);
+        transition: transform 0.3s ease;
+        box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar.hidden {
+        opacity: 0; 
+        pointer-events: none; /* Impede a interação com a navbar */
+    }
+
+    .sidebar-right {
+        width: 220px; 
+        right: auto; 
+        left: 0; 
+        transform: translateX(-100%); 
+    }
+   
+    .sidebar-right.sidebar-open {
+        transform: translateX(0); 
+    }
+
+    .navbar.sidebar-open {
+        opacity: 0; 
+        pointer-events: none; 
+    }
+    .search-pill {
+        width: calc(100% - 40px); 
+        margin-top: 202px; 
+    }
+
+    .sidebar-menu {
+        gap: 50px; 
+    }
+
+    .sidebar-menu li {
+        font-size: 20px; 
+    }
+
+    .search-results {
+        width: calc(100% - 20px); 
+    }
+    .logo {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        margin-bottom: 20px;
+        display: block;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        gap: 20px;
+        width: 100%;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links li a {
+        font-size: 18px;
+        padding: 10px 0;
+        color: white;
+        text-decoration: none;
+        display: block;
+        margin-left: -25px; 
+        margin-right: 20px;
+        text-align: center;
+    }
+
+    .icon {
+        margin-top: 20px;
+        width: 35px;
+        height: 35px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .map-container {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+        margin-top: -25px;
+    }
+
+    #map {
+        width: 100%;
+        height: 100vh;
+    }
+}
+
+   /* //////////////////////////////// Entre 768px e 1024px //////////////////////////////// */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .navbar {
+        flex-direction: column;
+        align-items: center; 
+        justify-content: flex-start;
+        background-color: #09041D;
+        height: 100vh;
+        width: 180px; 
+        padding-top: 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        transform: translateX(0);
+        transition: transform 0.3s ease;
+        box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar.hidden {
+        opacity: 0; 
+        pointer-events: none; /* Impede a interação com a navbar */
+    }
+
+    .sidebar-right {
+        width: 250px; 
+        right: auto; 
+        left: 0; 
+        transform: translateX(-100%); 
+    }
+   
+    .sidebar-right.sidebar-open {
+        transform: translateX(0); 
+    }
+
+    .navbar.sidebar-open {
+        opacity: 0; 
+        pointer-events: none; 
+    }
+
+    .search-pill {
+        width: calc(100% - 40px); 
+        margin-top: 202px; 
+    }
+
+    .sidebar-menu {
+        gap: 50px; 
+    }
+
+    .sidebar-menu li {
+        font-size: 20px; 
+    }
+
+    .search-results {
+        width: calc(100% - 20px); 
+    }
+
+    .logo {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        margin-bottom: 20px;
+        display: block;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        gap: 20px;
+        width: 100%;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links li a {
+        font-size: 18px;
+        padding: 10px 0;
+        color: white;
+        text-decoration: none;
+        display: block;
+        margin-left: -25px; 
+        margin-right: 20px;
+        text-align: center;
+    }
+
+    .icon {
+        margin-top: 20px;
+        width: 35px;
+        height: 35px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .map-container {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+        margin-top: -25px;
+    }
+
+    #map {
+        width: 100%;
+        height: 100vh;
+    }
+}
+@media (max-width: 480px) {
+    .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Centraliza a logo e o ícone */
+        background-color: #09041D;
+        height: 106px; /* Altura da navbar */
+        width: 100%; /* Largura total da navbar */
+        padding: 0; /* Remove padding para manter o tamanho exato */
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+    }
+
+    .logo {
+        width: 75px; /* Tamanho da logo */
+        height: 75px;
+        margin-left: 0px; /* Espaço entre logo e ícone */
+        margin-top: 60px;
+    }
+
+    .icon {
+        width: 30px; /* Tamanho do ícone de abrir a sidebar */
+        height: 30px;
+        cursor: pointer;
+    }
+
+    /* Oculte todos os links da navbar */
+    .nav-links {
+        display: none; /* Oculta a lista de links */
+    }
+
+    /* Adiciona estilo para ocultar a navbar */
+    .navbar.hidden {
+        opacity: 0; /* Oculte a navbar com uma transição */
+        pointer-events: none; /* Impede a interação enquanto oculta */
+    }
+    #map {
+        width: 470px; /* Largura do mapa */
+        height: 720px; /* Altura do mapa */
+        border-radius: 8px;
+        position: absolute; /* Para garantir que o mapa seja posicionado corretamente */
+        top: 0; /* Para que fique no topo da sidebar */
+        right: -5px; /* Ajuste aqui para mover o mapa para a direita (10px como exemplo) */
+        z-index: 0; /* Abaixo da sidebar */
+    }
+
+    .map-container {
+        margin-top: 75px; /* Ajuste para a altura da navbar */
+        position: relative; /* Para permitir que o mapa se posicione corretamente */
+        height: 706px; /* Altura do container do mapa */
+    }
 }
