@@ -18,6 +18,7 @@ export class EntradaComponent implements OnInit {
   public searchTerm: string = ''; 
   public setoresFiltrados: Setor[] = []; 
   public activePopup: string | null = null; 
+  isSidebarOpen = false;
 
   // Lista global com setores organizados por unidade
   public listaGlobal: { [key: string]: Setor[] } = {
@@ -54,19 +55,43 @@ export class EntradaComponent implements OnInit {
       );
     });
   }
+//////////////////popup de pesquisa//////////////////////
+public exibirPopupSetor(setor: Setor): void {
+  const nomeSetor = setor.nome || `Setor ${setor.id}`;
+  const ultimoTempoFormatado = setor.ultimoTempo ? this.formatarData(new Date(setor.ultimoTempo)) : 'Data não disponível';
 
-  public exibirPopupSetor(setor: Setor): void {
-    L.popup()
-      .setLatLng([setor.latitude, setor.longitude])
-      .setContent(
-        `<div><strong>Nome:</strong> ${setor.nome}</div>
-         <div><strong>Endereço:</strong> ${setor.endereco}</div>
-         <div><strong>Status:</strong> ${setor.status}</div>
-         <div><strong>Último Tempo:</strong> ${this.formatarData(new Date(setor.ultimoTempo))}</div>`
-      )
-      .openOn(this.map);
-  }
+  const inteirosString = setor.tags
+      .filter(tag => tag.tipo !== TipoTag.Booleano && !tag.vazia)
+      .map(tag => {
+          console.log("Exibindo Tag Inteira:", tag.nome, "Valor:", tag.leituraInt);
+          return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraInt)}</li>`;
+      })
+      .join('');
 
+  const booleanosString = setor.tags
+      .filter(tag => tag.tipo === TipoTag.Booleano && !tag.vazia)
+      .map(tag => {
+          console.log("Exibindo Tag Booleana:", tag.nome, "Valor:", tag.leituraBool);
+          return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraBool ? 1 : 0)}</li>`;
+      })
+      .join('');
+
+  const popupContent = `
+      <div class="leaflet-popup-content">
+          <b>Setor:</b> ${nomeSetor}<br>
+          <b>Último Tempo:</b> ${ultimoTempoFormatado}<br>
+          <ul>${inteirosString || ''}</ul>
+          <ul>${booleanosString || ''}</ul>
+      </div>
+  `;
+
+  L.popup()
+    .setLatLng([setor.latitude, setor.longitude])
+    .setContent(popupContent)
+    .openOn(this.map);
+}
+
+///////////////////////////////////////////////////////////////
   private carregarSetores(): void {
     const sessaoIdAleatoria = this.gerarSessaoId();
     this.entradaService.fazerSegundaRequisicao(sessaoIdAleatoria).subscribe({
@@ -135,8 +160,8 @@ export class EntradaComponent implements OnInit {
                 <div class="leaflet-popup-content">
                     <b>Setor:</b> ${nomeSetor}<br>
                     <b>Último Tempo:</b> ${ultimoTempoFormatado}<br>
-                    <ul>${inteirosString || '<li>Nenhuma tag inteira disponível</li>'}</ul>
-                    <ul>${booleanosString || '<li>Nenhuma tag booleana disponível</li>'}</ul>
+                    <ul>${inteirosString || ''}</ul>
+                    <ul>${booleanosString || ''}</ul>
                 </div>
             `;
             marker.bindPopup(popupContent).openPopup();
@@ -173,22 +198,9 @@ export class EntradaComponent implements OnInit {
   togglePopup(popup: string): void {
     this.activePopup = this.activePopup === popup ? null : popup;
   }
-
-  fazerRequisicaoTeste(): void {
-    const sessaoIdAleatoria = this.gerarSessaoId();
-    this.entradaService.fazerSegundaRequisicao(sessaoIdAleatoria).subscribe({
-      next: (response) => {
-        const setoresInterpretados = this.entradaService.listaGlobal;
-        if (setoresInterpretados && setoresInterpretados.length > 0) {
-          this.adicionarPontosNoMapa(setoresInterpretados);
-          console.log("Setores adicionados ao mapa com sucesso.");
-        } else {
-          console.warn("Nenhum setor disponível para exibição no mapa.");
-        }
-      },
-      error: (error) => {
-        console.error('Erro na requisição de teste:', error);
-      }
-    });
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
   }
+
+ 
 }

@@ -15,220 +15,64 @@ body, html {
     height: 100vh;
 }
 
-/* Navbar */
 .navbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background-color: rgba(252, 234, 234, 0.9);
-    padding: 10px 20px;
+    background-color: #09041D;
+    padding: 0 78px;
     position: fixed;
     top: 0;
-    left: 0;
     width: 100%;
-    z-index: 1000;
+    height: 90px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    height: 100px; 
+    z-index: 1000;
 }
 
 .logo {
-    width: 80px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin-right: 80px; 
 }
 
 .nav-links {
     display: flex;
+    gap: 130px;
     list-style: none;
 }
 
-.nav-links li {
-    position: relative;
-    margin: 0 10px;
-}
-
-.nav-links a {
-    background-color: #28166F;
+.nav-links li a {
+    font-size: 20px; 
+    font-weight: bold;
     color: white;
-    padding: 8px 15px;
-    border-radius: 5px;
     text-decoration: none;
-    transition: background-color 0.3s;
+}
+.nav-links li a:hover {
+    color: #A8C1E7; 
+    transition: color 0.3s ease; 
 }
 
-.nav-links a:hover {
-    background-color: rgba(0, 17, 255, 0.1);
+.icon {
+    width: 35px;
+    height: 35px;
+    transition: filter 0.3s ease;
+    margin-left: 80px;
 }
 
-/* Botão de Requisição */
-.requisicao {
-    background-color: #ff6700;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-size: 0.9em;
+.icon:hover {
+    content: url('../../assets/image/iconeazul.svg'); 
 }
 
-.requisicao:hover {
-    background-color: #ff6700cc;
-}
 
-/* Pop-up de Pesquisa */
-.search-popup {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: white;
-    padding: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    margin-top: 8px;
-    z-index: 100;
-    width: 200px;
-}
 
-.search-popup .search-bar {
-    width: 100%;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-.nav-links li:hover .search-popup {
-    display: block;
-}
-
-/* Mapa */
+/* Mapa */ 
 .map-container {
     flex-grow: 1;
-    padding: 20px;
-    margin-top: 60px; 
-    display: flex;
+    margin-top: 100px; 
 }
 
 #map {
     width: 100%;
-    height: calc(100vh - 80px); 
+    height: calc(104vh - 150px);
     border-radius: 8px;
-}
-
-/* Sidebar para telas menores */
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-        align-items: center; 
-        justify-content: flex-start; 
-        height: 100vh;
-        width: 250px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        padding: 20px 0; 
-    }
-
-    .logo {
-        width: 80%;
-        margin-bottom: 30px; 
-        text-align: center;
-    }
-
-    .nav-links {
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-    }
-
-    .nav-links li {
-        margin: 20px 0; 
-        text-align: center;
-    }
-
-    .nav-links a, .requisicao {
-        width: 80%; 
-        text-align: center;
-        padding: 10px 0;
-        margin: 20px 0; 
-    }
-}
-
-/* Popup */
-.popup {
-    position: absolute; 
-    background-color: white; 
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); 
-    padding: 15px; 
-    max-width: 600px; 
-    z-index: 1000; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    top: 100px; 
-    display: block; 
-    opacity: 1; 
-}
-
-.setor-grid {
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 15px; 
-}
-
-.setor-info {
-    flex: 1 1 calc(33% - 10px); 
-    border: 1px solid #ccc;
-    border-radius: 5px; 
-    padding: 40px; 
-    text-align: center; 
-    background-color: #f9f9f9; 
-}
-
-@media (max-width: 768px) {
-    .setor-info {
-        flex: 1 1 calc(33% - 10px); 
-    }
-}
-
-@media (max-width: 480px) {
-    .setor-info {
-        flex: 1 1 100%; 
-    }
-}
-
-.setor-info h4 {
-    margin: 0; 
-    font-size: 16px;
-}
-
-.setor-info p {
-    margin: 5px 0; 
-    color: #555; 
-}
-
-.setor-info ul {
-    padding-left: 15px; 
-    list-style-type: disc; 
-}
-
-.setor-info ul li {
-    color: #666; 
-}
-
-/* Estilo do botão dos setores */
-.setor-button {
-    background-color: #28166F; 
-    color: white;
-    border: none; 
-    border-radius: 5px; 
-    padding: 8px 15px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 10px; 
-    display: block; 
-}
-
-.setor-button:hover {
-    background-color: rgba(0, 17, 255, 0.8); 
 }
