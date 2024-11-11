@@ -225,7 +225,7 @@ body, html {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* /////////////////////////////////////abaixo de 768px/////////////////////////////////////////////////// */
-@media (max-width: 768px) {
+@media (max-width: 1855px) {
     .navbar {
         flex-direction: column;
         align-items: center; 
@@ -445,57 +445,115 @@ body, html {
         height: 100vh;
     }
 }
-@media (max-width: 480px) {
+///////////////////////////////////////////
+
+@media (min-width: 380px) and (max-width: 480px) {
     .navbar {
-        display: flex;
-        align-items: center;
-        justify-content: center; /* Centraliza a logo e o ícone */
+        flex-direction: column;
+        align-items: center; 
+        justify-content: flex-start;
         background-color: #09041D;
-        height: 106px; /* Altura da navbar */
-        width: 100%; /* Largura total da navbar */
-        padding: 0; /* Remove padding para manter o tamanho exato */
+        height: 100vh;
+        width: 100px; 
+        padding-top: 20px;
         position: fixed;
         top: 0;
         left: 0;
-        z-index: 1000;
+        transform: translateX(0);
+        transition: transform 0.3s ease;
+        box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar.hidden {
+        opacity: 0; 
+        pointer-events: none; /* Impede a interação com a navbar */
+    }
+
+    .sidebar-right {
+        width: 180px; 
+        right: auto; 
+        left: 0; 
+        transform: translateX(-100%); 
+    }
+
+    .sidebar-right.sidebar-open {
+        transform: translateX(0); 
+    }
+
+    .navbar.sidebar-open {
+        opacity: 0; 
+        pointer-events: none; 
+    }
+
+    .search-pill {
+        width: calc(100% - 40px); 
+        margin-top: 202px; 
+    }
+
+    .sidebar-menu {
+        gap: 50px; 
+    }
+
+    .sidebar-menu li {
+        font-size: 20px; 
+    }
+
+    .search-results {
+        width: calc(100% - 20px); 
     }
 
     .logo {
-        width: 75px; /* Tamanho da logo */
-        height: 75px;
-        margin-left: 0px; /* Espaço entre logo e ícone */
-        margin-top: 60px;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        margin-bottom: 20px;
+        display: block;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        gap: 20px;
+        width: 100%;
+        margin-left: 5px;
+        margin-right: 20px;
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links li a {
+        font-size: 18px;
+        padding: 10px 0;
+        color: white;
+        text-decoration: none;
+        display: block;
+        margin-left: -25px; 
+        margin-right: 20px;
+        text-align: center;
     }
 
     .icon {
-        width: 30px; /* Tamanho do ícone de abrir a sidebar */
-        height: 30px;
-        cursor: pointer;
-    }
-
-    /* Oculte todos os links da navbar */
-    .nav-links {
-        display: none; /* Oculta a lista de links */
-    }
-
-    /* Adiciona estilo para ocultar a navbar */
-    .navbar.hidden {
-        opacity: 0; /* Oculte a navbar com uma transição */
-        pointer-events: none; /* Impede a interação enquanto oculta */
-    }
-    #map {
-        width: 470px; /* Largura do mapa */
-        height: 720px; /* Altura do mapa */
-        border-radius: 8px;
-        position: absolute; /* Para garantir que o mapa seja posicionado corretamente */
-        top: 0; /* Para que fique no topo da sidebar */
-        right: -5px; /* Ajuste aqui para mover o mapa para a direita (10px como exemplo) */
-        z-index: 0; /* Abaixo da sidebar */
+        margin-top: 20px;
+        width: 35px;
+        height: 35px;
+        margin-left: 20px;
+        margin-right: 20px;
     }
 
     .map-container {
-        margin-top: 75px; /* Ajuste para a altura da navbar */
-        position: relative; /* Para permitir que o mapa se posicione corretamente */
-        height: 706px; /* Altura do container do mapa */
+        margin-left: 155px; /* Ajuste da margem esquerda para quase encostar na sidebar */
+        width: calc(100% - 155px); /* Ajuste do tamanho para o mapa ocupar o restante da tela */
+        margin-top: -25px;
+    }
+
+    #map {
+        width: 100%;
+        height: 100vh;
     }
 }
