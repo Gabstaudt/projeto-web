@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import { EntradaService } from '../services/auth/entrada.service';
 import { Setor } from '../models/setor.model';
@@ -12,7 +12,7 @@ import biri from 'biri';
   templateUrl: './entrada.component.html',
   styleUrls: ['./entrada.component.scss']
 })
-export class EntradaComponent implements OnInit {
+export class EntradaComponent implements AfterViewInit {
   private map: any;
   public setores$: Observable<Setor[]>;
   public searchTerm: string = ''; 
@@ -20,6 +20,8 @@ export class EntradaComponent implements OnInit {
   public activePopup: string | null = null; 
   isSidebarOpen = false;
   exibirResultados: boolean = false;
+
+  conteudoSelecionado: string = 'principal'; // Inicialmente, exibindo o mapa
 
   // Lista global com setores organizados por unidade
   public listaGlobal: { [key: string]: Setor[] } = {
@@ -36,8 +38,13 @@ export class EntradaComponent implements OnInit {
     this.setores$ = this.entradaService.setores$;
   }
 
-  ngOnInit(): void {
-    this.iniciarMapa();
+ 
+
+  ngAfterViewInit(): void {
+    // Inicializa o mapa e carrega os setores quando a visualização está pronta
+    if (this.conteudoSelecionado === 'principal') {
+      this.iniciarMapa();
+    }
     this.carregarSetores();
   }
 
@@ -228,5 +235,39 @@ public exibirPopupSetor(setor: Setor): void {
   toggleSearchResults(): void {
     this.exibirResultados = !this.exibirResultados;
   }
- 
+
+
+
+  mostrarConteudo(secao: string) {
+    console.log(`Seção selecionada: ${secao}`);
+    this.conteudoSelecionado = secao;
+
+    if (secao === 'principal') {
+      setTimeout(() => {
+        this.reiniciarMapa(); // Inicializa ou recria o mapa
+        this.carregarSetores(); // Carrega os setores novamente ao voltar para a seção principal
+      });
+    } else {
+      this.destruirMapa(); // Destrói o mapa quando sai da seção principal
+    }
+  }
+
+   private reiniciarMapa(): void {
+    // Remove o mapa se ele já existir e cria um novo
+    if (this.map) {
+      this.map.remove(); // Remove o mapa existente
+      this.map = null;   // Limpa a referência ao mapa para recriação
+    }
+    this.iniciarMapa();  // Cria o mapa novamente
+  }
+
+  private destruirMapa(): void {
+    // Destrói o mapa quando não for necessário
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+  }
+
+  
 }

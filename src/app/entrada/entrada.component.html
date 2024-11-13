@@ -9,14 +9,19 @@
   <nav class="navbar">
     <img src="../../assets/image/logocosanpa2.png" alt="Logo" class="logo">
     <ul class="nav-links">
-      <li><a href="#" onclick="event.preventDefault()">Principal</a></li>
-      <li><a href="#" onclick="event.preventDefault()">Produção</a></li>
-      <li><a href="#" onclick="event.preventDefault()">UNSUL</a></li>
-      <li><a href="#" onclick="event.preventDefault()">UNBR</a></li>
-      <li><a href="#" onclick="event.preventDefault()">UNNORTE</a></li>
-      <li><a href="#" onclick="event.preventDefault()">UNAM</a></li>
-      <li><a href="#" onclick="event.preventDefault()">UNNE</a></li>
-      <li><a href="#" onclick="event.preventDefault()">UESTE</a></li>
+      <nav class="navbar">
+        <ul class="nav-links">
+          <li><a (click)="mostrarConteudo('principal')" [ngClass]="{'active': conteudoSelecionado === 'principal'}">Principal</a></li>
+          <li><a (click)="mostrarConteudo('producao')" [ngClass]="{'active': conteudoSelecionado === 'producao'}">Produção</a></li>
+          <li><a (click)="mostrarConteudo('unsul')" [ngClass]="{'active': conteudoSelecionado === 'unsul'}">UNSUL</a></li>
+          <li><a (click)="mostrarConteudo('unbr')" [ngClass]="{'active': conteudoSelecionado === 'unbr'}">UNBR</a></li>
+          <li><a (click)="mostrarConteudo('unnorte')" [ngClass]="{'active': conteudoSelecionado === 'unnorte'}">UNNORTE</a></li>
+          <li><a (click)="mostrarConteudo('unam')" [ngClass]="{'active': conteudoSelecionado === 'unam'}">UNAM</a></li>
+          <li><a (click)="mostrarConteudo('unne')" [ngClass]="{'active': conteudoSelecionado === 'unne'}">UNNE</a></li>
+          <li><a (click)="mostrarConteudo('uste')" [ngClass]="{'active': conteudoSelecionado === 'uste'}">USTE</a></li>
+        </ul>
+      </nav>
+      
     </ul>
     <img src="../../assets/image/iconebranco.svg" alt="Icon" class="icon" (click)="toggleSidebar()">  
   </nav>
@@ -48,7 +53,34 @@
 
 <div class="entrada-container">
   <main class="map-container">
-    <div id="map"></div>
+    <!-- Mapa exibido apenas quando a seção principal estiver selecionada -->
+    <div id="map" *ngIf="conteudoSelecionado === 'principal'"></div>
+
+    <!-- Conteúdo dinâmico com base na seleção -->
+    <div *ngIf="conteudoSelecionado !== 'principal'">
+      <div *ngIf="conteudoSelecionado === 'producao'">
+        <h2>Conteúdo Produção</h2>
+        <object type="image/svg+xml" data="../../assets/Group 1.svg"></object>
+
+        
+        
+        
+         
+         </div>
+      <div *ngIf="conteudoSelecionado === 'unsul'">
+        <h2>Conteúdo UNSUL</h2>
+        <p>Este é o conteúdo da seção UNSUL. Substitua isso com o conteúdo específico para essa seção.</p>
+      </div>
+      <div *ngIf="conteudoSelecionado === 'unbr'">
+        <h2>Conteúdo UNBR</h2>
+        <p>Este é o conteúdo da seção UNBR. Substitua isso com o conteúdo específico para essa seção.</p>
+      </div>
+      <div *ngIf="conteudoSelecionado === 'unnorte'">
+        <h2>Conteúdo UNNORTE</h2>
+        <p>Este é o conteúdo da seção UNNORTE. Substitua isso com o conteúdo específico para essa seção.</p>
+      </div>
+      <!-- Adicione outras seções conforme necessário -->
+    </div>
   </main>
 </div>
 
