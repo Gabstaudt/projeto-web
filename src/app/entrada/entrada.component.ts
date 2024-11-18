@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import * as L from 'leaflet';
 import { EntradaService } from '../services/auth/entrada.service';
 import { Setor } from '../models/setor.model';
@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { TipoTag } from '../models/tipo.model';
 import biri from 'biri';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-entrada',
@@ -13,6 +14,9 @@ import biri from 'biri';
   styleUrls: ['./entrada.component.scss']
 })
 export class EntradaComponent implements AfterViewInit {
+
+  @ViewChild('percentageText', { static: false }) percentageText!: ElementRef;
+
   private map: any;
   public setores$: Observable<Setor[]>;
   public searchTerm: string = ''; 
@@ -23,6 +27,7 @@ export class EntradaComponent implements AfterViewInit {
 
   conteudoSelecionado: string = 'principal'; // Inicialmente, exibindo o mapa
 
+  nivelAgua: number = 0; 
   // Lista global com setores organizados por unidade
   public listaGlobal: { [key: string]: Setor[] } = {
     producao: [],
@@ -34,7 +39,7 @@ export class EntradaComponent implements AfterViewInit {
     uste: []
   };
 
-  constructor(private entradaService: EntradaService) {
+  constructor(private entradaService: EntradaService,  private router: Router) {
     this.setores$ = this.entradaService.setores$;
   }
 
@@ -46,6 +51,10 @@ export class EntradaComponent implements AfterViewInit {
       this.iniciarMapa();
     }
     this.carregarSetores();
+    this.atualizarNivelAgua();
+
+    
+
   }
 
   private iniciarMapa(): void {
@@ -269,5 +278,56 @@ public exibirPopupSetor(setor: Setor): void {
     }
   }
 
+  ////////////////////////////////////////////////////////
+  atualizarNivelAgua(): void {
+    const waterLevelElement = document.getElementById('water-level');
+    if (waterLevelElement) {
+      console.log('Elemento water-level encontrado:', waterLevelElement); // Verificação de console
+
+      // Altura máxima da parte interna onde a água pode se mover
+      const alturaMaxima = 198; // Altura máxima que a água pode alcançar (altura do retângulo branco)
+      const posicaoYSuperior = 51; // Posição y da parte superior da área preenchível
+
+      // Calcula a nova altura com base na porcentagem do nível da água
+      const novaAltura = (this.nivelAgua / 100) * alturaMaxima;
+
+      // Ajusta a posição Y para que a água cresça de baixo para cima
+      const novaPosicaoY = posicaoYSuperior + (alturaMaxima - novaAltura);
+
+      // Atualiza o atributo "height" e "y" do nível da água
+      waterLevelElement.setAttribute('height', novaAltura.toString());
+      waterLevelElement.setAttribute('y', novaPosicaoY.toString());
+
+      console.log(`Altura da água: ${novaAltura}, Posição Y: ${novaPosicaoY}`); // Verificação de valores
+    } else {
+      console.error('Elemento water-level não encontrado no DOM.');
+    }
+
+    // Atualiza o valor de porcentagem no texto
+    if (this.percentageText) {
+      this.percentageText.nativeElement.textContent = `${this.nivelAgua}%`;
+    }
+  }
+
+  aumentarNivelAgua(): void {
+    if (this.nivelAgua < 100) {
+      this.nivelAgua += 5; // Aumenta o nível em 5%
+      this.atualizarNivelAgua();
+    }
+  }
+
+  diminuirNivelAgua(): void {
+    if (this.nivelAgua > 0) {
+      this.nivelAgua -= 5; // Diminui o nível em 5%
+      this.atualizarNivelAgua();
+    }
+  }
+
+  logout() {
+    // Aqui você pode limpar o localStorage ou a sessão
+    localStorage.clear();  // Isso remove todos os dados armazenados no localStorage
+    // ou qualquer outro método que armazene os dados do usuário
+    this.router.navigate(['/login']); // Redirecionar para a página de login
+  }
   
 }

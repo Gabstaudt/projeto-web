@@ -21,7 +21,7 @@ body, html {
     align-items: center;
     background-color: #09041D;
     padding: 0 78px; /* Ajusta o padding para os lados */
-    padding-left: 60px; /* Adiciona espaço suficiente para o ícone à esquerda */
+    padding-left: 50px; /* Adiciona espaço suficiente para o ícone à esquerda */
     position: fixed;
     top: 0;
     width: 100%;
@@ -35,12 +35,12 @@ body, html {
     width: 70px;
     height: 70px;
     border-radius: 50%;
-    margin-right: 80px;
+    margin-right: 30px;
 }
 
 .nav-links {
     display: flex;
-    gap: 130px;
+    gap: 110px;
     list-style: none;
 }
 
@@ -55,10 +55,13 @@ body, html {
     color: #A8C1E7;
     transition: color 0.3s ease;
 }
+
+
+
 .icon {
     position: absolute; /* Permite que o ícone seja posicionado no canto direito */
     top: 50%; /* Centraliza verticalmente na navbar */
-    right: 20px; /* Coloca o ícone próximo ao canto direito */
+    right: 55px; /* Coloca o ícone próximo ao canto direito */
     transform: translateY(-50%); /* Ajuste para centralizar corretamente o ícone verticalmente */
     width: 35px;
     height: 35px;
@@ -66,9 +69,6 @@ body, html {
     cursor: pointer; /* Indica que o ícone é clicável */
     transition: filter 0.3s ease;
 }
-
-
-
 
 .icon:hover {
     content: url('../../assets/image/iconeazul.svg');
@@ -302,11 +302,11 @@ body, html {
     
         /* Ícone de Abrir/Fechar a Sidebar */
         .icon {
-            margin-top: 100px;
+            margin-top: 180px;
             width: 35px;
             height: 35px;
-            margin-left: 50px;
-            margin-right: 55px;
+            margin-left: 80px;
+            margin-right: 25px;
             
             
         }
