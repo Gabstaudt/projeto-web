@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
 import { EntradaService } from '../services/auth/entrada.service';
 import { Setor } from '../models/setor.model';
@@ -7,13 +7,16 @@ import { switchMap } from 'rxjs/operators';
 import { TipoTag } from '../models/tipo.model';
 import biri from 'biri';
 import { Router } from '@angular/router';
+import { TerceiraRequisicaoService } from '../services/authdados/dados.service';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-entrada',
   templateUrl: './entrada.component.html',
   styleUrls: ['./entrada.component.scss']
 })
-export class EntradaComponent implements AfterViewInit {
+export class EntradaComponent implements AfterViewInit, OnDestroy {
+  private subscription: Subscription | null = null;
 
   @ViewChild('percentageText', { static: false }) percentageText!: ElementRef;
 
@@ -39,7 +42,8 @@ export class EntradaComponent implements AfterViewInit {
     uste: []
   };
 
-  constructor(private entradaService: EntradaService,  private router: Router) {
+  constructor(private entradaService: EntradaService,  private router: Router,     private terceiraRequisicaoService: TerceiraRequisicaoService
+  ) {
     this.setores$ = this.entradaService.setores$;
   }
 
@@ -50,7 +54,11 @@ export class EntradaComponent implements AfterViewInit {
     if (this.conteudoSelecionado === 'principal') {
       this.iniciarMapa();
     }
+    this.carregarEstruturaEDados()
     this.carregarSetores();
+
+    this.iniciarRequisicoesPeriodicas();
+
     this.atualizarNivelAgua();
 
     
@@ -208,33 +216,21 @@ public exibirPopupSetor(setor: Setor): void {
     return biri(); // Gera um ID aleatório usando a biblioteca biri
 }
 
-
-  private getUnidadeDoSetor(setor: Setor): string | null {
-    if (setor.nome.includes('EAB') || setor.nome.includes('Lago')) return 'producao';
-    if (setor.nome.includes('São Brás') || (parseInt(setor.nome) >= 1 && parseInt(setor.nome) <= 8)) return 'unsul';
-    if (setor.nome.includes('Cidade Nova') || setor.nome.includes('Ananindeua') || setor.nome.includes('Marituba')) return 'unbr';
-    if (setor.nome.includes('Reservatório C3') || setor.nome.includes('Marambaia') || setor.nome.includes('CDP') || setor.nome.includes('5º Setor')) return 'unnorte';
-    if (setor.nome.includes('Bengui') || setor.nome.includes('Catalina') || setor.nome.includes('Tenoné') || setor.nome.includes('Icoaraci') || setor.nome.includes('Águas Negras') || setor.nome.includes('São Roque') || setor.nome.includes('Mosqueiro') || setor.nome.includes('Carananduba') || setor.nome.includes('Outeiro')) return 'unam';
-    if (setor.nome.includes('Inhangapi')) return 'unne';
-    if (setor.nome.includes('Bengui V') || setor.nome.includes('Bougainville')) return 'uste';
-    return null;
-  }
-
   togglePopup(popup: string): void {
     this.activePopup = this.activePopup === popup ? null : popup;
   }
   toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen; // Alterna o estado da sidebar
+    this.isSidebarOpen = !this.isSidebarOpen;
 
     const navbar = document.querySelector('.navbar') as HTMLElement;
     const sidebar = document.querySelector('.sidebar-right') as HTMLElement;
 
     if (this.isSidebarOpen) {
         navbar.classList.add('hidden'); // Oculta a navbar
-        sidebar.classList.add('sidebar-open'); // Adiciona a classe para mostrar a sidebar
+        sidebar.classList.add('sidebar-open'); 
     } else {
-        navbar.classList.remove('hidden'); // Mostra a navbar novamente
-        sidebar.classList.remove('sidebar-open'); // Remove a classe para esconder a sidebar
+        navbar.classList.remove('hidden'); 
+        sidebar.classList.remove('sidebar-open'); 
     }
 }
 
@@ -254,24 +250,24 @@ public exibirPopupSetor(setor: Setor): void {
     if (secao === 'principal') {
       setTimeout(() => {
         this.reiniciarMapa(); // Inicializa ou recria o mapa
-        this.carregarSetores(); // Carrega os setores novamente ao voltar para a seção principal
+        this.carregarSetores(); 
+        this.carregarEstruturaEDados();
       });
     } else {
-      this.destruirMapa(); // Destrói o mapa quando sai da seção principal
+      this.destruirMapa(); // "Destrói" o mapa quando sai da seção principal
     }
   }
 
    private reiniciarMapa(): void {
     // Remove o mapa se ele já existir e cria um novo
     if (this.map) {
-      this.map.remove(); // Remove o mapa existente
-      this.map = null;   // Limpa a referência ao mapa para recriação
+      this.map.remove(); 
+      this.map = null; 
     }
-    this.iniciarMapa();  // Cria o mapa novamente
+    this.iniciarMapa();  
   }
 
   private destruirMapa(): void {
-    // Destrói o mapa quando não for necessário
     if (this.map) {
       this.map.remove();
       this.map = null;
@@ -282,11 +278,11 @@ public exibirPopupSetor(setor: Setor): void {
   atualizarNivelAgua(): void {
     const waterLevelElement = document.getElementById('water-level');
     if (waterLevelElement) {
-      console.log('Elemento water-level encontrado:', waterLevelElement); // Verificação de console
+      console.log('Elemento water-level encontrado:', waterLevelElement); 
 
-      // Altura máxima da parte interna onde a água pode se mover
-      const alturaMaxima = 198; // Altura máxima que a água pode alcançar (altura do retângulo branco)
-      const posicaoYSuperior = 51; // Posição y da parte superior da área preenchível
+     
+      const alturaMaxima = 198; // Altura máxima 
+      const posicaoYSuperior = 51; 
 
       // Calcula a nova altura com base na porcentagem do nível da água
       const novaAltura = (this.nivelAgua / 100) * alturaMaxima;
@@ -294,11 +290,11 @@ public exibirPopupSetor(setor: Setor): void {
       // Ajusta a posição Y para que a água cresça de baixo para cima
       const novaPosicaoY = posicaoYSuperior + (alturaMaxima - novaAltura);
 
-      // Atualiza o atributo "height" e "y" do nível da água
+      // Atualiza height e y do nível da água
       waterLevelElement.setAttribute('height', novaAltura.toString());
       waterLevelElement.setAttribute('y', novaPosicaoY.toString());
 
-      console.log(`Altura da água: ${novaAltura}, Posição Y: ${novaPosicaoY}`); // Verificação de valores
+      console.log(`Altura da água: ${novaAltura}, Posição Y: ${novaPosicaoY}`); 
     } else {
       console.error('Elemento water-level não encontrado no DOM.');
     }
@@ -311,23 +307,92 @@ public exibirPopupSetor(setor: Setor): void {
 
   aumentarNivelAgua(): void {
     if (this.nivelAgua < 100) {
-      this.nivelAgua += 5; // Aumenta o nível em 5%
+      this.nivelAgua += 5; // 
       this.atualizarNivelAgua();
     }
   }
 
   diminuirNivelAgua(): void {
     if (this.nivelAgua > 0) {
-      this.nivelAgua -= 5; // Diminui o nível em 5%
+      this.nivelAgua -= 5; 
       this.atualizarNivelAgua();
     }
   }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   logout() {
-    // Aqui você pode limpar o localStorage ou a sessão
-    localStorage.clear();  // Isso remove todos os dados armazenados no localStorage
-    // ou qualquer outro método que armazene os dados do usuário
-    this.router.navigate(['/login']); // Redirecionar para a página de login
+    localStorage.clear();  
+    this.router.navigate(['/login']); 
+  }
+
+  private carregarEstruturaEDados(): void {
+    const sessaoId = localStorage.getItem('SessaoID'); 
+  
+    if (!sessaoId) {
+      console.error('Sessão não encontrada. Não é possível fazer as requisições.');
+      return;
+    }
+  
+    // Encadeia as requisições
+    this.entradaService.fazerSegundaRequisicao(sessaoId).pipe(
+      switchMap(() => {
+        console.log('Estrutura carregada. Iniciando requisição de dados...');
+        return this.terceiraRequisicaoService.enviarComandoSalvar(sessaoId); 
+      })
+    ).subscribe({
+      next: () => {
+        console.log('Requisição de dados concluída com sucesso.');
+        // Atualiza o mapa com a lista global após a terceira requisição
+        const setoresInterpretados = this.entradaService.listaGlobal;
+        if (setoresInterpretados && setoresInterpretados.length > 0) {
+          this.adicionarPontosNoMapa(setoresInterpretados);
+          console.log("Setores adicionados ao mapa com sucesso após a requisição de dados.");
+        } else {
+          console.warn("Nenhum setor disponível para exibição no mapa após a requisição de dados.");
+        }
+      },
+      error: (error) => {
+        console.error('Erro ao carregar estrutura ou dados:', error);
+      }
+    });
   }
   
+  private iniciarRequisicoesPeriodicas(): void {
+    const sessaoId = localStorage.getItem('SessaoID'); 
+
+    if (!sessaoId) {
+      console.error('Sessão não encontrada. Não é possível fazer as requisições.');
+      return;
+    }
+
+    // requisição de dados a cada 1 minuto
+    this.subscription = interval(60000) 
+      .pipe(
+        switchMap(() => {
+          console.log('Executando requisição de dados...');
+          return this.terceiraRequisicaoService.enviarComandoSalvar(sessaoId);
+        })
+      )
+      .subscribe({
+        next: () => {
+          console.log('Requisição de dados concluída com sucesso.');
+          const setoresInterpretados = this.entradaService.listaGlobal;
+          if (setoresInterpretados && setoresInterpretados.length > 0) {
+            this.adicionarPontosNoMapa(setoresInterpretados);
+          } else {
+            console.warn('Nenhum setor disponível para exibição no mapa após a requisição de dados.');
+          }
+        },
+        error: (error) => {
+          console.error('Erro na requisição de dados:', error);
+        }
+      });
+  }
+  ngOnDestroy(): void {
+    // Cancela a inscrição no intervalo ao destruir o componente
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+
+
 }

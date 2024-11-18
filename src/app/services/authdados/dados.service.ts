@@ -72,7 +72,7 @@ export class TerceiraRequisicaoService {
   }
 
   private processarResposta(buffer: ArrayBuffer): any {
-    this.saveBytesToFile(new Uint8Array(buffer), 'respostadaterceira.bin'); // Aqui é onde salvamos a resposta
+    this.saveBytesToFile(new Uint8Array(buffer), 'respostadaterceira.bin'); 
 
     let offset = 0; 
     const dataView = new DataView(buffer);

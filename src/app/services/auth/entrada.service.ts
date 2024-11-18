@@ -24,7 +24,7 @@ export class EntradaService {
 
 
   constructor(private http: HttpClient,
-    private TerceiraRequisicaoService: TerceiraRequisicaoService 
+    public TerceiraRequisicaoService: TerceiraRequisicaoService 
   ) {}
 //////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -381,7 +381,8 @@ private validarPermissaoSetor(setor: Setor, permissoes: { UnidadeUsuario: number
   this.listaGlobal = setores; // Atualiza a lista global com os setores processados
   this.atualizarListaGlobal(setores); // Atualiza a lista global conforme necessário
 
-  console.log("Lista global :", this.listaGlobal);
+  console.log('Lista global após segunda requisição:', this.listaGlobal);
+
   console.log("Lista de setores:", setores);
   
   this.setoresSubject.next(setores); // Emite a lista de setores
