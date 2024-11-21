@@ -12,7 +12,7 @@ export class Setor {
   subunidade: number;
   status: number; 
   tipo: number; 
-  ultimoTempo: Date;
+  ultimoTempo: Date | null;
   tags: Tag[];  
   alarmes: Alarme[]; 
 
@@ -26,7 +26,7 @@ export class Setor {
     this.subunidade = 0;
     this.status = 0;
     this.tipo = 0; 
-    this.ultimoTempo = new Date();
+    this.ultimoTempo = null;
     this.tags = [];  // Inicializa como um array vazio
     this.alarmes = []; // Inicializa como um array vazio
   }

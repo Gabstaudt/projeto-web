@@ -224,4 +224,6 @@ export class AuthService {
     byteArray[1] = version & 0xff;       
     return byteArray;
   }
+
+
 }

@@ -9,6 +9,8 @@ import biri from 'biri';
 import { Router } from '@angular/router';
 import { TerceiraRequisicaoService } from '../services/authdados/dados.service';
 import { interval, Subscription } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http'; // Adicione esta importação
+
 
 @Component({
   selector: 'app-entrada',
@@ -17,7 +19,7 @@ import { interval, Subscription } from 'rxjs';
 })
 export class EntradaComponent implements AfterViewInit, OnDestroy {
   private subscription: Subscription | null = null;
-
+  private readonly servidorUrl = 'http://172.74.0.167:8043/dados';
   @ViewChild('percentageText', { static: false }) percentageText!: ElementRef;
 
   private map: any;
@@ -42,7 +44,7 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
     uste: []
   };
 
-  constructor(private entradaService: EntradaService,  private router: Router,     private terceiraRequisicaoService: TerceiraRequisicaoService
+  constructor(private entradaService: EntradaService, private http: HttpClient, private router: Router,     private terceiraRequisicaoService: TerceiraRequisicaoService
   ) {
     this.setores$ = this.entradaService.setores$;
   }
@@ -143,35 +145,35 @@ public exibirPopupSetor(setor: Setor): void {
     });
   }
 
-
-
-
-
-
-
-
-
-
-
- private adicionarPontosNoMapa(setores: Setor[]): void {
+  private adicionarPontosNoMapa(setores: Setor[]): void {
     setores.forEach(setor => {
+        console.log(`Setor ID ${setor.id}, Nome: ${setor.nome}, Último Tempo recebido aqui: ${setor.ultimoTempo}`);
+
         const lat = setor.latitude;
         const lng = setor.longitude;
         const status = setor.status;
         const nomeSetor = setor.nome || `Setor ${setor.id}`;
 
+        const tempoSetor = setor.ultimoTempo ? new Date(setor.ultimoTempo).getTime() : 0;
         let ultimoTempoFormatado: string;
-        
-        if (setor.ultimoTempo) {
-            const data = new Date(setor.ultimoTempo);
-            ultimoTempoFormatado = this.formatarData(data);
+
+        if (tempoSetor > 0) {
+            ultimoTempoFormatado = this.formatarData(new Date(tempoSetor));
         } else {
-            const dataPadrao = new Date(); 
-            ultimoTempoFormatado = this.formatarData(dataPadrao); 
+            console.warn(`Setor ${nomeSetor} não possui um Último Tempo válido.`);
+            ultimoTempoFormatado = 'Tempo não disponível';
         }
 
         if (this.isValido(lat) && this.isValido(lng) && lat !== 0 && lng !== 0 && status !== 0) {
-            const marker = L.marker([lat, lng]).addTo(this.map);
+            const iconeUrl = this.definirIcone(setor);
+
+            const marker = L.marker([lat, lng], {
+                icon: L.icon({
+                    iconUrl: iconeUrl,
+                    iconSize: [35, 35],
+                    iconAnchor: [16, 32]
+                })
+            }).addTo(this.map);
 
             const inteirosString = setor.tags
                 .filter(tag => tag.tipo !== TipoTag.Booleano && !tag.vazia)
@@ -201,12 +203,16 @@ public exibirPopupSetor(setor: Setor): void {
         }
     });
 }
-
-
-  private formatarData(data: Date): string {
-    return isNaN(data.getTime()) ? 'Data inválida' : 
-      `${data.getDate().toString().padStart(2, '0')}/${(data.getMonth() + 1).toString().padStart(2, '0')}/${data.getFullYear()} ${data.getHours().toString().padStart(2, '0')}:${data.getMinutes().toString().padStart(2, '0')}:${data.getSeconds().toString().padStart(2, '0')}`;
-  }
+private formatarData(data: Date): string {
+    return isNaN(data.getTime())
+        ? 'Data inválida'
+        : `${data.getDate().toString().padStart(2, '0')}/` +
+          `${(data.getMonth() + 1).toString().padStart(2, '0')}/` +
+          `${data.getFullYear()} ` +
+          `${data.getHours().toString().padStart(2, '0')}:` +
+          `${data.getMinutes().toString().padStart(2, '0')}:` +
+          `${data.getSeconds().toString().padStart(2, '0')}`;
+}
 
   private isValido(coordenada: number): boolean {
     return typeof coordenada === 'number' && !isNaN(coordenada);
@@ -241,7 +247,7 @@ public exibirPopupSetor(setor: Setor): void {
     this.exibirResultados = !this.exibirResultados;
   }
 
-
+/////////////////////////////////////////////////////////exibição de acordo com a navegação da navbar////////////////////////////////////////////////////////////////////////////
 
   mostrarConteudo(secao: string) {
     console.log(`Seção selecionada: ${secao}`);
@@ -274,7 +280,7 @@ public exibirPopupSetor(setor: Setor): void {
     }
   }
 
-  ////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////Função que atualiza o SVG//////////////////////////////////////////////////////////////////////////////////////////////////
   atualizarNivelAgua(): void {
     const waterLevelElement = document.getElementById('water-level');
     if (waterLevelElement) {
@@ -318,12 +324,36 @@ public exibirPopupSetor(setor: Setor): void {
       this.atualizarNivelAgua();
     }
   }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  logout() {
-    localStorage.clear();  
-    this.router.navigate(['/login']); 
-  }
 
+
+///////////////////////////////////////////////////////////////////////////////Função para o logout////////////////////////////////////////////////////////////////////////////////////////////////
+logout(): void {
+  const headers = new HttpHeaders({ 'Content-Type': 'application/octet-stream' });
+
+  const body = new Uint8Array([0xEF]); 
+
+  console.log('Enviando comando de logout (hexadecimal):', body);
+
+  // comando para o servidor
+  this.http.post(this.servidorUrl, body, { headers, responseType: 'arraybuffer' }).subscribe({
+    next: () => {
+      console.log('Comando de logout enviado com sucesso.');
+      this.finalizarLogout(); //logout local
+    },
+    error: (error) => {
+      console.error('Erro ao enviar comando de logout:', error);
+      this.finalizarLogout(); //  realiza o logout local independente do erro
+    }
+  });
+}
+
+// Função para finalizar o logout
+private finalizarLogout(): void {
+  localStorage.clear(); 
+  this.router.navigate(['/login']); 
+}
+
+//////////////////////////////////////////////////////////////////Organizqação do Fluxo de requisições //////////////////////////////////////////////////////////////////////////////////////////////////
   private carregarEstruturaEDados(): void {
     const sessaoId = localStorage.getItem('SessaoID'); 
   
@@ -355,7 +385,7 @@ public exibirPopupSetor(setor: Setor): void {
       }
     });
   }
-  
+  /////////////////////////////////////////////////////Função para realizar as requisições de forma periódica (60seg)///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   private iniciarRequisicoesPeriodicas(): void {
     const sessaoId = localStorage.getItem('SessaoID'); 
 
@@ -393,6 +423,25 @@ public exibirPopupSetor(setor: Setor): void {
       this.subscription.unsubscribe();
     }
   }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+  definirIcone(setor: Setor): string {
+    const agora = new Date(); 
+    const cincoMinutos = 5 * 60 * 1000; 
+
+    // Verifica o status do setor
+    if (setor.status === 2) {
+      return '../../assets/image/icon/iconelaranja.svg'; 
+    }
+
+    // Verifica se o último tempo recebido é superior a 5 minutos comparado ao tempo atual
+    const tempoSetor = setor.ultimoTempo ? new Date(setor.ultimoTempo).getTime() : 0;
+    if (agora.getTime() - tempoSetor > cincoMinutos) {
+      return '../../assets/image/icon/iconevermelho.svg'; 
+    }
+    
+    return '../../assets/image/icon/iconeverde.svg'; 
+  }
 
 }

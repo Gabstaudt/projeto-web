@@ -98,6 +98,7 @@ export class TerceiraRequisicaoService {
 
       const tempoInformacao = Number(dataView.getBigUint64(offset)); // (Unix)
       offset += 8;
+      console.log(`Setor ID ${idSetor}: tempoInformacao recebido do servidor (Unix): ${tempoInformacao}`);
 
       const status = dataView.getUint8(offset); 
       offset += 1;
@@ -180,7 +181,7 @@ export class TerceiraRequisicaoService {
       // Adiciona os dados do setor ao array de setores
       setores.push({
         id: idSetor,
-        tempoInformacao: new Date(tempoInformacao * 1000), // Converte Unix para Data
+        ultimoTempo: new Date(tempoInformacao * 1000), // Converte Unix para Data
         status: status,
         inteiros: inteiros,
         booleanos: booleanos,
