@@ -2,14 +2,15 @@ import { AfterViewInit, Component, OnInit, ElementRef, ViewChild, OnDestroy } fr
 import * as L from 'leaflet';
 import { EntradaService } from '../services/auth/entrada.service';
 import { Setor } from '../models/setor.model';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { TipoTag } from '../models/tipo.model';
 import biri from 'biri';
 import { Router } from '@angular/router';
 import { TerceiraRequisicaoService } from '../services/authdados/dados.service';
 import { interval, Subscription } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http'; // Adicione esta importação
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { encodeWithLength } from '../utils/encoder.utils';
 
 
 @Component({
@@ -127,23 +128,29 @@ public exibirPopupSetor(setor: Setor): void {
 
 ///////////////////////////////////////////////////////////////
 
-  private carregarSetores(): void {
-    const sessaoIdAleatoria = this.gerarSessaoId();
-    this.entradaService.fazerSegundaRequisicao(sessaoIdAleatoria).subscribe({
-      next: (response) => {
-        const setoresInterpretados = this.entradaService.listaGlobal;
-        if (setoresInterpretados && setoresInterpretados.length > 0) {
-          this.adicionarPontosNoMapa(setoresInterpretados);
-          console.log("Setores adicionados ao mapa com sucesso.");
-        } else {
-          console.warn("Nenhum setor disponível para exibição no mapa.");
-        }
-      },
-      error: (error) => {
-        console.error('Erro na requisição de teste:', error);
-      }
-    });
+private carregarSetores(): void {
+  const sessaoId = this.obterSessaoIdDoLocalStorage();
+  if (!sessaoId) {
+    console.error('Sessão não encontrada. Não é possível carregar os setores.');
+    return;
   }
+
+  this.entradaService.fazerSegundaRequisicao().subscribe({
+    next: (response) => {
+      const setoresInterpretados = this.entradaService.listaGlobal;
+      if (setoresInterpretados && setoresInterpretados.length > 0) {
+        this.adicionarPontosNoMapa(setoresInterpretados);
+        console.log("Setores adicionados ao mapa com sucesso.");
+      } else {
+        console.warn("Nenhum setor disponível para exibição no mapa.");
+      }
+    },
+    error: (error) => {
+      console.error('Erro ao carregar setores:', error);
+    }
+  });
+}
+
 
   private adicionarPontosNoMapa(setores: Setor[]): void {
     setores.forEach(setor => {
@@ -257,7 +264,7 @@ private formatarData(data: Date): string {
       setTimeout(() => {
         this.reiniciarMapa(); // Inicializa ou recria o mapa
         this.carregarSetores(); 
-        this.carregarEstruturaEDados();
+        // this.carregarEstruturaEDados();
       });
     } else {
       this.destruirMapa(); // "Destrói" o mapa quando sai da seção principal
@@ -328,21 +335,29 @@ private formatarData(data: Date): string {
 
 ///////////////////////////////////////////////////////////////////////////////Função para o logout////////////////////////////////////////////////////////////////////////////////////////////////
 logout(): void {
+  const sessaoId = this.obterSessaoIdDoLocalStorage();
+  if (!sessaoId) {
+    console.error('Sessão ID ausente no localStorage. Não é possível realizar o logout.');
+    this.finalizarLogout();
+    return;
+  }
+
   const headers = new HttpHeaders({ 'Content-Type': 'application/octet-stream' });
+  const comandoSupervisao = 254;
+  const comandoLogout = 239;
 
-  const body = new Uint8Array([0xEF]); 
+  const body = this.gerarBytesRequisicao(sessaoId, comandoSupervisao, comandoLogout);
 
-  console.log('Enviando comando de logout (hexadecimal):', body);
+  console.log('Enviando comando de logout (bytes):', new Uint8Array(body));
 
-  // comando para o servidor
   this.http.post(this.servidorUrl, body, { headers, responseType: 'arraybuffer' }).subscribe({
     next: () => {
       console.log('Comando de logout enviado com sucesso.');
-      this.finalizarLogout(); //logout local
+      this.finalizarLogout(); // Realiza o logout local
     },
     error: (error) => {
       console.error('Erro ao enviar comando de logout:', error);
-      this.finalizarLogout(); //  realiza o logout local independente do erro
+      this.finalizarLogout(); // Realiza o logout local independente do erro
     }
   });
 }
@@ -353,53 +368,74 @@ private finalizarLogout(): void {
   this.router.navigate(['/login']); 
 }
 
+
+///// funções auxiliares para o logout
+private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoLogout: number): ArrayBuffer {
+  const sessaoIdBytes = encodeWithLength(sessaoId); 
+
+  const comandoSupervisaoBytes = new Uint8Array([comandoSupervisao]); 
+  const comandoLogoutBytes = new Uint8Array([comandoLogout]);
+
+  // Combina todos os bytes 
+  const combinedBytes = new Uint8Array(
+    comandoSupervisaoBytes.length + sessaoIdBytes.length + comandoLogoutBytes.length
+  );
+
+  combinedBytes.set(comandoSupervisaoBytes, 0); 
+  combinedBytes.set(sessaoIdBytes, comandoSupervisaoBytes.length); 
+  combinedBytes.set(comandoLogoutBytes, comandoSupervisaoBytes.length + sessaoIdBytes.length);
+
+  return combinedBytes.buffer; 
+}
+
+
+
+
+
+
 //////////////////////////////////////////////////////////////////Organizqação do Fluxo de requisições //////////////////////////////////////////////////////////////////////////////////////////////////
-  private carregarEstruturaEDados(): void {
-    const sessaoId = localStorage.getItem('SessaoID'); 
-  
-    if (!sessaoId) {
-      console.error('Sessão não encontrada. Não é possível fazer as requisições.');
-      return;
-    }
-  
-    // Encadeia as requisições
-    this.entradaService.fazerSegundaRequisicao(sessaoId).pipe(
-      switchMap(() => {
-        console.log('Estrutura carregada. Iniciando requisição de dados...');
-        return this.terceiraRequisicaoService.enviarComandoSalvar(sessaoId); 
-      })
-    ).subscribe({
-      next: () => {
-        console.log('Requisição de dados concluída com sucesso.');
-        // Atualiza o mapa com a lista global após a terceira requisição
-        const setoresInterpretados = this.entradaService.listaGlobal;
-        if (setoresInterpretados && setoresInterpretados.length > 0) {
-          this.adicionarPontosNoMapa(setoresInterpretados);
-          console.log("Setores adicionados ao mapa com sucesso após a requisição de dados.");
-        } else {
-          console.warn("Nenhum setor disponível para exibição no mapa após a requisição de dados.");
-        }
-      },
-      error: (error) => {
-        console.error('Erro ao carregar estrutura ou dados:', error);
-      }
-    });
+private carregarEstruturaEDados(): void {
+  const sessaoId = this.obterSessaoIdDoLocalStorage();
+  if (!sessaoId) {
+    console.error('Sessão não encontrada. Não é possível fazer as requisições.');
+    return;
   }
+
+  this.entradaService.fazerSegundaRequisicao().pipe(
+    switchMap(() => {
+      console.log('Estrutura carregada. Iniciando requisição de dados...');
+      return this.terceiraRequisicaoService.enviarComandoSalvar();
+    })
+  ).subscribe({
+    next: () => {
+      console.log('Requisição de dados concluída com sucesso.');
+      const setoresInterpretados = this.entradaService.listaGlobal;
+      if (setoresInterpretados && setoresInterpretados.length > 0) {
+        this.adicionarPontosNoMapa(setoresInterpretados);
+        console.log("Setores adicionados ao mapa com sucesso após a requisição de dados.");
+      } else {
+        console.warn("Nenhum setor disponível para exibição no mapa após a requisição de dados.");
+      }
+    },
+    error: (error) => {
+      console.error('Erro ao carregar estrutura ou dados:', error);
+    }
+  });
+}
+
   /////////////////////////////////////////////////////Função para realizar as requisições de forma periódica (60seg)///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   private iniciarRequisicoesPeriodicas(): void {
-    const sessaoId = localStorage.getItem('SessaoID'); 
-
+    const sessaoId = this.obterSessaoIdDoLocalStorage();
     if (!sessaoId) {
       console.error('Sessão não encontrada. Não é possível fazer as requisições.');
       return;
     }
-
-    // requisição de dados a cada 1 minuto
+  
     this.subscription = interval(60000) 
       .pipe(
         switchMap(() => {
           console.log('Executando requisição de dados...');
-          return this.terceiraRequisicaoService.enviarComandoSalvar(sessaoId);
+          return this.terceiraRequisicaoService.enviarComandoSalvar();
         })
       )
       .subscribe({
@@ -417,6 +453,7 @@ private finalizarLogout(): void {
         }
       });
   }
+  
   ngOnDestroy(): void {
     // Cancela a inscrição no intervalo ao destruir o componente
     if (this.subscription) {
@@ -443,5 +480,15 @@ private finalizarLogout(): void {
     
     return '../../assets/image/icon/iconeverde.svg'; 
   }
+
+  private obterSessaoIdDoLocalStorage(): string | null {
+    const usuario = localStorage.getItem('usuario');
+    if (usuario) {
+      const dadosUsuario = JSON.parse(usuario);
+      return dadosUsuario.SessaoID || null; // Retorna o SessaoID ou null se não existir
+    }
+    return null;
+  }
+  
 
 }

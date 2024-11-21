@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Alarme } from '../../models/alarme.model';
 import { Setor } from '../../models/setor.model';
 import { Tag } from '../../models/tag.model';
@@ -28,32 +28,34 @@ export class EntradaService {
   ) {}
 //////////////////////////////////////////////////////////////////////////////////////////////
   
-public carregarSetores(sessaoId: string): void {
-  // Carregar permissões do local storage
-  const permissoes = this.carregarPermissoesDoLocalStorage();
-  console.log('Permissões obtidas:', permissoes);
+public carregarSetores(): void {
+  this.fazerSegundaRequisicao().pipe(
+    map((setores: Setor[]) => {
+      const permissoes = this.carregarPermissoesDoLocalStorage(); // Carrega permissões do localStorage
+      console.log('Permissões obtidas:', permissoes);
 
-  this.fazerSegundaRequisicao(sessaoId).pipe(
-      map((setores: Setor[]) => {
-          const setoresFiltrados = setores.filter((setor: Setor) => 
-              this.validarPermissaoSetor(setor, permissoes) // Passa o objeto de permissões
-          );
-          console.log('Setores filtrados:', setoresFiltrados);
-          return setoresFiltrados;
-      })
+      // Filtra os setores com base nas permissões
+      const setoresFiltrados = setores.filter((setor: Setor) => 
+        this.validarPermissaoSetor(setor, permissoes)
+      );
+      console.log('Setores filtrados:', setoresFiltrados);
+      return setoresFiltrados;
+    })
   ).subscribe(
-      setoresPermitidos => {
-          if (setoresPermitidos.length > 0) {
-              this.setoresSubject.next(setoresPermitidos);
-              this.listaGlobal = setoresPermitidos;
-              console.log("Setores permitidos carregados com sucesso.");
-          } else {
-              console.warn("Nenhum setor permitido encontrado.");
-          }
-      },
-      error => console.error('Erro ao carregar setores:', error)
+    setoresPermitidos => {
+      if (setoresPermitidos.length > 0) {
+        this.setoresSubject.next(setoresPermitidos);
+        this.listaGlobal = setoresPermitidos;
+        console.log("Setores permitidos carregados com sucesso.");
+      } else {
+        console.warn("Nenhum setor permitido encontrado.");
+      }
+    },
+    error => console.error('Erro ao carregar setores:', error)
   );
 }
+
+
 
 // Método para carregar permissões do local storage
 private carregarPermissoesDoLocalStorage(): { UnidadeUsuario: number, AcessoProducao: boolean, AcessoEmpresa1: boolean, AcessoEmpresa2: boolean, PrivilegioUsuario: number } {
@@ -96,49 +98,35 @@ private validarPermissaoSetor(setor: Setor, permissoes: { UnidadeUsuario: number
 
 
 
-////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////// função para fazer a segunda requisição/////////////////////////////////////////////////////////////////////
 
 
-  // Função para fazer a segunda requisição, recebendo a Sessão ID como parâmetro ---  redefinir na pasta entrada depois para receber o id
-  public fazerSegundaRequisicao(sessaoId: string): Observable<any> {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }); 
-
-    
-    const comandoSupervisao = 254;
-    const comandoEstrutura = 237; 
-
-    // Construir os bytes da requisição
-    const body = this.gerarBytesRequisicao(sessaoId, comandoSupervisao, comandoEstrutura);
-   
-  
-
-   
-    return this.http.post(this.apiUrl, body, { headers, responseType: 'arraybuffer' }).pipe(
-      
-      // Manipulação da resposta
-      map(response => {
-        const byteArray = new Uint8Array(response); 
-        console.log('Resposta recebida (bytes):', byteArray); 
-
-        const setores = this.parseSecondResponse(byteArray); 
-        console.log('Setores processados:', setores); 
-        console.log('Lista completa de setores:', JSON.stringify(setores, null, 2));
-
-
-        return setores; 
-      }),
-      switchMap(_ => {
-        console.log('Chamando a terceira requisição após a segunda');
-        return this.TerceiraRequisicaoService.enviarComandoSalvar(sessaoId);  // Chama a terceira requisição automaticamente
-      }),
-      tap(() => console.log('Terceira requisição concluída com sucesso')),
-      catchError(error => {
-        console.error('Erro ao fazer a segunda requisição ou na terceira requisição', error); 
-        return throwError(() => error);
-      })
-    );
+public fazerSegundaRequisicao(): Observable<any> {
+  const sessaoId = this.obterSessaoIdDoLocalStorage();
+  if (!sessaoId) {
+    return throwError(() => new Error('Sessão ID ausente no localStorage!'));
   }
-  
+
+  const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
+  const comandoSupervisao = 254;
+  const comandoEstrutura = 237;
+
+  const body = this.gerarBytesRequisicao(sessaoId, comandoSupervisao, comandoEstrutura);
+
+  return this.http.post(this.apiUrl, body, { headers, responseType: 'arraybuffer' }).pipe(
+    map(response => {
+      const byteArray = new Uint8Array(response);
+      console.log('Resposta recebida (bytes):', byteArray);
+
+      const setores = this.parseSecondResponse(byteArray);
+      console.log('Setores processados:', setores);
+      console.log('Lista completa de setores:', JSON.stringify(setores, null, 2));
+
+      return setores;
+    })
+  );
+}
+
 
   // gerar os bytes da requisição
   private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoEstrutura: number): ArrayBuffer {
@@ -493,6 +481,16 @@ private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
 
   // Libera a URL criada para o Blob
   window.URL.revokeObjectURL(url);
+}
+
+private obterSessaoIdDoLocalStorage(): string {
+  const usuario = localStorage.getItem('usuario');
+  if (usuario) {
+    const dadosUsuario = JSON.parse(usuario);
+    return dadosUsuario.SessaoID || ''; // Retorna o SessaoID, ou vazio se não existir
+  }
+  console.warn('Sessão ID não encontrada no localStorage.');
+  return ''; // Retorna string vazia se não existir
 }
 
 }

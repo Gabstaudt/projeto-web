@@ -30,30 +30,42 @@ export class TerceiraRequisicaoService {
     }
 
   //-------------------------------------------- Função para enviar a requisição ----------------------------------------------------------------
-  enviarComandoSalvar(sessaoId: string): Observable<any> {
+  enviarComandoSalvar(): Observable<any> {
+    const sessaoId = this.obterSessaoIdDoLocalStorage();
+    if (!sessaoId) {
+      return throwError(() => new Error('Sessão ID ausente!'));
+    }
+  
     const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
     const comandoSupervisao = 254;
     const comandoLerDados = 236;
-
+  
     const body = this.gerarBytesRequisicao(sessaoId, comandoSupervisao, comandoLerDados);
     console.log('Corpo da terceira requisição (bytes):', body);
-
+  
     return this.http.post(this.apiUrl, body, { headers, responseType: 'arraybuffer' }).pipe(
-      map(response => this.processarResposta(response)), // Processa a resposta da terceira requisição
+      map(response => this.processarResposta(response)),
       catchError(err => {
         console.error('Erro na terceira requisição:', err);
         return throwError(() => new Error('Erro na terceira requisição'));
       })
     );
   }
+  
 
 //função para atualizar // realizar a requisição de novo ---> modificar -- não está funcionando
-  iniciarRequisicoesPeriodicas(sessaoId:string): Observable<any>{
-    return interval (this.intervaloRequisicao).pipe(
-      switchMap(()=>
-      this.enviarComandoSalvar(sessaoId))
-    );
-    }
+iniciarRequisicoesPeriodicas(): Observable<any> {
+  const sessaoId = this.obterSessaoIdDoLocalStorage();
+  if (!sessaoId) {
+    console.warn('Sessão ID ausente. Não é possível iniciar requisições periódicas.');
+    return throwError(() => new Error('Sessão ID ausente!'));
+  }
+
+  return interval(this.intervaloRequisicao).pipe(
+    switchMap(() => this.enviarComandoSalvar())
+  );
+}
+
 
 
   
@@ -261,4 +273,15 @@ export class TerceiraRequisicaoService {
     // Libera a URL criada para o Blob
     window.URL.revokeObjectURL(url);
   }
+
+  private obterSessaoIdDoLocalStorage(): string {
+    const usuario = localStorage.getItem('usuario');
+    if (usuario) {
+      const dadosUsuario = JSON.parse(usuario);
+      return dadosUsuario.SessaoID || ''; // Retorna o SessaoID se disponível
+    }
+    console.warn('Sessão ID não encontrada no localStorage.');
+    return ''; // Retorna string vazia se não existir
+  }
+  
 }

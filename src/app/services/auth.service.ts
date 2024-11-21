@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'; 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map} from 'rxjs/operators';
 import CryptoJS from 'crypto-js';
 import biri from 'biri';
 import{EntradaService} from '../services/auth/entrada.service';
@@ -108,15 +108,7 @@ export class AuthService {
 
         return parsedResponse; 
       }),
-      switchMap((loginResponse: any) => { 
-        const sessaoId = localStorage.getItem('SessaoID');
-        if (sessaoId) {
-
-          // Faz a segunda requisição no EntradaService
-          return this.entradaService.fazerSegundaRequisicao(sessaoId);
-        }
-        return throwError(() => new Error('Sessão não encontrada'));
-      }),
+ 
       
       catchError(error => {
         console.error('Erro ao fazer login', error);
