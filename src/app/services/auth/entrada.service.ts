@@ -13,32 +13,25 @@ import { encodeWithLength } from 'src/app/utils/encoder.utils';
 })
 export class EntradaService {
   private apiUrl = 'http://172.74.0.167:8043/dados'; 
-  // private apiUrl = 'http://localhost:3000/resposta1';
 
-  
   public listaGlobal: Setor[] = []; 
-  
-
   private setoresSubject = new BehaviorSubject<Setor[]>([]);
   public setores$: Observable<Setor[]> = this.setoresSubject.asObservable();
-
 
   constructor(private http: HttpClient,
     public TerceiraRequisicaoService: TerceiraRequisicaoService 
   ) {}
-//////////////////////////////////////////////////////////////////////////////////////////////
-  
+
+//////////////////////////////////////////////////////////////////////////////função para carregar setores ////////////////////////////////////////////////////////////////////////////
 public carregarSetores(): void {
   this.fazerSegundaRequisicao().pipe(
     map((setores: Setor[]) => {
       const permissoes = this.carregarPermissoesDoLocalStorage(); // Carrega permissões do localStorage
-      console.log('Permissões obtidas:', permissoes);
-
+    
       // Filtra os setores com base nas permissões
       const setoresFiltrados = setores.filter((setor: Setor) => 
         this.validarPermissaoSetor(setor, permissoes)
       );
-      console.log('Setores filtrados:', setoresFiltrados);
       return setoresFiltrados;
     })
   ).subscribe(
@@ -46,7 +39,6 @@ public carregarSetores(): void {
       if (setoresPermitidos.length > 0) {
         this.setoresSubject.next(setoresPermitidos);
         this.listaGlobal = setoresPermitidos;
-        console.log("Setores permitidos carregados com sucesso.");
       } else {
         console.warn("Nenhum setor permitido encontrado.");
       }
@@ -54,8 +46,6 @@ public carregarSetores(): void {
     error => console.error('Erro ao carregar setores:', error)
   );
 }
-
-
 
 // Método para carregar permissões do local storage
 private carregarPermissoesDoLocalStorage(): { UnidadeUsuario: number, AcessoProducao: boolean, AcessoEmpresa1: boolean, AcessoEmpresa2: boolean, PrivilegioUsuario: number } {
@@ -94,13 +84,7 @@ private validarPermissaoSetor(setor: Setor, permissoes: { UnidadeUsuario: number
   return true; 
 }
 
-
-
-
-
 //////////////////////////////////////////////////////////////////////////// função para fazer a segunda requisição/////////////////////////////////////////////////////////////////////
-
-
 public fazerSegundaRequisicao(): Observable<any> {
   const sessaoId = this.obterSessaoIdDoLocalStorage();
   if (!sessaoId) {
@@ -116,19 +100,12 @@ public fazerSegundaRequisicao(): Observable<any> {
   return this.http.post(this.apiUrl, body, { headers, responseType: 'arraybuffer' }).pipe(
     map(response => {
       const byteArray = new Uint8Array(response);
-      console.log('Resposta recebida (bytes):', byteArray);
-
       const setores = this.parseSecondResponse(byteArray);
-      console.log('Setores processados:', setores);
-      console.log('Lista completa de setores:', JSON.stringify(setores, null, 2));
-
       return setores;
     })
   );
 }
-
-
-  // gerar os bytes da requisição
+///função para gerar os bytes da requisição
   private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoEstrutura: number): ArrayBuffer {
     const sessaoIdBytes = encodeWithLength(sessaoId);  
 
@@ -145,24 +122,16 @@ public fazerSegundaRequisicao(): Observable<any> {
 
   // interpretar os bytes da resposta 
   public parseSecondResponse(bytes: Uint8Array): Setor[] {
-
   // Variáveis de controle de acesso e privilégios
-              
-
     let offset = 0; 
-
-     this.saveBytesToFile(bytes, 'resposta.bin');
-
+    //  this.saveBytesToFile(bytes, 'resposta.bin'); // salvar a resposta
     const respostaOK = bytes[offset];
-    console.log('Resposta de status:', respostaOK); 
     offset += 1;
 
     const ultimaVersao = (bytes[offset] << 8) | bytes[offset + 1];
-    console.log('Última versão:', ultimaVersao); 
     offset += 2;
 
     const quantidadeSetores = (bytes[offset] << 8) | bytes[offset + 1];
-    console.log('Quantidade de setores:', quantidadeSetores); 
     offset += 2;
 
     const setores: Setor[] = []; 
@@ -173,52 +142,39 @@ public fazerSegundaRequisicao(): Observable<any> {
 
       setor.id = (bytes[offset] << 8) | bytes[offset + 1];
       offset += 2;
-      console.log("id do setor", setor.id);
 
       const nomeSetorLength = (bytes[offset] << 8) | bytes[offset + 1];
       offset += 2;
       setor.nome = this.bytesToString(bytes.slice(offset, offset + nomeSetorLength)); 
       offset += nomeSetorLength;
-      console.log("Tamanho do nome", nomeSetorLength);
-      console.log("nome do setor loop 1", setor.nome);
 
       //  campos do Setor
       const enderecoLength = (bytes[offset] << 8) | bytes[offset + 1];
       offset += 2;
       setor.endereco = this.bytesToString(bytes.slice(offset, offset + enderecoLength)); 
       offset += enderecoLength;
-      console.log('Tamanho do endereço:', enderecoLength);
-      console.log("nome do endereço", setor.endereco);
       
       setor.latitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); 
       offset += 4;
-      console.log("Latitude recebida:", setor.latitude);
 
       setor.longitude = this.bytesToFloat(bytes.slice(offset, offset + 4)); 
       offset += 4;
-      console.log("Longitude recebida", setor.longitude);
 
       setor.unidade = bytes[offset]; 
       offset += 1;
-      console.log("unidade recebida", setor.unidade);
 
       setor.subunidade = bytes[offset]; 
       offset += 1;
-      console.log("subunidade recebida", setor.subunidade);
       
       setor.status = bytes[offset]; 
       offset += 1;
-      console.log("status recebido", setor.status);
 
       setor.tipo = bytes[offset];
       offset += 1;
-      console.log("tipo recebido:", setor.tipo);
-
 
        // Tamanho do array gráfico (1 byte)
       const tamanhoGrafico = bytes[offset]; 
       offset += 1; 
-      console.log("Tamanho do gráfico recebido:", tamanhoGrafico);
 
       // Tamanho real do array gráfico
       const tamanhoRealArrayGrafico = tamanhoGrafico * 2; 
@@ -233,15 +189,8 @@ public fazerSegundaRequisicao(): Observable<any> {
           offset += 2; 
       }
 
-      console.log("Array gráfico:", arrayGrafico);
-
-      console.log("--------------FINAL DE 1 LOOPING DE SETOR--------------")
-
-
-
       // quantidade de tags no setor
       const quantidadeTags = bytes[offset];
-      console.log(`Setor ${setor.nome} - Quantidade de tags:`, quantidadeTags); 
       offset += 1;
 
       const tags: Tag[] = []; // Armazena as tags
@@ -252,52 +201,36 @@ public fazerSegundaRequisicao(): Observable<any> {
         
         tag.id = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
-        console.log("id da tag recebida:", tag.id);
-
 
         const nomeTagLength = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
         tag.nome = this.bytesToString(bytes.slice(offset, offset + nomeTagLength)); 
         offset += nomeTagLength;
-        console.log("tamanho do nome do setor", nomeTagLength);
-        console.log("nome do setor", tag.nome);
-      
-        // Lê outros campos da Tag 
 
+        // Lê outros campos da Tag 
         const descricaoLength = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
         tag.descricao = this.bytesToString(bytes.slice(offset, offset + descricaoLength)); 
         offset += descricaoLength;
-        console.log("tamanho da descrição:",descricaoLength);
-        console.log("descrição da tag", tag.descricao);
 
         tag.tipo = bytes[offset]; 
         offset += 1;
-        console.log("tipos", tag.tipo);
 
         tag.max = bytes[offset]; 
         offset += 4;
-        console.log ("máximo", tag.max);
 
         tag.min = bytes[offset]; 
         offset += 4;
-        console.log("minimo", tag.min);
 
         tag.status = bytes[offset];
         offset += 1;
-        console.log("status", tag.status);
-
-        console.log("--------------FINAL DE 1 LOOPING DE TAG--------------")
 
         tags.push(tag); 
       }
 
-      console.log("---------------FINAL DO LOOPING DE TAGS------------")
-
       setor.tags = tags; 
       // quantidade de alarmes no setor
       const quantidadeAlarmes = bytes[offset];
-      console.log(`Setor ${setor.nome} - Quantidade de alarmes:`, quantidadeAlarmes); 
       offset += 1;
 
       const alarmes: Alarme[] = []; //array para armazenar os alarmes do setor
@@ -308,55 +241,39 @@ public fazerSegundaRequisicao(): Observable<any> {
 
         alarme.id = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
-        console.log("id do alarme", alarme.id);
 
         alarme.idTag = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
-        console.log("id tag de alarme", alarme.idTag);
 
         const nomeAlarmeLength = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
         alarme.nome = this.bytesToString(bytes.slice(offset, offset + nomeAlarmeLength));
         offset += nomeAlarmeLength;
-        console.log("tamanho do nome do alarme", nomeAlarmeLength);
-        console.log("nome do alarme", alarme.nome);
-
 
         const descricaoLength = (bytes[offset] << 8) | bytes[offset + 1];
         offset += 2;
         alarme.descricao = this.bytesToString(bytes.slice(offset, offset + descricaoLength)); 
         offset += descricaoLength;
-        console.log("tamanho da descrição do alarme", descricaoLength);
-        console.log("descrição alarme", alarme.descricao);
 
         alarme.tipo = bytes[offset]; 
         offset += 1;
-        console.log("tipo do alarme", alarme.tipo);
 
         alarme.valorEntrada = bytes[offset]; 
         offset += 4;
-        console.log("entrada alarme", alarme.valorEntrada);
 
         alarme.valorSaida = bytes[offset]; 
         offset += 4;
-        console.log("valor da saida do alarme", alarme.valorSaida);
-
 
         alarme.ativo = bytes[offset]; 
         offset += 1;
-        console.log ("atividade alarme", alarme.ativo);
 
-        console.log("--------------FINAL DE 1 LOOPING DE ALARME--------------")
-
-
-        alarmes.push(alarme); // Adiciona o alarme ao array
+        alarmes.push(alarme); 
       }
 
-      setor.alarmes = alarmes; // Atribui os alarmes ao setor
+      setor.alarmes = alarmes; // atribuir os alarmes ao setor
 
       // Carregar permissões do local storage
-      const permissoes = this.carregarPermissoesDoLocalStorage(); // Método que retorna um objeto de permissões
-      console.log("Permissões carregadas:", permissoes); // Debug para verificar se as permissões estão corretas
+      const permissoes = this.carregarPermissoesDoLocalStorage();
 
       // Verifica se o setor é permitido
       if (this.validarPermissaoSetor(setor, permissoes)) {
@@ -368,40 +285,28 @@ public fazerSegundaRequisicao(): Observable<any> {
 
   this.listaGlobal = setores; // Atualiza a lista global com os setores processados
   this.atualizarListaGlobal(setores); // Atualiza a lista global conforme necessário
-
-  console.log('Lista global após segunda requisição:', this.listaGlobal);
-
-  console.log("Lista de setores:", setores);
   
   this.setoresSubject.next(setores); // Emite a lista de setores
   return setores; 
 }
-
-
   public atualizarSetoresSubject(): void {
     this.setoresSubject.next(this.listaGlobal);
-    
 }
-
-
-
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Função para converter bytes em string
   private bytesToString(bytes: Uint8Array): string {
     return new TextDecoder('utf-8').decode(bytes); 
   }
- 
   private bytesToFloat(bytes: Uint8Array): number {
     if (bytes.length !== 4) {
         throw new Error('O array de bytes para conversão em float deve ter 4 bytes.');
     }
 
-   
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    
     
     return view.getFloat32(0, false); 
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 private atualizarListaGlobal(setoresRecebidos: Setor[]): void {
   setoresRecebidos.forEach(novoSetor => {
       // Procura o setor na lista global
@@ -410,32 +315,31 @@ private atualizarListaGlobal(setoresRecebidos: Setor[]): void {
       if (indiceExistente !== -1) {
           // Atualiza o setor existente
           const setorExistente = this.listaGlobal[indiceExistente];
-          setorExistente.status = novoSetor.status; // Atualiza o status
-          setorExistente.ultimoTempo = novoSetor.ultimoTempo; // Atualiza o último tempo
+          setorExistente.status = novoSetor.status; // at status
+          setorExistente.ultimoTempo = novoSetor.ultimoTempo; // at ult temp
 
           // Atualiza tags
           novoSetor.tags.forEach(novaTag => {
               const indiceTagExistente = setorExistente.tags.findIndex(tag => tag.id === novaTag.id);
               if (indiceTagExistente !== -1) {
-                  // Atualiza a tag existente
+                  // at tag
                   const tagExistente = setorExistente.tags[indiceTagExistente];
-                  tagExistente.leituraInt = novaTag.leituraInt; // Atualiza a leitura inteira da tag
-                  tagExistente.leituraBool = novaTag.leituraBool; // Atualiza a leitura booleana da tag
+                  tagExistente.leituraInt = novaTag.leituraInt; // att leitura int da tag
+                  tagExistente.leituraBool = novaTag.leituraBool; // att leitura bool da tag
               }
           });
-
           // Atualiza alarmes
           novoSetor.alarmes.forEach(novoAlarme => {
               const indiceAlarmeExistente = setorExistente.alarmes.findIndex(alarme => alarme.id === novoAlarme.id);
               if (indiceAlarmeExistente !== -1) {
                   // Atualiza o alarme existente
                   const alarmeExistente = setorExistente.alarmes[indiceAlarmeExistente];
-                  alarmeExistente.tempo = novoAlarme.tempo; // Atualiza o tempo do alarme
+                  alarmeExistente.tempo = novoAlarme.tempo; //at tempo do alarme
               }
           });
       }
   });
-
+///////////////////////////////log a ser retirado depois//////////////////////////////////
   // Log updated listaGlobal for verification
   this.listaGlobal.forEach(setor => {
       console.log("ID do Setor:", setor.id);
@@ -443,54 +347,46 @@ private atualizarListaGlobal(setoresRecebidos: Setor[]): void {
       console.log("Último Tempo do Setor:", setor.ultimoTempo);
 
       // Exibir tags
-      console.log("Tags:");
       setor.tags.forEach(tag => {
           console.log(`  ID: ${tag.id}, Leitura Int: ${tag.leituraInt}, Leitura Bool: ${tag.leituraBool}`);
       });
 
       // Exibir alarmes
-      console.log("Alarmes:");
       setor.alarmes.forEach(alarme => {
           console.log(`  ID: ${alarme.id}, Tempo: ${alarme.tempo}`);
       });
-
-      console.log('-----------------------------------'); 
   });
-
-  console.log("Lista global atualizada:", this.listaGlobal);
-}
-
-
-// // Função para salvar o Uint8Array em um arquivo
-private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
-  // Converte o Uint8Array para um Blob
-  const blob = new Blob([bytes], { type: 'application/octet-stream' });
-  
-  // Cria uma URL para o Blob
-  const url = window.URL.createObjectURL(blob);
-
-  // Cria um elemento de link para baixar o arquivo
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click(); // Dispara o clique para baixar o arquivo
-
-  // Remove o elemento de link da página
-  document.body.removeChild(a);
-
-  // Libera a URL criada para o Blob
-  window.URL.revokeObjectURL(url);
 }
 
 private obterSessaoIdDoLocalStorage(): string {
   const usuario = localStorage.getItem('usuario');
   if (usuario) {
     const dadosUsuario = JSON.parse(usuario);
-    return dadosUsuario.SessaoID || ''; // Retorna o SessaoID, ou vazio se não existir
+    return dadosUsuario.SessaoID || ''; // retorna o sessID
   }
   console.warn('Sessão ID não encontrada no localStorage.');
   return ''; // Retorna string vazia se não existir
 }
 
+// // // Salvar a resposta
+// private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
+//   // Converte o Uint8Array para um Blob
+//   const blob = new Blob([bytes], { type: 'application/octet-stream' });
+  
+//   // Cria uma URL para o Blob
+//   const url = window.URL.createObjectURL(blob);
+
+//   // Cria um elemento de link para baixar o arquivo
+//   const a = document.createElement('a');
+//   a.href = url;
+//   a.download = fileName;
+//   document.body.appendChild(a);
+//   a.click(); // Dispara o clique para baixar o arquivo
+
+//   // Remove o elemento de link da página
+//   document.body.removeChild(a);
+
+//   // Libera a URL criada para o Blob
+//   window.URL.revokeObjectURL(url);
+// }
 }

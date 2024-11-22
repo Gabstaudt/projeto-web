@@ -65,10 +65,6 @@ iniciarRequisicoesPeriodicas(): Observable<any> {
     switchMap(() => this.enviarComandoSalvar())
   );
 }
-
-
-
-  
   //------------------------------------------------ Função para gerar os bytes -----------------------------------------------------------------------
   private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comandoLerDados: number): ArrayBuffer {
     const sessaoIdBytes = encodeWithLength(sessaoId);
@@ -84,7 +80,7 @@ iniciarRequisicoesPeriodicas(): Observable<any> {
   }
 
   private processarResposta(buffer: ArrayBuffer): any {
-    this.saveBytesToFile(new Uint8Array(buffer), 'respostadaterceira.bin'); 
+    // this.saveBytesToFile(new Uint8Array(buffer), 'respostadaterceira.bin'); 
 
     let offset = 0; 
     const dataView = new DataView(buffer);
@@ -138,20 +134,13 @@ iniciarRequisicoesPeriodicas(): Observable<any> {
           offset += 2;
           const valorTagInteira = dataView.getUint32(offset); 
           offset += 4;
-
-          console.log('Tag Inteira - ID:', idTagInteira, 'Valor:', valorTagInteira);
           inteiros.push({ id: idTagInteira, valor: valorTagInteira });
         }
-
-        // Verifica o conteúdo do array de inteiros
-        console.log('Inteiros processados:', inteiros);
-
 
       // Laço 3: Processa as tags booleanas (somente o ID)
       for (let j = 0; j < quantidadeBooleanos; j++) {
         const idTagBooleana = dataView.getUint16(offset);
         offset += 2;
-        console.log('id das tags booleanas', idTagBooleana);
         booleanos.push({ id: idTagBooleana });
       }
 
@@ -163,10 +152,7 @@ iniciarRequisicoesPeriodicas(): Observable<any> {
         offset += 1;
         for (let bit = 0; bit < 8 && (j * 8 + bit) < quantidadeBooleanos; bit++) {
           valoresBooleanos.push((byteValores & (1 << bit)) !== 0); // Extrai o bit e converte para boolean
-
-          console.log(`Valor booleano - Setor ${i}, Bit ${bit}:`, valoresBooleanos);
         }
-        console.log("valor das tags boleanas", valoresBooleanos )
       }
 
       // Laço 5: Processa os alarmes (ID e tempo)
@@ -175,8 +161,6 @@ iniciarRequisicoesPeriodicas(): Observable<any> {
         offset += 2;
         const tempoAlarme = Number(dataView.getBigUint64(offset)); // (Unix)
         offset += 8;
-        console.log('ids dos alarmes', idAlarme);
-        console.log('tempo dos alarmes', tempoAlarme);
         alarmes.push({ id: idAlarme, tempo: new Date(tempoAlarme * 1000) }); // Converte Unix para Data
       }
 
@@ -248,32 +232,6 @@ iniciarRequisicoesPeriodicas(): Observable<any> {
     console.log("Lista global atualizada após receber dados.");
   }
   
-
-
-
-  
-  
-  private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
-    // Converte o Uint8Array para um Blob
-    const blob = new Blob([bytes], { type: 'application/octet-stream' });
-    
-    // Cria uma URL para o Blob
-    const url = window.URL.createObjectURL(blob);
-  
-    // Cria um elemento de link para baixar o arquivo
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click(); // Dispara o clique para baixar o arquivo
-  
-    // Remove o elemento de link da página
-    document.body.removeChild(a);
-  
-    // Libera a URL criada para o Blob
-    window.URL.revokeObjectURL(url);
-  }
-
   private obterSessaoIdDoLocalStorage(): string {
     const usuario = localStorage.getItem('usuario');
     if (usuario) {
@@ -283,5 +241,26 @@ iniciarRequisicoesPeriodicas(): Observable<any> {
     console.warn('Sessão ID não encontrada no localStorage.');
     return ''; // Retorna string vazia se não existir
   }
+
+  // private saveBytesToFile(bytes: Uint8Array, fileName: string): void {
+  //   // Converte o Uint8Array para um Blob
+  //   const blob = new Blob([bytes], { type: 'application/octet-stream' });
+    
+  //   // Cria uma URL para o Blob
+  //   const url = window.URL.createObjectURL(blob);
+  
+  //   // Cria um elemento de link para baixar o arquivo
+  //   const a = document.createElement('a');
+  //   a.href = url;
+  //   a.download = fileName;
+  //   document.body.appendChild(a);
+  //   a.click(); // Dispara o clique para baixar o arquivo
+  
+  //   // Remove o elemento de link da página
+  //   document.body.removeChild(a);
+  
+  //   // Libera a URL criada para o Blob
+  //   window.URL.revokeObjectURL(url);
+  // }
   
 }

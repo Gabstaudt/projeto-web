@@ -34,7 +34,7 @@ export class AuthService {
   ) {}
   
   private gerarSessaoId(): string {
-    return biri(); // Gera um ID aleatório usando a biblioteca biri
+    return biri(); // para gerar id aleatorio
   }
   
   // realizar o login, recebendo usuário e senha
@@ -123,7 +123,7 @@ export class AuthService {
 
     // 1 byte: respostaOK - status da resposta -- que sempre vai ser 200 OK
     const respostaOK = bytes[offset];
-    offset += 1; // Avança o deslocamento
+    offset += 1; 
 
     // 4 bytes: ID do usuário
     const IdUsuario = this.bytesToInt32(bytes.slice(offset, offset + 4));

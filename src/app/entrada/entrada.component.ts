@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, OnInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component,ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import * as L from 'leaflet';
 import { EntradaService } from '../services/auth/entrada.service';
 import { Setor } from '../models/setor.model';
-import { Observable, throwError } from 'rxjs';
+import { Observable} from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { TipoTag } from '../models/tipo.model';
 import biri from 'biri';
@@ -50,22 +50,16 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
     this.setores$ = this.entradaService.setores$;
   }
 
- 
-
   ngAfterViewInit(): void {
     // Inicializa o mapa e carrega os setores quando a visualização está pronta
     if (this.conteudoSelecionado === 'principal') {
       this.iniciarMapa();
     }
-    this.carregarEstruturaEDados()
     this.carregarSetores();
 
     this.iniciarRequisicoesPeriodicas();
 
     this.atualizarNivelAgua();
-
-    
-
   }
 
   private iniciarMapa(): void {
@@ -83,7 +77,6 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
       this.setoresFiltrados = [];
       return;
     }
-  
     // Filtra setores com base no termo de pesquisa
     this.setores$.subscribe(setores => {
       this.setoresFiltrados = setores.filter(setor =>
@@ -93,7 +86,6 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
       this.exibirResultados = this.setoresFiltrados.length > 0;
     });
   }
-  
 //////////////////popup de pesquisa//////////////////////
 public exibirPopupSetor(setor: Setor): void {
   const nomeSetor = setor.nome || `Setor ${setor.id}`;
@@ -125,32 +117,35 @@ public exibirPopupSetor(setor: Setor): void {
 
   this.exibirResultados = false; // Fecha a lista após exibir o popup
 }
-
 ///////////////////////////////////////////////////////////////
-
 private carregarSetores(): void {
   const sessaoId = this.obterSessaoIdDoLocalStorage();
   if (!sessaoId) {
-    console.error('Sessão não encontrada. Não é possível carregar os setores.');
+    console.error('Sessão não encontrada. Não é possível fazer as requisições.');
     return;
   }
 
-  this.entradaService.fazerSegundaRequisicao().subscribe({
-    next: (response) => {
+  this.entradaService.fazerSegundaRequisicao().pipe(
+    switchMap(() => {
+      console.log('Estrutura carregada. Iniciando requisição de dados...');
+      return this.terceiraRequisicaoService.enviarComandoSalvar();
+    })
+  ).subscribe({
+    next: () => {
+      console.log('Requisição de dados concluída com sucesso.');
       const setoresInterpretados = this.entradaService.listaGlobal;
       if (setoresInterpretados && setoresInterpretados.length > 0) {
         this.adicionarPontosNoMapa(setoresInterpretados);
-        console.log("Setores adicionados ao mapa com sucesso.");
+        console.log("Setores adicionados ao mapa com sucesso após a requisição de dados.");
       } else {
-        console.warn("Nenhum setor disponível para exibição no mapa.");
+        console.warn("Nenhum setor disponível para exibição no mapa após a requisição de dados.");
       }
     },
     error: (error) => {
-      console.error('Erro ao carregar setores:', error);
+      console.error('Erro ao carregar estrutura ou dados:', error);
     }
   });
 }
-
 
   private adicionarPontosNoMapa(setores: Setor[]): void {
     setores.forEach(setor => {
@@ -226,7 +221,7 @@ private formatarData(data: Date): string {
   }
 
   public gerarSessaoId(): string {
-    return biri(); // Gera um ID aleatório usando a biblioteca biri
+    return biri(); // Gera um ID aleatório 
 }
 
   togglePopup(popup: string): void {
@@ -246,10 +241,6 @@ private formatarData(data: Date): string {
         sidebar.classList.remove('sidebar-open'); 
     }
 }
-
-
-
-
   toggleSearchResults(): void {
     this.exibirResultados = !this.exibirResultados;
   }
@@ -270,7 +261,6 @@ private formatarData(data: Date): string {
       this.destruirMapa(); // "Destrói" o mapa quando sai da seção principal
     }
   }
-
    private reiniciarMapa(): void {
     // Remove o mapa se ele já existir e cria um novo
     if (this.map) {
@@ -286,7 +276,6 @@ private formatarData(data: Date): string {
       this.map = null;
     }
   }
-
   /////////////////////////////////////////////////////////////////Função que atualiza o SVG//////////////////////////////////////////////////////////////////////////////////////////////////
   atualizarNivelAgua(): void {
     const waterLevelElement = document.getElementById('water-level');
@@ -331,8 +320,6 @@ private formatarData(data: Date): string {
       this.atualizarNivelAgua();
     }
   }
-
-
 ///////////////////////////////////////////////////////////////////////////////Função para o logout////////////////////////////////////////////////////////////////////////////////////////////////
 logout(): void {
   const sessaoId = this.obterSessaoIdDoLocalStorage();
@@ -348,11 +335,8 @@ logout(): void {
 
   const body = this.gerarBytesRequisicao(sessaoId, comandoSupervisao, comandoLogout);
 
-  console.log('Enviando comando de logout (bytes):', new Uint8Array(body));
-
   this.http.post(this.servidorUrl, body, { headers, responseType: 'arraybuffer' }).subscribe({
     next: () => {
-      console.log('Comando de logout enviado com sucesso.');
       this.finalizarLogout(); // Realiza o logout local
     },
     error: (error) => {
@@ -388,40 +372,6 @@ private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comand
   return combinedBytes.buffer; 
 }
 
-
-
-
-
-
-//////////////////////////////////////////////////////////////////Organizqação do Fluxo de requisições //////////////////////////////////////////////////////////////////////////////////////////////////
-private carregarEstruturaEDados(): void {
-  const sessaoId = this.obterSessaoIdDoLocalStorage();
-  if (!sessaoId) {
-    console.error('Sessão não encontrada. Não é possível fazer as requisições.');
-    return;
-  }
-
-  this.entradaService.fazerSegundaRequisicao().pipe(
-    switchMap(() => {
-      console.log('Estrutura carregada. Iniciando requisição de dados...');
-      return this.terceiraRequisicaoService.enviarComandoSalvar();
-    })
-  ).subscribe({
-    next: () => {
-      console.log('Requisição de dados concluída com sucesso.');
-      const setoresInterpretados = this.entradaService.listaGlobal;
-      if (setoresInterpretados && setoresInterpretados.length > 0) {
-        this.adicionarPontosNoMapa(setoresInterpretados);
-        console.log("Setores adicionados ao mapa com sucesso após a requisição de dados.");
-      } else {
-        console.warn("Nenhum setor disponível para exibição no mapa após a requisição de dados.");
-      }
-    },
-    error: (error) => {
-      console.error('Erro ao carregar estrutura ou dados:', error);
-    }
-  });
-}
 
   /////////////////////////////////////////////////////Função para realizar as requisições de forma periódica (60seg)///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   private iniciarRequisicoesPeriodicas(): void {
@@ -460,9 +410,7 @@ private carregarEstruturaEDados(): void {
       this.subscription.unsubscribe();
     }
   }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
+//////////////////////////////////////////////////////////////////função para trocar a cor do ícone////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   definirIcone(setor: Setor): string {
     const agora = new Date(); 
     const cincoMinutos = 5 * 60 * 1000; 
