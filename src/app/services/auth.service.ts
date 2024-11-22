@@ -26,7 +26,9 @@ interface LoginResponse {
 })
 export class AuthService {
  
-  private apiUrl = 'http://172.74.0.167:8043/dados';
+  // private apiUrl = 'http://172.74.0.167:8043/dados';
+  private apiUrl = 'http://localhost:8041/dados';
+
 
   constructor(
     private http: HttpClient,

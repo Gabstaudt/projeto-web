@@ -10,7 +10,10 @@ import { encodeWithLength } from '../../../app/utils/encoder.utils';
   providedIn: 'root'
 })
 export class TerceiraRequisicaoService {
-  private apiUrl = 'http://172.74.0.167:8043/dados'; 
+  // private apiUrl = 'http://172.74.0.167:8043/dados'; 
+
+  private apiUrl = 'http://localhost:8041/dados';
+
   // private apiUrl = 'http://localhost:3000/resposta2';
 
 

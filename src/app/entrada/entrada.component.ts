@@ -20,7 +20,7 @@ import { encodeWithLength } from '../utils/encoder.utils';
 })
 export class EntradaComponent implements AfterViewInit, OnDestroy {
   private subscription: Subscription | null = null;
-  private readonly servidorUrl = 'http://172.74.0.167:8043/dados';
+  private readonly servidorUrl = 'http://localhost:8041/dados';
   @ViewChild('percentageText', { static: false }) percentageText!: ElementRef;
 
   private map: any;
