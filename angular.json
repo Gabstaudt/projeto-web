@@ -32,7 +32,12 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "input": "src",
+                "glob": "_redirects",
+                "output": "/"
+              }
             ],
             "styles": [
               "src/styles.scss",
