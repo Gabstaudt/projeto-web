@@ -13,7 +13,7 @@ import { encodeWithLength } from 'src/app/utils/encoder.utils';
 })
 export class EntradaService {
   // private apiUrl = 'http://172.74.0.167:8043/dados';
-  private apiUrl = 'http://localhost:8041/dados';
+  private apiUrl = 'http://10.20.100.133:8041/dados';
 
 
   public listaGlobal: Setor[] = []; 
