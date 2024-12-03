@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core'; // decorators e interfaces do angular
 import { FormBuilder, FormGroup, Validators } from '@angular/forms'; //formulários e reativos
 import { Router } from '@angular/router'; // navegação
-import { AuthService } from '../services/auth.service'; // serviço de auth
+import { AuthService } from '../services/auth.service'; 
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 //interface para os dados de login
 interface LoginData {
@@ -13,6 +15,18 @@ interface LoginData {
   senha: string;
 }
 
+interface LoginResponse {
+  respostaOK: number;
+  IdUsuario: number;
+  NomeUsuario: string;
+  PrivilegioUsuario: number;
+  UnidadeUsuario: number;
+  AcessoProducao: number;
+  AcessoEmpresa1: number;
+  AcessoEmpresa2: number;
+  SessaoID: string;
+}
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -20,17 +34,18 @@ interface LoginData {
 })
 
 export class LoginComponent implements OnInit {
-  loginForm: FormGroup; // formulário reativo de login
+  loginForm: FormGroup; 
   loginError: string | null = null; // erro para login
   loginHistory: LoginData[] = []; // Array para armazenar histórico de logins
-  isModalOpen = false; //exibição do modal
+  isModalOpen = false; 
+  isLoading: boolean = false; // indicador de carregamento
+  respostaOK: number | null = null; // variável para armazenar a resposta do servidor
 
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
-   //inicializa o formulário com campos de validação
     this.loginForm = this.fb.group({
-      username: ['', [Validators.required]], //campo de usuário obrigatório
-      password: ['', [Validators.required]], // campo de senha obrigatório
+      username: ['', [Validators.required]], 
+      password: ['', [Validators.required]], 
       rememberMe: [false] //opção de lembre-se
     });
   }
@@ -42,52 +57,73 @@ export class LoginComponent implements OnInit {
   }
 
   onFocus(): void {
-    //limpa a mensagem de erro ao focar no campo em questão
     this.loginError = null;
-  }
-
-  onSubmit(): void {
-    //verificar se o formulário é válido
-    if (this.loginForm.valid) {
-      const { username, password, rememberMe } = this.loginForm.value;
-  
-      // Define os dados a serem transmitidos para o login
-      const loginData: LoginData = {
-        comando: 240,
-        plataforma: 3,
-        versao: 1,
-        idDispositivo: 'qualquer',
-        login: username,
-        senha: password
-      };
-  
-      //chama o serviço de auth
-      this.authService.login(username, password).subscribe(
-        (response) => {
-          console.log('Login bem-sucedido:', response);
-          
-          // Adiciona os dados do login ao histórico
-          this.loginHistory.push(loginData);
-  
-          //verificar se a opção de lembre-se de mim está ativa
-          if (rememberMe) {
-            localStorage.setItem('rememberedUser', username);
-          } else {
-            localStorage.removeItem('rememberedUser');
-          }
-  
-          // Navegação para a entrada.component.html
-          this.router.navigate(['/entrada']);
-        },
-        (error) => {
-          console.error('Erro no login:', error);
-          this.loginError = 'Usuário ou senha incorretos'; // mensagem de erro
-        }
-        
-      );
     }
-  }
   
+
+    onSubmit(): void {
+      if (this.loginForm.valid) {
+        const { username, password, rememberMe } = this.loginForm.value;
+  
+        // Inicia a animação de carregamento
+        this.isLoading = true;
+  
+        this.authService.login(username, password)
+          .pipe(
+            catchError(error => {
+              console.error('Erro ao alcançar o servidor no LoginComponent:', error);
+              this.loginError = 'Erro ao alcançar o servidor. Por favor, tente novamente mais tarde.';
+              this.isLoading = false;
+              return throwError(() => error);
+            })
+          )
+          .subscribe({
+            next: (response: LoginResponse) => {
+              // Finaliza a animação de carregamento após receber resposta
+              this.isLoading = false;
+  
+          
+  
+              if (response && typeof response.respostaOK !== 'undefined') {
+                this.respostaOK = response.respostaOK;
+  
+                // Tratamento baseado no valor da resposta
+                switch (this.respostaOK) {
+                  case 0:
+                    this.loginError = 'Usuário ou senha incorretos.';
+                    break;
+                  case 1:
+                    console.log('Login bem-sucedido no LoginComponent:', response);
+                    if (rememberMe) {
+                      localStorage.setItem('rememberedUser', username);
+                    } else {
+                      localStorage.removeItem('rememberedUser');
+                    }
+                    this.router.navigate(['/entrada']);
+                    break;
+                  case 2:
+                    this.loginError = 'Usuário já está logado.';
+                    break;
+                  case 3:
+                    this.loginError = 'Usuário sem permissão para acessar o sistema.';
+                    break;
+                  default:
+                    this.loginError = 'Erro desconhecido. Por favor, tente novamente.';
+                    break;
+                }
+              } else {
+                console.error('Resposta inválida recebida no LoginComponent:', response);
+                this.loginError = 'Erro ao alcançar o servidor. Por favor, tente novamente mais tarde.';
+              }
+            },
+            error: (error) => {
+              console.error('Erro recebido no subscribe do LoginComponent:', error);
+              this.loginError = 'Erro ao alcançar o servidor. Por favor, tente novamente mais tarde.';
+              this.isLoading = false;
+            }
+          });
+      }
+    }
 
   openModal(): void { 
     this.isModalOpen = true;

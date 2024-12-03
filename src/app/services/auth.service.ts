@@ -6,28 +6,21 @@ import CryptoJS from 'crypto-js';
 import biri from 'biri';
 import{EntradaService} from '../services/auth/entrada.service';
 import {encodeWithLength,} from '../utils/encoder.utils';
+import { tap } from 'rxjs/operators'; // Adicione a importação do operador tap
+import {LoginResponse} from '../models/login-response.model';
+
 ///////////////////////////////aqui a primeira requisição, de autenticação de usuário/////////////////////////////////////////////////////
 
 // o que a interface irá receber de login
-interface LoginResponse {
-  respostaOK: number;          
-  IdUsuario: number;           
-  NomeUsuario: string;         
-  PrivilegioUsuario: number;  
-  UnidadeUsuario: number;     
-  AcessoProducao: number;     
-  AcessoEmpresa1: number;     
-  AcessoEmpresa2: number;      
-  SessaoID: string;            
-}
 
 @Injectable({
   providedIn: 'root' 
 })
 export class AuthService {
  
-  // private apiUrl = 'http://172.74.0.167:8043/dados';
-  private apiUrl = 'http://10.20.100.133:8041/dados';
+  private apiUrl = 'http://172.74.0.167:8043/dados';
+  // private apiUrl = 'http://10.20.100.133:8043/dados';
+
 
 
   constructor(
@@ -92,33 +85,53 @@ export class AuthService {
     return this.http.post(this.apiUrl, combinedBytes.buffer, { headers, responseType: 'arraybuffer' }).pipe(
       map(response => {
         const byteArray = new Uint8Array(response); // Converte a resposta em um array de bytes
-        
+    
         // Chama a função para interpretar os bytes da resposta
         const parsedResponse = this.parseLoginResponse(byteArray);
-        
-        // Armazenamento no LocalStorage
+    
+        // Armazenamento no LocalStorage - Certifique-se de que não há valores indefinidos que causem problemas
         if (parsedResponse) {
-          localStorage.setItem('SessaoID', parsedResponse.SessaoID);
-          localStorage.setItem('IdUsuario', parsedResponse.IdUsuario.toString());
-          localStorage.setItem('NomeUsuario', parsedResponse.NomeUsuario); 
-          localStorage.setItem('PrivilegioUsuario', parsedResponse.PrivilegioUsuario.toString());
-          localStorage.setItem('UnidadeUsuario', parsedResponse.UnidadeUsuario.toString());
-          localStorage.setItem('AcessoProducao', parsedResponse.AcessoProducao.toString());
-          localStorage.setItem('AcessoEmpresa1', parsedResponse.AcessoEmpresa1.toString());
-          localStorage.setItem('AcessoEmpresa2', parsedResponse.AcessoEmpresa2.toString());
+          try {
+            // Apenas armazena valores válidos no LocalStorage, garantindo que não quebre o fluxo
+            if (parsedResponse.SessaoID) {
+              localStorage.setItem('SessaoID', parsedResponse.SessaoID);
+            }
+            if (parsedResponse.IdUsuario !== undefined && parsedResponse.IdUsuario !== null) {
+              localStorage.setItem('IdUsuario', parsedResponse.IdUsuario.toString());
+            }
+            if (parsedResponse.NomeUsuario) {
+              localStorage.setItem('NomeUsuario', parsedResponse.NomeUsuario);
+            }
+            if (parsedResponse.PrivilegioUsuario !== undefined && parsedResponse.PrivilegioUsuario !== null) {
+              localStorage.setItem('PrivilegioUsuario', parsedResponse.PrivilegioUsuario.toString());
+            }
+            if (parsedResponse.UnidadeUsuario !== undefined && parsedResponse.UnidadeUsuario !== null) {
+              localStorage.setItem('UnidadeUsuario', parsedResponse.UnidadeUsuario.toString());
+            }
+            if (parsedResponse.AcessoProducao !== undefined && parsedResponse.AcessoProducao !== null) {
+              localStorage.setItem('AcessoProducao', parsedResponse.AcessoProducao.toString());
+            }
+            if (parsedResponse.AcessoEmpresa1 !== undefined && parsedResponse.AcessoEmpresa1 !== null) {
+              localStorage.setItem('AcessoEmpresa1', parsedResponse.AcessoEmpresa1.toString());
+            }
+            if (parsedResponse.AcessoEmpresa2 !== undefined && parsedResponse.AcessoEmpresa2 !== null) {
+              localStorage.setItem('AcessoEmpresa2', parsedResponse.AcessoEmpresa2.toString());
+            }
+          } catch (error) {
+            console.error('Erro ao armazenar valores no localStorage:', error);
+          }
         }
-
+    
+        // Sempre retorna o parsedResponse, independentemente de problemas no localStorage
         return parsedResponse; 
       }),
- 
-      
       catchError(error => {
-        console.error('Erro ao fazer login', error);
-        return throwError(() => error); 
+        console.error('Erro ao fazer login no AuthService:', error);
+        return throwError(() => error);
       })
-    );
+    )
+    
   }
-
   //------------ Função para interpretar os bytes da resposta do login-------------
   private parseLoginResponse(bytes: Uint8Array): LoginResponse {
     let offset = 0; 
@@ -179,6 +192,9 @@ export class AuthService {
       AcessoEmpresa2,
       SessaoID
   };
+  
+
+  console.log("resposta do login", loginResponse);
 
   // Armazena no local storage
   localStorage.setItem('usuario', JSON.stringify(loginResponse));

@@ -12,6 +12,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+  </div>
+  
   <div class="error-message" [ngClass]="{'show': loginError}" *ngIf="loginError">
       <p style="color: white;">{{ loginError }}</p>
   </div>
