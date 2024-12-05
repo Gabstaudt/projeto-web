@@ -12,9 +12,9 @@ import { encodeWithLength } from 'src/app/utils/encoder.utils';
   providedIn: 'root'
 })
 export class EntradaService {
-  private apiUrl = 'http://172.74.0.167:8043/dados';
+  // private apiUrl = 'http://172.74.0.167:8043/dados';
 
-  // private apiUrl = 'http://10.20.100.133:8041/dados';
+  private apiUrl = 'http://10.20.100.133:8043/dados';
 
 
 

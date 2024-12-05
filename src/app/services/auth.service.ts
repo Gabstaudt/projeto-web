@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'; 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map} from 'rxjs/operators';
+import { catchError, map, timeout} from 'rxjs/operators';
 import CryptoJS from 'crypto-js';
 import biri from 'biri';
 import{EntradaService} from '../services/auth/entrada.service';
@@ -18,8 +18,8 @@ import {LoginResponse} from '../models/login-response.model';
 })
 export class AuthService {
  
-  private apiUrl = 'http://172.74.0.167:8043/dados';
-  // private apiUrl = 'http://10.20.100.133:8043/dados';
+  // private apiUrl = 'http://172.74.0.167:8043/dados';
+  private apiUrl = 'http://10.20.100.133:8043/dados';
 
 
 
@@ -83,6 +83,7 @@ export class AuthService {
 
     // envio da requisição POST e processa a resposta
     return this.http.post(this.apiUrl, combinedBytes.buffer, { headers, responseType: 'arraybuffer' }).pipe(
+      timeout(5000),
       map(response => {
         const byteArray = new Uint8Array(response); // Converte a resposta em um array de bytes
     

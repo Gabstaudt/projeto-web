@@ -113,12 +113,11 @@ export class LoginComponent implements OnInit {
                 }
               } else {
                 console.error('Resposta inválida recebida no LoginComponent:', response);
-                this.loginError = 'Erro ao alcançar o servidor. Por favor, tente novamente mais tarde.';
+                this.loginError = 'Erro ao conectar ao servidor. Por favor, tente novamente mais tarde.';
               }
             },
             error: (error) => {
-              console.error('Erro recebido no subscribe do LoginComponent:', error);
-              this.loginError = 'Erro ao alcançar o servidor. Por favor, tente novamente mais tarde.';
+              this.loginError = 'Erro ao conectar ao servidor. Por favor, tente novamente mais tarde.';
               this.isLoading = false;
             }
           });
