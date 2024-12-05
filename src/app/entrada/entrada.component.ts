@@ -343,7 +343,6 @@ logout(): void {
     },
     error: (error) => {
       console.error('Erro ao enviar comando de logout:', error);
-      this.finalizarLogout(); // Realiza o logout local independente do erro
     }
   });
 }
