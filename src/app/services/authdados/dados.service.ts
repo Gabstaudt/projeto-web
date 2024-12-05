@@ -164,7 +164,7 @@ iniciarRequisicoesPeriodicas(): Observable<any> {
         offset += 2;
         const tempoAlarme = Number(dataView.getBigUint64(offset)); // (Unix)
         offset += 8;
-        alarmes.push({ id: idAlarme, tempo: new Date(tempoAlarme * 1000) }); // Converte Unix para Data
+        alarmes.push({ id: idAlarme, tempo: new Date(tempoAlarme * 1000 + (3 * 3600000)) }); // Converte Unix para Data e adiciona 3 horas
       }
 
       const quantidadeBytesAlarmes = Math.ceil(quantidadeAlarmes / 8);
@@ -180,7 +180,7 @@ iniciarRequisicoesPeriodicas(): Observable<any> {
       // Adiciona os dados do setor ao array de setores
       setores.push({
         id: idSetor,
-        ultimoTempo: new Date(tempoInformacao * 1000), // Converte Unix para Data
+        ultimoTempo: new Date(tempoInformacao * 1000 + (3 * 3600000)), // Converte Unix para Data e adiciona 3 horas
         status: status,
         inteiros: inteiros,
         booleanos: booleanos,
