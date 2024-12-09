@@ -91,7 +91,12 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
 //////////////////popup de pesquisa//////////////////////
 public exibirPopupSetor(setor: Setor): void {
   const nomeSetor = setor.nome || `Setor ${setor.id}`;
-  const ultimoTempoFormatado = setor.ultimoTempo ? this.formatarData(new Date(setor.ultimoTempo)) : 'Data não disponível';
+  let ultimoTempoContent = '';
+
+  if (setor.ultimoTempo && this.isUltimoTempoSuperior24h(setor.ultimoTempo)) {
+    const diferencaFormatada = this.calcularDiferencaEmDiasEHoras(setor.ultimoTempo);
+    ultimoTempoContent = `<b>Último Tempo:</b> ${diferencaFormatada} atrás<br>`;
+  }
 
   const inteirosString = setor.tags
       .filter(tag => tag.tipo !== TipoTag.Booleano && !tag.vazia)
@@ -105,10 +110,10 @@ public exibirPopupSetor(setor: Setor): void {
 
   const popupContent = `
       <div class="leaflet-popup-content">
-          <b>Setor:</b> ${nomeSetor}<br>
-          <b>Último Tempo:</b> ${ultimoTempoFormatado}<br>
-          <ul>${inteirosString || ''}</ul>
-          <ul>${booleanosString || ''}</ul>
+          <b style="font-size: 16px; font-weight: bold;">${nomeSetor}</b><br>
+          ${ultimoTempoContent}
+          <ul style="list-style-type: none; padding: 0;">${inteirosString || ''}</ul>
+          <ul style="list-style-type: none; padding: 0;">${booleanosString || ''}</ul>
       </div>
   `;
 
@@ -119,6 +124,9 @@ public exibirPopupSetor(setor: Setor): void {
 
   this.exibirResultados = false; // Fecha a lista após exibir o popup
 }
+
+
+
 ///////////////////////////////////////////////////////////////
 private carregarSetores(): void {
   const sessaoId = this.obterSessaoIdDoLocalStorage();
@@ -149,64 +157,68 @@ private carregarSetores(): void {
   });
 }
 
-  private adicionarPontosNoMapa(setores: Setor[]): void {
-    setores.forEach(setor => {
-        console.log(`Setor ID ${setor.id}, Nome: ${setor.nome}, Último Tempo recebido aqui: ${setor.ultimoTempo}`);
+private adicionarPontosNoMapa(setores: Setor[]): void {
+  setores.forEach(setor => {
+    const lat = setor.latitude;
+    const lng = setor.longitude;
+    const status = setor.status;
+    const nomeSetor = setor.nome || `Setor ${setor.id}`;
+    let ultimoTempoContent = ''; // Inicializa como vazio
 
-        const lat = setor.latitude;
-        const lng = setor.longitude;
-        const status = setor.status;
-        const nomeSetor = setor.nome || `Setor ${setor.id}`;
+    if (setor.ultimoTempo && this.isUltimoTempoSuperior24h(setor.ultimoTempo)) {
+      const diferencaFormatada = this.calcularDiferencaEmDiasEHoras(setor.ultimoTempo);
+      ultimoTempoContent = `<b></b> ${diferencaFormatada} atrás<br>`;
+    }
+    
 
-        const tempoSetor = setor.ultimoTempo ? new Date(setor.ultimoTempo).getTime() : 0;
-        let ultimoTempoFormatado: string;
+    if (this.isValido(lat) && this.isValido(lng) && lat !== 0 && lng !== 0 && status !== 0) {
+      const iconeUrl = this.definirIcone(setor);
 
-        if (tempoSetor > 0) {
-            ultimoTempoFormatado = this.formatarData(new Date(tempoSetor));
-        } else {
-            console.warn(`Setor ${nomeSetor} não possui um Último Tempo válido.`);
-            ultimoTempoFormatado = 'Tempo não disponível';
-        }
+      const marker = L.marker([lat, lng], {
+        icon: L.icon({
+          iconUrl: iconeUrl,
+          iconSize: [35, 35],
+          iconAnchor: [16, 32]
+        })
+      }).addTo(this.map);
 
-        if (this.isValido(lat) && this.isValido(lng) && lat !== 0 && lng !== 0 && status !== 0) {
-            const iconeUrl = this.definirIcone(setor);
+      const inteirosString = setor.tags
+          .filter(tag => tag.tipo !== TipoTag.Booleano && !tag.vazia)
+          .map(tag => `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraInt)}</li>`)
+          .join('');
 
-            const marker = L.marker([lat, lng], {
-                icon: L.icon({
-                    iconUrl: iconeUrl,
-                    iconSize: [35, 35],
-                    iconAnchor: [16, 32]
-                })
-            }).addTo(this.map);
+      const booleanosString = setor.tags
+          .filter(tag => tag.tipo === TipoTag.Booleano && !tag.vazia)
+          .map(tag => `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraBool ? 1 : 0)}</li>`)
+          .join('');
 
-            const inteirosString = setor.tags
-                .filter(tag => tag.tipo !== TipoTag.Booleano && !tag.vazia)
-                .map(tag => {
-                    console.log("Exibindo Tag Inteira no Mapa:", tag.nome, "Vazia:", tag.vazia, "Valor:", tag.leituraInt);
-                    return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraInt)}</li>`;
-                })
-                .join('');
+      const popupContent = `
+          <div class="leaflet-popup-content">
+             <b style="font-size: 16px; font-weight: bold;">${nomeSetor}</b><br>
+              ${ultimoTempoContent}
+              <ul style="list-style-type: none; padding: 0;">${inteirosString || ''}</ul>
+              <ul style="list-style-type: none; padding: 0;">${booleanosString || ''}</ul>
 
-            const booleanosString = setor.tags
-                .filter(tag => tag.tipo === TipoTag.Booleano && !tag.vazia)
-                .map(tag => {
-                    console.log("Exibindo Tag Booleana no Mapa:", tag.nome, "Vazia:", tag.vazia, "Valor:", tag.leituraBool);
-                    return `<li>${tag.nome}: ${tag.converterLeitura(tag.leituraBool ? 1 : 0)}</li>`;
-                })
-                .join('');
+          </div>
+      `;
 
-            const popupContent = `
-                <div class="leaflet-popup-content">
-                    <b>Setor:</b> ${nomeSetor}<br>
-                    <b>Último Tempo:</b> ${ultimoTempoFormatado}<br>
-                    <ul>${inteirosString || ''}</ul>
-                    <ul>${booleanosString || ''}</ul>
-                </div>
-            `;
-            marker.bindPopup(popupContent).openPopup();
-        }
-    });
+      marker.bindPopup(popupContent).openPopup();
+    }
+  });
 }
+
+////////////////////auxiliar de exibição em dia e hora//////////////////////
+private calcularDiferencaEmDiasEHoras(ultimoTempo: Date): string {
+  const agora = new Date();
+  const diferencaMs = agora.getTime() - new Date(ultimoTempo).getTime();
+
+  const diferencaHoras = Math.floor(diferencaMs / (1000 * 60 * 60));
+  const dias = Math.floor(diferencaHoras / 24);
+  const horas = diferencaHoras % 24;
+
+  return `${dias} dia(s) e ${horas} hora(s)`;
+}
+/////////////////////////////////////////////////////////////////////////
 private formatarData(data: Date): string {
     return isNaN(data.getTime())
         ? 'Data inválida'
@@ -246,7 +258,18 @@ private formatarData(data: Date): string {
   toggleSearchResults(): void {
     this.exibirResultados = !this.exibirResultados;
   }
+///////////////////////////////////////////////////////////////////////// tempo superior a 24h função
 
+  private isUltimoTempoSuperior24h(ultimoTempo: Date | null): boolean {
+    if (!ultimoTempo) {
+      return false;
+    }
+    const agora = new Date().getTime();
+    const tempoRecebido = new Date(ultimoTempo).getTime();
+    const diferencaHoras = (agora - tempoRecebido) / (1000 * 60 * 60); // Converter ms para horas
+    return diferencaHoras > 24;
+  }
+  ///////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////exibição de acordo com a navegação da navbar////////////////////////////////////////////////////////////////////////////
 
   mostrarConteudo(secao: string) {

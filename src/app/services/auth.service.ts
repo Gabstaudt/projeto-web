@@ -90,10 +90,10 @@ export class AuthService {
         // Chama a função para interpretar os bytes da resposta
         const parsedResponse = this.parseLoginResponse(byteArray);
     
-        // Armazenamento no LocalStorage - Certifique-se de que não há valores indefinidos que causem problemas
+        // Armazenamento no LocalStorage
         if (parsedResponse) {
           try {
-            // Apenas armazena valores válidos no LocalStorage, garantindo que não quebre o fluxo
+            // Apenas armazena valores válidos no LocalStorage
             if (parsedResponse.SessaoID) {
               localStorage.setItem('SessaoID', parsedResponse.SessaoID);
             }
