@@ -11,6 +11,7 @@ import { TerceiraRequisicaoService } from '../services/authdados/dados.service';
 import { interval, Subscription } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { encodeWithLength } from '../utils/encoder.utils';
+import '@maptiler/leaflet-maptilersdk'; 
 
 
 @Component({
@@ -65,10 +66,20 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
   }
 
   private iniciarMapa(): void {
-    this.map = L.map('map').setView([-1.3849999904632568, -48.44940185546875], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
+    this.map = L.map('map', {
+      center: L.latLng(-1.3849999904632568, -48.44940185546875),
+      zoom: 13
+    });
+  
+    const mtLayer = new (L as any).MaptilerLayer({
+      apiKey: "06VoWTg8y3w8DJd66WnU", 
     }).addTo(this.map);
+  
+    console.log('Mapa inicializado com MapTiler Layer via SDK');
+  
+  
+  
+    
     console.log('Mapa inicializado com sucesso'); 
   }
 
@@ -201,7 +212,8 @@ private adicionarPontosNoMapa(setores: Setor[]): void {
           </div>
       `;
 
-      marker.bindPopup(popupContent).openPopup();
+      // Vincula o popup ao marcador sem abri-lo automaticamente
+      marker.bindPopup(popupContent);
     }
   });
 }
