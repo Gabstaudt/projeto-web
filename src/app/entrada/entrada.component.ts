@@ -93,9 +93,9 @@ public exibirPopupSetor(setor: Setor): void {
   const nomeSetor = setor.nome || `Setor ${setor.id}`;
   let ultimoTempoContent = '';
 
-  if (setor.ultimoTempo && this.isUltimoTempoSuperior24h(setor.ultimoTempo)) {
-    const diferencaFormatada = this.calcularDiferencaEmDiasEHoras(setor.ultimoTempo);
-    ultimoTempoContent = `<b>Último Tempo:</b> ${diferencaFormatada} atrás<br>`;
+  if (setor.ultimoTempo) {
+    const diferencaFormatada = this.calcularDiferenca(setor.ultimoTempo);
+    ultimoTempoContent = `<b>Último Tempo:</b> ${diferencaFormatada}<br>`;
   }
 
   const inteirosString = setor.tags
@@ -124,6 +124,7 @@ public exibirPopupSetor(setor: Setor): void {
 
   this.exibirResultados = false; // Fecha a lista após exibir o popup
 }
+
 
 
 
@@ -165,11 +166,10 @@ private adicionarPontosNoMapa(setores: Setor[]): void {
     const nomeSetor = setor.nome || `Setor ${setor.id}`;
     let ultimoTempoContent = ''; // Inicializa como vazio
 
-    if (setor.ultimoTempo && this.isUltimoTempoSuperior24h(setor.ultimoTempo)) {
-      const diferencaFormatada = this.calcularDiferencaEmDiasEHoras(setor.ultimoTempo);
-      ultimoTempoContent = `<b></b> ${diferencaFormatada} atrás<br>`;
+    if (setor.ultimoTempo) {
+      // Calcula a diferença e define o conteúdo do último tempo
+      ultimoTempoContent = `<b></b> ${this.calcularDiferenca(setor.ultimoTempo)}<br>`;
     }
-    
 
     if (this.isValido(lat) && this.isValido(lng) && lat !== 0 && lng !== 0 && status !== 0) {
       const iconeUrl = this.definirIcone(setor);
@@ -198,7 +198,6 @@ private adicionarPontosNoMapa(setores: Setor[]): void {
               ${ultimoTempoContent}
               <ul style="list-style-type: none; padding: 0;">${inteirosString || ''}</ul>
               <ul style="list-style-type: none; padding: 0;">${booleanosString || ''}</ul>
-
           </div>
       `;
 
@@ -207,28 +206,48 @@ private adicionarPontosNoMapa(setores: Setor[]): void {
   });
 }
 
+
 ////////////////////auxiliar de exibição em dia e hora//////////////////////
-private calcularDiferencaEmDiasEHoras(ultimoTempo: Date): string {
+private calcularDiferenca(ultimoTempo: Date): string {
   const agora = new Date();
   const diferencaMs = agora.getTime() - new Date(ultimoTempo).getTime();
 
-  const diferencaHoras = Math.floor(diferencaMs / (1000 * 60 * 60));
-  const dias = Math.floor(diferencaHoras / 24);
-  const horas = diferencaHoras % 24;
+  const diferencaMinutos = Math.floor(diferencaMs / (1000 * 60)); // Converte ms para minutos
+  const diferencaHoras = Math.floor(diferencaMinutos / 60); // Converte minutos para horas
 
-  return `${dias} dia(s) e ${horas} hora(s)`;
+  if (diferencaHoras >= 24) {
+    // Retorna apenas a data formatada
+    return this.formatarDataApenasData(new Date(ultimoTempo));
+  } else if (diferencaHoras > 0) {
+    // Para tempos entre 1 hora e 24 horas
+    const horas = Math.floor(diferencaHoras);
+    const minutos = diferencaMinutos % 60;
+    return `${horas} hora(s) e ${minutos} min atrás`;
+  } else {
+    // Para tempos inferiores a 1 hora, retorna em minutos
+    return `${diferencaMinutos} min atrás`;
+  }
 }
+private formatarDataApenasData(data: Date): string {
+  return isNaN(data.getTime())
+    ? 'Data inválida'
+    : `${data.getDate().toString().padStart(2, '0')}/` +
+      `${(data.getMonth() + 1).toString().padStart(2, '0')}/` +
+      `${data.getFullYear()}`;
+}
+
+
 /////////////////////////////////////////////////////////////////////////
 private formatarData(data: Date): string {
-    return isNaN(data.getTime())
-        ? 'Data inválida'
-        : `${data.getDate().toString().padStart(2, '0')}/` +
-          `${(data.getMonth() + 1).toString().padStart(2, '0')}/` +
-          `${data.getFullYear()} ` +
-          `${data.getHours().toString().padStart(2, '0')}:` +
-          `${data.getMinutes().toString().padStart(2, '0')}:` +
-          `${data.getSeconds().toString().padStart(2, '0')}`;
+  return isNaN(data.getTime())
+    ? 'Data inválida'
+    : `${data.getDate().toString().padStart(2, '0')}/` +
+      `${(data.getMonth() + 1).toString().padStart(2, '0')}/` +
+      `${data.getFullYear()} ` +
+      `${data.getHours().toString().padStart(2, '0')}:` +
+      `${data.getMinutes().toString().padStart(2, '0')}`;
 }
+
 
   private isValido(coordenada: number): boolean {
     return typeof coordenada === 'number' && !isNaN(coordenada);
