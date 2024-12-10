@@ -26,8 +26,8 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
   private readonly servidorUrl = 'http://10.20.100.133:8043/dados';
 
 
-  dialogRef!: MatDialogRef<HistoricoModalComponent>
-  // private readonly servidorUrl = 'http://172.74.0.167:8043/dados';
+  modalAberto: boolean = false;
+    // private readonly servidorUrl = 'http://172.74.0.167:8043/dados';
   @ViewChild('percentageText', { static: false }) percentageText!: ElementRef;
 
   private map: any;
@@ -87,25 +87,12 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
     console.log('Mapa inicializado com sucesso'); 
   }
   abrirModal(): void {
-    // Exibe o modal e o overlay
-    const modal = document.getElementById('historicoModal');
-    const overlay = document.getElementById('modalOverlay');
-    if (modal && overlay) {
-      modal.classList.add('modal-show');
-      overlay.classList.add('modal-show');
-    }
+    this.modalAberto = true; // Define como verdadeiro ao abrir o modal
   }
 
   fecharModal(): void {
-    // Oculta o modal e o overlay
-    const modal = document.getElementById('historicoModal');
-    const overlay = document.getElementById('modalOverlay');
-    if (modal && overlay) {
-      modal.classList.remove('modal-show');
-      overlay.classList.remove('modal-show');
-    }
+    this.modalAberto = false; // Define como falso ao fechar o modal
   }
-
 
   filtrarSetores(): void {
     if (this.searchTerm.trim() === '') {

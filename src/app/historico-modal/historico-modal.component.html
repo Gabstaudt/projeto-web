@@ -1,0 +1,30 @@
+<div class="modal-overlay" (click)="fecharModal()"></div>
+<div class="modal-container">
+  <!-- Conteúdo do modal -->
+  <h2>Consulta de Histórico</h2>
+  <div class="periodo-consulta">
+    <label>Período de Consulta</label>
+    <div>
+      <input type="radio" name="periodo" value="dia" checked> Dia
+      <input type="radio" name="periodo" value="mes"> Mês
+      <input type="radio" name="periodo" value="custom"> Intervalo Customizável
+    </div>
+  </div>
+  <div class="datas">
+    <label>Data Inicial:</label>
+    <input type="date">
+    <input type="time">
+    <label>Data Final:</label>
+    <input type="date">
+    <input type="time">
+  </div>
+  <div class="acoes">
+    <button>Consultar</button>
+    <button>Gráfico</button>
+    <button>Exportar</button>
+    <button>Imprimir</button>
+  </div>
+  <div class="modal-footer">
+    <button mat-button color="warn" (click)="fecharModal()">Fechar</button>
+  </div>
+</div>
