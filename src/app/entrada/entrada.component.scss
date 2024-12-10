@@ -14,6 +14,40 @@ body, html {
     flex-direction: column;
     height: 100vh;
 }
+//////////////////////modaaaaaaall de pesquisa//////////////////////
+
+.modal-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centraliza horizontal e verticalmente */
+    z-index: 1000; /* Certifique-se de que o modal fique acima dos outros elementos */
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 800px;
+    width: 90%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none; /* Esconde o modal por padrão */
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999; /* Deve estar logo abaixo do modal */
+    display: none; /* Esconde o overlay por padrão */
+  }
+  
+  .modal-show {
+    display: block !important; /* Mostra o modal ou overlay */
+  }
+  
+
+
 
 /* ////////////////////////////NAVBAR TELA GRANDE///////////////////////////////// */
 .navbar {

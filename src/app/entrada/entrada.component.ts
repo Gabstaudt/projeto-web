@@ -12,6 +12,8 @@ import { interval, Subscription } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { encodeWithLength } from '../utils/encoder.utils';
 import '@maptiler/leaflet-maptilersdk'; 
+import { HistoricoModalComponent } from '../historico-modal/historico-modal.component';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog'; // Certifique-se de importar MatDialog e MatDialogRef
 
 
 @Component({
@@ -23,6 +25,8 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
   private subscription: Subscription | null = null;
   private readonly servidorUrl = 'http://10.20.100.133:8043/dados';
 
+
+  dialogRef!: MatDialogRef<HistoricoModalComponent>
   // private readonly servidorUrl = 'http://172.74.0.167:8043/dados';
   @ViewChild('percentageText', { static: false }) percentageText!: ElementRef;
 
@@ -48,7 +52,7 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
     uste: []
   };
 
-  constructor(private entradaService: EntradaService, private http: HttpClient, private router: Router,     private terceiraRequisicaoService: TerceiraRequisicaoService
+  constructor(private dialog: MatDialog, private entradaService: EntradaService, private http: HttpClient, private router: Router,     private terceiraRequisicaoService: TerceiraRequisicaoService
   ) {
     this.setores$ = this.entradaService.setores$;
   }
@@ -82,6 +86,26 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
     
     console.log('Mapa inicializado com sucesso'); 
   }
+  abrirModal(): void {
+    // Exibe o modal e o overlay
+    const modal = document.getElementById('historicoModal');
+    const overlay = document.getElementById('modalOverlay');
+    if (modal && overlay) {
+      modal.classList.add('modal-show');
+      overlay.classList.add('modal-show');
+    }
+  }
+
+  fecharModal(): void {
+    // Oculta o modal e o overlay
+    const modal = document.getElementById('historicoModal');
+    const overlay = document.getElementById('modalOverlay');
+    if (modal && overlay) {
+      modal.classList.remove('modal-show');
+      overlay.classList.remove('modal-show');
+    }
+  }
+
 
   filtrarSetores(): void {
     if (this.searchTerm.trim() === '') {

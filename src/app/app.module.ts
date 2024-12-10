@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { EntradaComponent } from './entrada/entrada.component';
 import { HttpClientModule } from '@angular/common/http';
+import { HistoricoModalComponent } from './historico-modal/historico-modal.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 
@@ -14,6 +16,7 @@ import { HttpClientModule } from '@angular/common/http';
     AppComponent,
     LoginComponent,
     EntradaComponent,
+    HistoricoModalComponent,
     
   ],
   imports: [
@@ -21,7 +24,8 @@ import { HttpClientModule } from '@angular/common/http';
     AppRoutingModule,
     ReactiveFormsModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    MatDialogModule
     
   ],
   providers: [],
