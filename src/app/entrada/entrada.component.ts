@@ -25,8 +25,9 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
   private subscription: Subscription | null = null;
   private readonly servidorUrl = 'http://10.20.100.133:8043/dados';
 
-
+////auxiliares do modal
   modalAberto: boolean = false;
+  
     // private readonly servidorUrl = 'http://172.74.0.167:8043/dados';
   @ViewChild('percentageText', { static: false }) percentageText!: ElementRef;
 
@@ -86,6 +87,7 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
     
     console.log('Mapa inicializado com sucesso'); 
   }
+  
   abrirModal(): void {
     this.modalAberto = true; // Define como verdadeiro ao abrir o modal
   }
@@ -93,6 +95,8 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
   fecharModal(): void {
     this.modalAberto = false; // Define como falso ao fechar o modal
   }
+
+
 
   filtrarSetores(): void {
     if (this.searchTerm.trim() === '') {

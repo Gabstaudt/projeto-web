@@ -3,13 +3,111 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 1000; /* Fica acima de todos os outros elementos */
-    background-color: white;
-    border-radius: 8px;
-    padding: 20px;
-    max-width: 800px;
+    z-index: 1000;
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 600px;
     width: 90%;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    font-family: 'Poppins', sans-serif;
+    color: #333333;
+    animation: fadeIn 0.3s ease-in-out;
+  
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #09041D;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+  
+    .periodo-consulta {
+      label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #555555;
+      }
+  
+      div {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+  
+        input[type='radio'] {
+          margin-right: 6px;
+        }
+      }
+    }
+  
+    .datas {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+  
+      label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+  
+      input[type='date'],
+      input[type='time'] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid #cccccc;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+  
+      input:focus {
+        border-color: #09041D;
+      }
+    }
+  
+    .acoes {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+  
+      button {
+        background-color: #09041D;
+        color: white;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s;
+  
+        &:hover {
+          background-color: #100052;
+        }
+      }
+    }
+  
+    .modal-footer {
+      text-align: center;
+      margin-top: 20px;
+  
+      button {
+        background-color: #f44336;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s;
+  
+        &:hover {
+          background-color: #d32f2f;
+        }
+      }
+    }
   }
   
   .modal-overlay {
@@ -19,6 +117,16 @@
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 999; /* Logo abaixo do modal */
+    z-index: 999;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   

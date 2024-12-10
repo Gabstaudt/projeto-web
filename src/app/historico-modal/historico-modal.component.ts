@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-historico-modal',
@@ -6,9 +6,11 @@ import { Component, EventEmitter, Output } from '@angular/core';
   styleUrls: ['./historico-modal.component.scss']
 })
 export class HistoricoModalComponent {
-  @Output() fechar = new EventEmitter<void>(); // Evento para informar ao componente pai quando o modal é fechado
+  @Input() setores: { id: number; nome: string }[] = [];
+  @Input() tags: string[] = ['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4'];
+  @Output() fechar = new EventEmitter<void>();
 
-  fecharModal(): void {
-    this.fechar.emit(); // Emite o evento de fechamento
+  fecharModal() {
+    this.fechar.emit();
   }
 }
