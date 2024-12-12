@@ -1,77 +1,76 @@
 <div class="modal-container">
-    <h2>Consulta de Histórico</h2>
-    <div class="grid-container">
-      <!-- Período de Consulta -->
-      <div class="grid-item">
-        <fieldset>
-          <legend>Período de Consulta</legend>
-          <label><input type="radio" name="periodo" value="dia" checked> Dia</label>
-          <label><input type="radio" name="periodo" value="mes"> Mês</label>
-          <label><input type="radio" name="periodo" value="custom"> Intervalo Customizável</label>
-        </fieldset>
-      </div>
-  
-      <!-- Datas -->
-      <div class="grid-item">
-        <fieldset>
-          <legend>Data</legend>
-          <label>Data Inicial:</label>
-          <input type="date">
-          <input type="time">
-          <label>Data Final:</label>
-          <input type="date">
-          <input type="time">
-        </fieldset>
-      </div>
-  
-      <!-- Seleção de Setor -->
-      <div class="grid-item">
-        <fieldset>
-            <legend>Setores</legend>
-            <select>
-              <option *ngFor="let setor of setores" [value]="setor.id">
-                {{ setor.nome }}
-              </option>
-            </select>
-          </fieldset>
-      </div>
-  
-      <!-- Tags -->
-      <div class="grid-item">
-        <fieldset>
-          <legend>Tags</legend>
-          <div class="tags-list">
-            <label *ngFor="let tag of tags">
-              <input type="checkbox" [value]="tag"> {{ tag }}
-            </label>
-          </div>
-        </fieldset>
-      </div>
-  
-      <!-- Filtro de Intervalo -->
-      <div class="grid-item">
-        <fieldset>
-          <legend>Filtro de Intervalo</legend>
-          <label><input type="radio" name="filtro" value="sem-filtro" checked> Sem filtro</label>
-          <label><input type="radio" name="filtro" value="15-min"> 15 min</label>
-          <label><input type="radio" name="filtro" value="30-min"> 30 min</label>
-          <label><input type="radio" name="filtro" value="60-min"> 60 min</label>
-        </fieldset>
-      </div>
+  <h2>Consulta de Histórico</h2>
+  <div class="grid-container">
+    <!-- Período de Consulta -->
+    <div class="grid-item">
+      <fieldset>
+        <legend>Período de Consulta</legend>
+        <label><input type="radio" name="periodo" value="dia" checked> Dia</label>
+        <label><input type="radio" name="periodo" value="mes"> Mês</label>
+        <label><input type="radio" name="periodo" value="custom"> Intervalo Customizável</label>
+      </fieldset>
     </div>
-  
-    <!-- Ações -->
-    <div class="acoes">
-      <button>Consultar</button>
-      <button>Gráfico</button>
-      <button>Exportar</button>
-      <button>Imprimir</button>
-      <button>Excluir</button>
-      <label><input type="checkbox"> Exibir intervalo</label>
+
+    <!-- Datas -->
+    <div class="grid-item">
+      <fieldset>
+        <legend>Data</legend>
+        <label>Data Inicial:</label>
+        <input type="date">
+        <input type="time">
+        <label>Data Final:</label>
+        <input type="date">
+        <input type="time">
+      </fieldset>
     </div>
-  
-    <div class="modal-footer">
-      <button class="close-button" (click)="fecharModal()">Fechar</button>
+
+    <!-- Seleção de Setor -->
+    <div class="grid-item">
+      <fieldset>
+        <legend>Setores</legend>
+        <select (change)="onSetorChange($event)">
+          <option *ngFor="let setor of setores || []" [value]="setor?.id">
+            {{ setor?.nome }}
+          </option>
+        </select>
+      </fieldset>
+    </div>
+
+    <!-- Tags -->
+    <div class="grid-item">
+      <fieldset>
+        <legend>Tags</legend>
+        <div class="tags-list">
+          <label *ngFor="let tag of tags">
+            <input type="checkbox" [value]="tag.id"> {{ tag.nome }}
+          </label>
+        </div>
+      </fieldset>
     </div>
   </div>
-  
+
+    <!-- Filtro de Intervalo -->
+    <div class="grid-item">
+      <fieldset>
+        <legend>Filtro de Intervalo</legend>
+        <label><input type="radio" name="filtro" value="sem-filtro" checked> Sem filtro</label>
+        <label><input type="radio" name="filtro" value="15-min"> 15 min</label>
+        <label><input type="radio" name="filtro" value="30-min"> 30 min</label>
+        <label><input type="radio" name="filtro" value="60-min"> 60 min</label>
+      </fieldset>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="acoes">
+    <button>Consultar</button>
+    <button>Gráfico</button>
+    <button>Exportar</button>
+    <button>Imprimir</button>
+    <button>Excluir</button>
+    <label><input type="checkbox"> Exibir intervalo</label>
+  </div>
+
+  <div class="modal-footer">
+    <button class="close-button" (click)="fecharModal()">Fechar</button>
+  </div>
