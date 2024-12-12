@@ -27,6 +27,11 @@ export class EntradaService {
     public TerceiraRequisicaoService: TerceiraRequisicaoService 
   ) {}
 
+  getTagsBySetorId(setorId: number): Tag[] {
+    const setor = this.listaGlobal.find((s) => s.id === setorId);
+    return setor ? setor.tags : [];
+  }
+
 //////////////////////////////////////////////////////////////////////////////função para carregar setores ////////////////////////////////////////////////////////////////////////////
 public carregarSetores(): void {
   this.fazerSegundaRequisicao().pipe(
