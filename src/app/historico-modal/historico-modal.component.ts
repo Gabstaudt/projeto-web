@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { EntradaService } from '../services/auth/entrada.service';
 import { Tag } from '../models/tag.model';
 import { Setor} from '../models/setor.model';
-
+import {HistoricoService} from '../services/hist/historico.service'
 
 @Component({
   selector: 'app-historico-modal',
@@ -14,7 +14,15 @@ export class HistoricoModalComponent implements OnInit {
   @Output() fechar = new EventEmitter<void>(); // Evento para fechar o modal
   tags: Tag[] = []; // Tags do setor selecionado
   setores: Setor[] = []; 
-  constructor(private entradaService: EntradaService) {}
+  selectedTags: number[] = []; // armazenar as tags selecionadas
+  dataInicio: string = '';
+  dataFim: string = '';
+  historico: any[] = []; // Dados recebidos do servidor
+
+  constructor(private entradaService: EntradaService,
+    private historicoService: HistoricoService
+
+  ) {}
 
   ngOnInit() {
     this.setores = this.entradaService.listaGlobal || [];
@@ -39,5 +47,34 @@ export class HistoricoModalComponent implements OnInit {
     this.setorId = setorId; // Atualiza o ID do setor
     this.loadTags(); // Atualiza as tags associadas ao setor
   }
+
+
+  consultarHistorico() {
+    this.historicoService
+      .fazerRequisicaoHistorico(
+        'abc123', // Substitua pelo ID real da sessão
+        5, // ID do setor
+        Date.now() - 86400000, // Data de início
+        Date.now(), // Data de fim
+        [100, 200], // Tags inteiras
+        [300, 400] // Tags booleanas
+      )
+      .subscribe({
+        next: (data: any) => {
+          console.log('Resposta do servidor:', data);
+        },
+        error: (error: any) => {
+          console.error('Erro ao consultar histórico:', error);
+        },
+      });
+  }
   
+
+  toggleTagSelection(tagId: number) {
+    if (this.selectedTags.includes(tagId)) {
+      this.selectedTags = this.selectedTags.filter(id => id !== tagId);
+    } else {
+      this.selectedTags.push(tagId);
+    }
+  }
 }

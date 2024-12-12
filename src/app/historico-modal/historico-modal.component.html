@@ -42,13 +42,15 @@
         <legend>Tags</legend>
         <div class="tags-list">
           <label *ngFor="let tag of tags">
-            <input type="checkbox" [value]="tag.id"> {{ tag.nome }}
+            <input 
+              type="checkbox" 
+              [checked]="selectedTags.includes(tag.id)"
+              (change)="toggleTagSelection(tag.id)">
+            {{ tag.nome }}
           </label>
         </div>
       </fieldset>
     </div>
-  </div>
-
     <!-- Filtro de Intervalo -->
     <div class="grid-item">
       <fieldset>
@@ -63,7 +65,7 @@
 
   <!-- Ações -->
   <div class="acoes">
-    <button>Consultar</button>
+    <button (click)="consultarHistorico()">Consultar</button>
     <button>Gráfico</button>
     <button>Exportar</button>
     <button>Imprimir</button>

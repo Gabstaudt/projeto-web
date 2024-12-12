@@ -6,7 +6,6 @@ import CryptoJS from 'crypto-js';
 import biri from 'biri';
 import{EntradaService} from '../services/auth/entrada.service';
 import {encodeWithLength,} from '../utils/encoder.utils';
-import { tap } from 'rxjs/operators'; // Adicione a importação do operador tap
 import {LoginResponse} from '../models/login-response.model';
 
 ///////////////////////////////aqui a primeira requisição, de autenticação de usuário/////////////////////////////////////////////////////
