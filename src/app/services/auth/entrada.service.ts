@@ -27,11 +27,17 @@ export class EntradaService {
     public TerceiraRequisicaoService: TerceiraRequisicaoService 
   ) {}
 
-  getTagsBySetorId(setorId: number): Tag[] {
+  public getTagsBySetorId(setorId: number): Tag[] {
     const setor = this.listaGlobal.find((s) => s.id === setorId);
+    console.log('Setor encontrado:', setor);
+    if (setor) {
+      setor.tags.forEach(tag => {
+        console.log(`Tag ID: ${tag.id}, Inteira: ${tag.leituraInt}, Booleana: ${tag.leituraBool}`);
+      });
+    }
     return setor ? setor.tags : [];
   }
-
+  
 //////////////////////////////////////////////////////////////////////////////função para carregar setores ////////////////////////////////////////////////////////////////////////////
 public carregarSetores(): void {
   this.fazerSegundaRequisicao().pipe(

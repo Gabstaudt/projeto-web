@@ -45,7 +45,7 @@ export class HistoricoModalComponent implements OnInit {
 
   // Carrega as tags do setor selecionado
   loadTags() {
-    this.tags = this.historicoService.getTagsBySetorId(this.setorId) || [];
+    this.tags = this.entradaService.getTagsBySetorId(this.setorId) || [];
     console.log('Tags carregadas:', this.tags);
   }
   
@@ -117,23 +117,27 @@ export class HistoricoModalComponent implements OnInit {
     } else {
       this.tagsSelecionadas.splice(index, 1);
     }
-    this.cdr.detectChanges(); // Força a atualização da interface
+    console.log('Tags Selecionadas:', this.tagsSelecionadas);
   }
+  
   
   
 
   separarTagsSelecionadas() {
+    console.log('Tags selecionadas para separação:', this.tagsSelecionadas);
+  
     this.tagsInteirasSelecionadas = this.tagsSelecionadas
-      .filter(tag => tag.leituraInt !== undefined)
+      .filter(tag => typeof tag.leituraInt === 'number') // Verifica se leituraInt é um número
       .map(tag => tag.id);
   
     this.tagsBooleanasSelecionadas = this.tagsSelecionadas
-      .filter(tag => tag.leituraBool !== undefined)
+      .filter(tag => typeof tag.leituraBool === 'boolean') // Verifica se leituraBool é booleano
       .map(tag => tag.id);
   
-    console.log('Tags Inteiras:', this.tagsInteirasSelecionadas);
-    console.log('Tags Booleanas:', this.tagsBooleanasSelecionadas);
+    console.log('Tags Inteiras Selecionadas:', this.tagsInteirasSelecionadas);
+    console.log('Tags Booleanas Selecionadas:', this.tagsBooleanasSelecionadas);
   }
+  
   
   
   
