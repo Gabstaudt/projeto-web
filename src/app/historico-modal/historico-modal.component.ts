@@ -3,6 +3,8 @@ import { EntradaService } from '../services/auth/entrada.service';
 import { Tag } from '../models/tag.model';
 import { Setor } from '../models/setor.model';
 import { HistoricoService } from '../services/hist/historico.service';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 @Component({
   selector: 'app-historico-modal',
@@ -25,7 +27,8 @@ export class HistoricoModalComponent implements OnInit {
   tagsBooleanasSelecionadas: number[] = []; 
   constructor(
     private entradaService: EntradaService,
-    private historicoService: HistoricoService
+    private historicoService: HistoricoService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -59,70 +62,74 @@ export class HistoricoModalComponent implements OnInit {
   }
   // Consulta o histórico
   consultarHistorico() {
-    if (!this.dataInicio || !this.dataFim) {
-      console.error('Datas de início e fim são obrigatórias.');
+    this.separarTagsSelecionadas(); // Separar tags antes de enviar
+  
+    const idSessao = localStorage.getItem('SessaoID');
+    if (!idSessao) {
+      console.error('Sessão ID ausente no localStorage.');
       return;
     }
   
-    const dataInicioMs = new Date(`${this.dataInicio}T${this.horaInicio}:00`).getTime();
-    const dataFimMs = new Date(`${this.dataFim}T${this.horaFim}:00`).getTime();
+    const dataInicioCompleta = `${this.dataInicio}T${this.horaInicio}:00`;
+    const dataFimCompleta = `${this.dataFim}T${this.horaFim}:00`;
+  
+    const dataInicioMs = new Date(dataInicioCompleta).getTime();
+    const dataFimMs = new Date(dataFimCompleta).getTime();
   
     if (dataInicioMs >= dataFimMs) {
       console.error('A data de início deve ser anterior à data de fim.');
       return;
     }
   
-    this.historicoService.fazerRequisicaoHistorico(
-      localStorage.getItem('SessaoID') || '',
-      this.setorId,
-      dataInicioMs,
-      dataFimMs,
-      this.tagsInteirasSelecionadas,
-      this.tagsBooleanasSelecionadas
-    ).subscribe({
-      next: (data) => {
-        console.log('Histórico recebido:', data);
-        this.historico = data;
-      },
-      error: (err) => {
-        console.error('Erro ao consultar histórico:', err);
-      }
-    });
+    this.historicoService
+      .fazerRequisicaoHistorico(
+        idSessao,
+        this.setorId,
+        dataInicioMs,
+        dataFimMs,
+        this.tagsInteirasSelecionadas,
+        this.tagsBooleanasSelecionadas
+      )
+      .subscribe({
+        next: (data) => {
+          console.log('Histórico recebido:', data);
+        },
+        error: (err) => {
+          console.error('Erro ao consultar histórico:', err);
+        },
+      });
   }
   
   
-  isTagSelected(tagId: number): boolean {
-    return this.tagsSelecionadas.some(t => t.id === tagId);
+  
+  isTagSelecionada(tagId: number): boolean {
+    return this.tagsSelecionadas.some(tag => tag.id === tagId);
   }
+  
   
 
   // Alterna a seleção de tags
+
   toggleTagSelection(tag: Tag) {
-    const index = this.tagsSelecionadas.indexOf(tag);
+    const index = this.tagsSelecionadas.findIndex(t => t.id === tag.id);
     if (index === -1) {
       this.tagsSelecionadas.push(tag);
     } else {
       this.tagsSelecionadas.splice(index, 1);
     }
-    console.log('Tags selecionadas:', this.selectedTags);
-    // Após modificar a seleção, separe as tags automaticamente
-    this.separarTagsSelecionadas();
+    this.cdr.detectChanges(); // Força a atualização da interface
   }
   
   
 
-  private separarTagsSelecionadas() {
-    this.tagsInteirasSelecionadas = [];
-    this.tagsBooleanasSelecionadas = [];
+  separarTagsSelecionadas() {
+    this.tagsInteirasSelecionadas = this.tagsSelecionadas
+      .filter(tag => tag.leituraInt !== undefined)
+      .map(tag => tag.id);
   
-    // Verifica cada tag e separa conforme leituraInt ou leituraBool
-    for (const tag of this.tagsSelecionadas) {
-      if (tag.leituraInt !== undefined) {
-        this.tagsInteirasSelecionadas.push(tag.id);
-      } else if (tag.leituraBool !== undefined) {
-        this.tagsBooleanasSelecionadas.push(tag.id);
-      }
-    }
+    this.tagsBooleanasSelecionadas = this.tagsSelecionadas
+      .filter(tag => tag.leituraBool !== undefined)
+      .map(tag => tag.id);
   
     console.log('Tags Inteiras:', this.tagsInteirasSelecionadas);
     console.log('Tags Booleanas:', this.tagsBooleanasSelecionadas);
