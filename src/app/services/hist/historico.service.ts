@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Tag } from 'src/app/models/tag.model';
+import { EntradaService } from '../auth/entrada.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,43 +11,38 @@ import { Tag } from 'src/app/models/tag.model';
 export class HistoricoService {
   private apiUrl = 'http://172.74.0.167:8043/dados'; // URL do servidor
 
-  constructor(private http: HttpClient) {}
-
+  constructor(private http: HttpClient, private entradaService: EntradaService) {}
+ 
+  
+  public getTagsBySetorId(setorId: number): Tag[] {
+    const setor = this.entradaService.listaGlobal.find((s) => s.id === setorId);
+    console.log('Setor encontrado:', setor);
+    return setor ? setor.tags : [];
+  }
+  
   public fazerRequisicaoHistorico(
     idSessao: string,
-  setorId: number,
-  dataInicio: number,
-  dataFim: number,
-  tagsInteiras: number[], // Corrigir aqui
-  tagsBooleanas: number[] // Corrigir aqui
+    setorId: number,
+    dataInicio: number,
+    dataFim: number,
+    tagsInteiras: number[],
+    tagsBooleanas: number[]
   ): Observable<any> {
-    const sessaoId = this.obterSessaoIdDoLocalStorage();
-    if (!sessaoId) {
-      console.error('Sessão ID ausente no localStorage.');
-      return throwError(() => new Error('Sessão ID ausente no localStorage!'));
-    }
-
-    const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
-
-    // Gerar os bytes do comando
-    const comando = this.gerarBytesComandoHistorico(sessaoId, setorId, dataInicio, dataFim, tagsInteiras, tagsBooleanas);
-
-    console.log('Comando gerado (Bytes):', comando);
-    console.log(
-      'Comando gerado (Hex):',
-      Array.from(new Uint8Array(comando))
-        .map((byte) => byte.toString(16).padStart(2, '0'))
-        .join(' ')
-    );
-
-    return this.http.post(this.apiUrl, comando, { headers, responseType: 'arraybuffer' }).pipe(
+    const comando = this.gerarBytesComandoHistorico(idSessao, setorId, dataInicio, dataFim, tagsInteiras, tagsBooleanas);
+  
+    return this.http.post(this.apiUrl, comando, {
+      headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }),
+      responseType: 'arraybuffer',
+    }).pipe(
       map((response) => {
         const byteArray = new Uint8Array(response);
-        console.log('Resposta recebida (Bytes):', byteArray);
         return this.interpretarRespostaHistorico(byteArray);
       })
     );
   }
+  
+  
+  
 
   private obterSessaoIdDoLocalStorage(): string {
     const usuario = localStorage.getItem('usuario');
@@ -210,4 +206,23 @@ export class HistoricoService {
   private converterBytesParaInt(bytes: Uint8Array): number {
     return bytes.reduce((acc, byte) => (acc << 8) | byte, 0);
   }
+
+  public isTagInteira(tagId: number): boolean {
+    const tag = this.getTagFromGlobalList(tagId); // Obtém a tag da lista global
+    return tag?.leituraInt !== undefined; // Verifica se a tag possui leituraInt
+  }
+  
+  private getTagFromGlobalList(tagId: number): Tag | undefined {
+    const setores = this.entradaService.listaGlobal || [];
+    for (const setor of setores) {
+      const tag = setor.tags.find((t: Tag) => t.id === tagId);
+      if (tag) {
+        return tag;
+      }
+    }
+    console.warn(`Tag com ID ${tagId} não encontrada na lista global.`);
+    return undefined;
+  }
+
+  
 }

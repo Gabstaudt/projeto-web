@@ -4,30 +4,25 @@ import { Tag } from '../models/tag.model';
 import { Setor } from '../models/setor.model';
 import { HistoricoService } from '../services/hist/historico.service';
 
-
 @Component({
   selector: 'app-historico-modal',
   templateUrl: './historico-modal.component.html',
   styleUrls: ['./historico-modal.component.scss'],
 })
 export class HistoricoModalComponent implements OnInit {
-  
   @Input() setorId: number = 0; // ID do setor selecionado
   @Output() fechar = new EventEmitter<void>(); // Evento para fechar o modal
   tags: Tag[] = []; // Tags do setor selecionado
   setores: Setor[] = [];
-  selectedTagsInteiras: number[] = []; // Armazena as tags inteiras selecionadas
-  selectedTagsBooleanas: number[] = []; // Armazena as tags booleanas selecionadas
+  selectedTags: number[] = []; // IDs das tags selecionadas
+  dataInicio: string = '';
+  horaInicio: string = '';
+  dataFim: string = '';
+  horaFim: string = '';
   historico: any[] = []; // Dados recebidos do servidor
-  loading: boolean = false;
-  selectedTags: number[] = []; // Armazena as tags selecionadas
-  dataInicio: string = ''; // Data inicial
-  horaInicio: string = ''; // Hora inicial
-  dataFim: string = ''; // Data final
-  horaFim: string = ''; // Hora final
-  
-  
-
+  tagsSelecionadas: Tag[] = []; // Lista de todas as tags selecionadas
+  tagsInteirasSelecionadas: number[] = []; // IDs das tags inteiras
+  tagsBooleanasSelecionadas: number[] = []; 
   constructor(
     private entradaService: EntradaService,
     private historicoService: HistoricoService
@@ -40,107 +35,100 @@ export class HistoricoModalComponent implements OnInit {
     }
   }
 
-  // Fecha o modal e emite o evento para o pai
+  // Fecha o modal
   fecharModal() {
     this.fechar.emit();
   }
 
   // Carrega as tags do setor selecionado
   loadTags() {
-    this.tags = this.entradaService.getTagsBySetorId(this.setorId) || [];
+    this.tags = this.historicoService.getTagsBySetorId(this.setorId) || [];
+    console.log('Tags carregadas:', this.tags);
   }
-
+  
+  
+  
+  
+  
   // Atualiza as tags quando o setor muda
   onSetorChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const setorId = Number(target.value);
-    this.setorId = setorId;
-    this.selectedTagsInteiras = [];
-    this.selectedTagsBooleanas = [];
+    this.setorId = Number(target.value);
+    this.selectedTags = []; // Limpa a seleção ao trocar de setor
     this.loadTags();
   }
-  
-  // Consulta o histórico com os valores dinâmicos
+  // Consulta o histórico
   consultarHistorico() {
-    try {
-      const idSessao = localStorage.getItem('SessaoID');
-      if (!idSessao) {
-        throw new Error('Sessão ID ausente no localStorage!');
-      }
-  
-      // Combina data e hora
-      const dataInicioCompleta = `${this.dataInicio}T${this.horaInicio}:00`;
-      const dataFimCompleta = `${this.dataFim}T${this.horaFim}:00`;
-  
-      // Converte para milissegundos
-      const dataInicioMs = new Date(dataInicioCompleta).getTime();
-      const dataFimMs = new Date(dataFimCompleta).getTime();
-  
-      // Verifica se as datas são válidas
-      if (isNaN(dataInicioMs) || isNaN(dataFimMs)) {
-        console.error('Datas inválidas. Verifique os valores selecionados.');
-        return;
-      }
-  
-      if (dataInicioMs >= dataFimMs) {
-        console.error('A data de início deve ser anterior à data de fim.');
-        return;
-      }
-  
-      this.historicoService
-        .fazerRequisicaoHistorico(
-          idSessao,
-          this.setorId,
-          dataInicioMs,
-          dataFimMs,
-          this.selectedTagsInteiras,
-          this.selectedTagsBooleanas
-        )
-        .subscribe({
-          next: (data: any) => {
-            console.log('Resposta do servidor:', data);
-            this.historico = data; // Atualiza os dados recebidos
-          },
-          error: (error: any) => {
-            console.error('Erro ao consultar histórico:', error);
-          },
-        });
-    } catch (error) {
-      console.error('Erro ao preparar consulta:', error);
+    if (!this.dataInicio || !this.dataFim) {
+      console.error('Datas de início e fim são obrigatórias.');
+      return;
     }
+  
+    const dataInicioMs = new Date(`${this.dataInicio}T${this.horaInicio}:00`).getTime();
+    const dataFimMs = new Date(`${this.dataFim}T${this.horaFim}:00`).getTime();
+  
+    if (dataInicioMs >= dataFimMs) {
+      console.error('A data de início deve ser anterior à data de fim.');
+      return;
+    }
+  
+    this.historicoService.fazerRequisicaoHistorico(
+      localStorage.getItem('SessaoID') || '',
+      this.setorId,
+      dataInicioMs,
+      dataFimMs,
+      this.tagsInteirasSelecionadas,
+      this.tagsBooleanasSelecionadas
+    ).subscribe({
+      next: (data) => {
+        console.log('Histórico recebido:', data);
+        this.historico = data;
+      },
+      error: (err) => {
+        console.error('Erro ao consultar histórico:', err);
+      }
+    });
   }
   
   
+  isTagSelected(tagId: number): boolean {
+    return this.tagsSelecionadas.some(t => t.id === tagId);
+  }
   
+
+  // Alterna a seleção de tags
+  toggleTagSelection(tag: Tag) {
+    const index = this.tagsSelecionadas.indexOf(tag);
+    if (index === -1) {
+      this.tagsSelecionadas.push(tag);
+    } else {
+      this.tagsSelecionadas.splice(index, 1);
+    }
+    console.log('Tags selecionadas:', this.selectedTags);
+    // Após modificar a seleção, separe as tags automaticamente
+    this.separarTagsSelecionadas();
+  }
   
   
 
-  // Alterna a seleção de uma tag inteira
-  toggleTagInteiraSelection(tagId: number) {
-    if (this.selectedTagsInteiras.includes(tagId)) {
-      this.selectedTagsInteiras = this.selectedTagsInteiras.filter(
-        (id) => id !== tagId
-      );
-    } else {
-      this.selectedTagsInteiras.push(tagId);
+  private separarTagsSelecionadas() {
+    this.tagsInteirasSelecionadas = [];
+    this.tagsBooleanasSelecionadas = [];
+  
+    // Verifica cada tag e separa conforme leituraInt ou leituraBool
+    for (const tag of this.tagsSelecionadas) {
+      if (tag.leituraInt !== undefined) {
+        this.tagsInteirasSelecionadas.push(tag.id);
+      } else if (tag.leituraBool !== undefined) {
+        this.tagsBooleanasSelecionadas.push(tag.id);
+      }
     }
+  
+    console.log('Tags Inteiras:', this.tagsInteirasSelecionadas);
+    console.log('Tags Booleanas:', this.tagsBooleanasSelecionadas);
   }
-
-  // Alterna a seleção de uma tag booleana
-  toggleTagBooleanaSelection(tagId: number) {
-    if (this.selectedTagsBooleanas.includes(tagId)) {
-      this.selectedTagsBooleanas = this.selectedTagsBooleanas.filter(
-        (id) => id !== tagId
-      );
-    } else {
-      this.selectedTagsBooleanas.push(tagId);
-    }
-  }
-  toggleTagSelection(tagId: number) {
-    if (this.selectedTags.includes(tagId)) {
-      this.selectedTags = this.selectedTags.filter((id) => id !== tagId);
-    } else {
-      this.selectedTags.push(tagId);
-    }
-  }
+  
+  
+  
+  
 }

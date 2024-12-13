@@ -40,22 +40,19 @@
     </div>
 
     <!-- Tags -->
-    <div class="grid-item">
-      <fieldset>
-        <legend>Tags</legend>
-        <div class="tags-list">
-          <label *ngFor="let tag of tags">
-            <input 
-              type="checkbox" 
-              [checked]="selectedTags.includes(tag.id)"
-              (change)="toggleTagSelection(tag.id)">
-            {{ tag.nome }} - 
-            <span *ngIf="tag.leituraInt !== undefined">Inteira</span>
-            <span *ngIf="tag.leituraBool !== undefined">Booleana</span>
-          </label>
-        </div>
-      </fieldset>
+    <div *ngFor="let tag of tags">
+      <label>
+        <input 
+          type="checkbox" 
+          [checked]="isTagSelected(tag.id)" 
+          (change)="toggleTagSelection(tag)"
+        />
+        {{ tag.nome }}
+      </label>
     </div>
+    
+    
+    
     
     
 
