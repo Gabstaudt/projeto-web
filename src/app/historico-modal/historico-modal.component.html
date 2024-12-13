@@ -12,18 +12,21 @@
     </div>
 
     <!-- Datas -->
-    <div class="grid-item">
-      <fieldset>
-        <legend>Data</legend>
-        <label>Data Inicial:</label>
-        <input type="date">
-        <input type="time">
-        <label>Data Final:</label>
-        <input type="date">
-        <input type="time">
-      </fieldset>
-    </div>
+<!-- Datas -->
+<div class="grid-item">
+  <fieldset>
+    <legend>Data</legend>
+    <label>Data Inicial:</label>
+    <input type="date" [(ngModel)]="dataInicio" />
+    <input type="time" [(ngModel)]="horaInicio" />
+    <label>Data Final:</label>
+    <input type="date" [(ngModel)]="dataFim" />
+    <input type="time" [(ngModel)]="horaFim" />
+  </fieldset>
+</div>
 
+    
+    
     <!-- Seleção de Setor -->
     <div class="grid-item">
       <fieldset>
@@ -46,11 +49,16 @@
               type="checkbox" 
               [checked]="selectedTags.includes(tag.id)"
               (change)="toggleTagSelection(tag.id)">
-            {{ tag.nome }}
+            {{ tag.nome }} - 
+            <span *ngIf="tag.leituraInt !== undefined">Inteira</span>
+            <span *ngIf="tag.leituraBool !== undefined">Booleana</span>
           </label>
         </div>
       </fieldset>
     </div>
+    
+    
+
     <!-- Filtro de Intervalo -->
     <div class="grid-item">
       <fieldset>
