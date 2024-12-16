@@ -130,3 +130,72 @@
     }
   }
   
+
+
+
+  .historico-container {
+    max-height: 300px; /* Define a altura máxima do container */
+    overflow-y: auto; /* Adiciona a rolagem vertical */
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+  }
+  
+  .registro-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.85rem; /* Torna o texto menor */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  
+    .registro-header {
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 0.3rem;
+      margin-bottom: 0.3rem;
+  
+      h4 {
+        font-size: 0.9rem;
+        margin: 0;
+        color: #333;
+      }
+    }
+  
+    .registro-body {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+  
+      div {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+  
+        span {
+          color: #555;
+        }
+  
+        strong {
+          color: #333;
+        }
+      }
+    }
+  }
+  
+  /* Barra de rolagem personalizada (opcional) */
+  .historico-container::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .historico-container::-webkit-scrollbar-thumb {
+    background-color: #bbb;
+    border-radius: 10px;
+  }
+  
+  .historico-container::-webkit-scrollbar-thumb:hover {
+    background-color: #999;
+  }
+  
+  

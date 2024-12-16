@@ -25,6 +25,10 @@ export class HistoricoModalComponent implements OnInit {
   tagsSelecionadas: Tag[] = []; // Lista de todas as tags selecionadas
   tagsInteirasSelecionadas: number[] = []; // IDs das tags inteiras
   tagsBooleanasSelecionadas: number[] = []; 
+  dadosHistorico: any[] = [];
+
+
+
   constructor(
     private entradaService: EntradaService,
     private historicoService: HistoricoService,
@@ -37,6 +41,7 @@ export class HistoricoModalComponent implements OnInit {
       this.loadTags();
     }
   }
+  
 
   // Fecha o modal
   fecharModal() {
@@ -45,10 +50,13 @@ export class HistoricoModalComponent implements OnInit {
 
   // Carrega as tags do setor selecionado
   loadTags() {
-    const { inteiras, booleanas } = this.entradaService.getTagsBySetorId(this.setorId);
-    this.tags = [...inteiras, ...booleanas]; // Todas as tags disponíveis
-    console.log('Tags carregadas:', this.tags);
-}
+    console.log('Setor ID Selecionado:', this.setorId);
+    this.tags = this.entradaService.getTagsBySetorId(this.setorId) || [];
+    console.log('Tags Carregadas no Modal:', this.tags);
+  }
+  
+  
+  
 
   
   
@@ -64,7 +72,8 @@ export class HistoricoModalComponent implements OnInit {
   }
   // Consulta o histórico
   consultarHistorico() {
-    this.separarTagsSelecionadas(); // Separar tags antes de enviar
+    // Separar tags antes de enviar
+    this.separarTagsSelecionadas();
   
     const idSessao = localStorage.getItem('SessaoID');
     if (!idSessao) {
@@ -72,35 +81,50 @@ export class HistoricoModalComponent implements OnInit {
       return;
     }
   
+    // Criar strings completas de data e hora
     const dataInicioCompleta = `${this.dataInicio}T${this.horaInicio}:00`;
     const dataFimCompleta = `${this.dataFim}T${this.horaFim}:00`;
   
+    // Converter para milissegundos (Unix timestamp)
     const dataInicioMs = new Date(dataInicioCompleta).getTime();
     const dataFimMs = new Date(dataFimCompleta).getTime();
   
+    if (isNaN(dataInicioMs) || isNaN(dataFimMs)) {
+      console.error('Formato inválido de data ou hora.');
+      return;
+    }
+  
+    // Garantir que a data de início é anterior à de fim
     if (dataInicioMs >= dataFimMs) {
       console.error('A data de início deve ser anterior à data de fim.');
       return;
     }
   
+    console.log('Data início (ms):', dataInicioMs);
+    console.log('Data fim (ms):', dataFimMs);
+    console.log('Tags Inteiras Selecionadas:', this.tagsInteirasSelecionadas);
+    console.log('Tags Booleanas Selecionadas:', this.tagsBooleanasSelecionadas);
+  
     this.historicoService
-      .fazerRequisicaoHistorico(
-        idSessao,
-        this.setorId,
-        dataInicioMs,
-        dataFimMs,
-        this.tagsInteirasSelecionadas,
-        this.tagsBooleanasSelecionadas
-      )
-      .subscribe({
-        next: (data) => {
-          console.log('Histórico recebido:', data);
-        },
-        error: (err) => {
-          console.error('Erro ao consultar histórico:', err);
-        },
-      });
+    .fazerRequisicaoHistorico(
+      idSessao,
+      this.setorId,
+      dataInicioMs,
+      dataFimMs,
+      this.tagsInteirasSelecionadas,
+      this.tagsBooleanasSelecionadas
+    )
+    .subscribe({
+      next: (data) => {
+        this.dadosHistorico = data;
+        console.log('Histórico recebido:', data);
+      },
+      error: (err) => {
+        console.error('Erro ao consultar histórico:', err);
+      },
+    });
   }
+  
   
   
   
@@ -115,30 +139,37 @@ export class HistoricoModalComponent implements OnInit {
   toggleTagSelection(tag: Tag) {
     const index = this.tagsSelecionadas.findIndex(t => t.id === tag.id);
     if (index === -1) {
-      this.tagsSelecionadas.push(tag);
+      this.tagsSelecionadas.push(tag); // Adiciona a tag selecionada
     } else {
-      this.tagsSelecionadas.splice(index, 1);
+      this.tagsSelecionadas.splice(index, 1); // Remove a tag selecionada
     }
+  
+    this.separarTagsSelecionadas(); // Atualiza a separação de inteiras/booleanas
     console.log('Tags Selecionadas:', this.tagsSelecionadas);
-    this.cdr.detectChanges();
   }
   
   
   
   
-
+  
   separarTagsSelecionadas() {
     this.tagsInteirasSelecionadas = this.tagsSelecionadas
-      .filter(tag => typeof tag.leituraInt === 'number' && tag.leituraInt !== 0)
+      .filter(tag => tag.tipo !== 0) // Inteira se tipo for diferente de 0
       .map(tag => tag.id);
   
     this.tagsBooleanasSelecionadas = this.tagsSelecionadas
-      .filter(tag => typeof tag.leituraBool === 'boolean' && tag.leituraBool === true)
+      .filter(tag => tag.tipo === 0) // Booleana se tipo for 0
       .map(tag => tag.id);
   
     console.log('Tags Inteiras Selecionadas:', this.tagsInteirasSelecionadas);
     console.log('Tags Booleanas Selecionadas:', this.tagsBooleanasSelecionadas);
   }
+  
+  
+  
+  
+  
+  
   
   
   

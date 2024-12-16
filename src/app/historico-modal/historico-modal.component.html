@@ -40,17 +40,41 @@
     </div>
 
     <!-- Tags -->
+    <h3>Tags Carregadas</h3>
     <div *ngFor="let tag of tags">
       <label>
         <input 
           type="checkbox" 
-          [checked]="isTagSelecionada(tag.id)" 
-          (change)="toggleTagSelection(tag)"
+          (change)="toggleTagSelection(tag)" 
+          [checked]="isTagSelecionada(tag.id)"
         />
-        {{ tag.nome }}
+        {{ tag.nome }} - 
+        Inteira: {{ tag.leituraInt !== undefined ? tag.leituraInt : 'N/A' }} | 
+        Booleana: {{ tag.leituraBool !== undefined ? tag.leituraBool : 'N/A' }}
       </label>
     </div>
     
+    <div class="historico-container">
+      <div *ngFor="let registro of dadosHistorico" class="registro-card">
+        <div class="registro-header">
+          <h4>{{ registro.tempoInformacao | date: 'short' }}</h4>
+        </div>
+        <div class="registro-body">
+          <div>
+            <strong>Status:</strong>
+            <span>{{ registro.status }}</span>
+          </div>
+          <div>
+            <strong>Inteiros:</strong>
+            <span>{{ registro.inteiros.length ? registro.inteiros.join(', ') : 'Nenhum' }}</span>
+          </div>
+          <div>
+            <strong>Booleanos:</strong>
+            <span>{{ registro.booleanos.length ? registro.booleanos.join(', ') : 'Nenhum' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
     
     
     

@@ -27,31 +27,24 @@ export class EntradaService {
     public TerceiraRequisicaoService: TerceiraRequisicaoService 
   ) {}
 
-  public getTagsBySetorId(setorId: number): { inteiras: Tag[]; booleanas: Tag[] } {
+  public getTagsBySetorId(setorId: number): Tag[] {
+    console.log('Lista Global Atual:', this.listaGlobal); // Log da lista global completa
+  
     const setor = this.listaGlobal.find((s) => s.id === setorId);
-    console.log('Setor encontrado:', setor);
-
-    const inteiras: Tag[] = [];
-    const booleanas: Tag[] = [];
-
+    console.log('Setor Encontrado:', setor); // Log do setor encontrado
+  
     if (setor) {
-        setor.tags.forEach(tag => {
-            console.log(`Tag ID: ${tag.id}, Inteira: ${tag.leituraInt}, Booleana: ${tag.leituraBool}`);
-            
-            if (typeof tag.leituraInt === 'number' && tag.leituraInt !== 0) {
-                inteiras.push(tag);
-            }
-            if (typeof tag.leituraBool === 'boolean' && tag.leituraBool === true) {
-                booleanas.push(tag);
-            }
-        });
+      const tagsInteiras = setor.tags.filter(tag => tag.tipo !== 0); // Tags inteiras (tipo diferente de 0)
+      const tagsBooleanas = setor.tags.filter(tag => tag.tipo === 0); // Tags booleanas (tipo igual a 0)
+      console.log(`Tags Inteiras (${setor.nome}):`, tagsInteiras);
+      console.log(`Tags Booleanas (${setor.nome}):`, tagsBooleanas);
+      return setor.tags; // Retorna todas as tags do setor
     }
-
-    console.log('Tags Inteiras:', inteiras.map(tag => tag.id));
-    console.log('Tags Booleanas:', booleanas.map(tag => tag.id));
-
-    return { inteiras, booleanas };
-}
+  
+    console.warn('Nenhum setor encontrado com o ID:', setorId);
+    return [];
+  }
+  
 
 //////////////////////////////////////////////////////////////////////////////função para carregar setores ////////////////////////////////////////////////////////////////////////////
 public carregarSetores(): void {

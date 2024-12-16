@@ -9,8 +9,8 @@ import { EntradaService } from '../auth/entrada.service';
   providedIn: 'root',
 })
 export class HistoricoService {
-  private apiUrl = 'http://172.74.0.167:8043/dados'; // URL do servidor
-
+  // private apiUrl = 'http://172.74.0.167:8043/dados'; // URL do servidor
+  private apiUrl = 'http://10.20.100.133:8043/dados';
   constructor(private http: HttpClient, private entradaService: EntradaService) {}
  
   
@@ -44,15 +44,6 @@ export class HistoricoService {
   
   
 
-  private obterSessaoIdDoLocalStorage(): string {
-    const usuario = localStorage.getItem('usuario');
-    if (usuario) {
-      const dadosUsuario = JSON.parse(usuario);
-      return dadosUsuario.SessaoID || '';
-    }
-    console.warn('Sessão ID não encontrada no localStorage.');
-    return '';
-  }
 
   private gerarBytesComandoHistorico(
     sessaoId: string,
@@ -65,8 +56,9 @@ export class HistoricoService {
     const comandoSupervisaoBytes = new Uint8Array([254]); // 1 byte (FE)
     const comandoHistoricoBytes = new Uint8Array([234]); // 1 byte (EA)
   
-    // ID da Sessão (32 bytes com tamanho fixo)
+    // ID da Sessão (32 bytes com tamanho fixo) e seus 2 bytes de tamanho
     const sessaoBytes = this.codificarSessaoComTamanho(sessaoId);
+    const tamanhoSessaoBytes = new Uint8Array([(sessaoBytes.length >> 8) & 0xff, sessaoBytes.length & 0xff]); // 2 bytes para o tamanho
   
     // ID do Setor (2 bytes)
     const setorBytes = new Uint8Array([(setorId >> 8) & 0xff, setorId & 0xff]);
@@ -98,6 +90,7 @@ export class HistoricoService {
     // Montar o comando completo
     const totalLength =
       comandoSupervisaoBytes.length +
+      tamanhoSessaoBytes.length + // 2 bytes para o tamanho do ID da sessão
       sessaoBytes.length +
       comandoHistoricoBytes.length +
       setorBytes.length +
@@ -114,7 +107,10 @@ export class HistoricoService {
     comandoFinal.set(comandoSupervisaoBytes, offset);
     offset += comandoSupervisaoBytes.length;
   
-    comandoFinal.set(sessaoBytes, offset);
+    comandoFinal.set(tamanhoSessaoBytes, offset); // Adiciona os 2 bytes de tamanho
+    offset += tamanhoSessaoBytes.length;
+  
+    comandoFinal.set(sessaoBytes, offset); // Adiciona o ID da sessão
     offset += sessaoBytes.length;
   
     comandoFinal.set(comandoHistoricoBytes, offset);
@@ -144,19 +140,15 @@ export class HistoricoService {
     return comandoFinal.buffer;
   }
   
-  
-  
-  
   private codificarSessaoComTamanho(input: string): Uint8Array {
     if (input.length !== 32) {
       throw new Error('Sessão ID deve conter exatamente 32 caracteres.');
     }
   
-    // Codifica cada caractere em hexadecimal (mantendo direto o valor textual)
+    // Codifica cada caractere em UTF-8
     const encoder = new TextEncoder();
     return encoder.encode(input); // Retorna o array diretamente em UTF-8
   }
-  
   
   
   private converterPara8Bytes(value: number): Uint8Array {
@@ -168,44 +160,83 @@ export class HistoricoService {
 
   private interpretarRespostaHistorico(bytes: Uint8Array): any {
     console.log('Bytes recebidos do servidor:', bytes);
-
+  
     let offset = 0;
-
+  
+    // Validação da sessão
     const sessaoOK = bytes[offset];
     offset += 1;
-
+  
     if (sessaoOK === 0) {
       throw new Error('Sessão inválida ou expirada.');
     }
-
+  
+    // Validação da consulta
     const consultaOK = bytes[offset];
     offset += 1;
-
+  
     if (consultaOK === 0) {
       throw new Error('Erro ao consultar histórico.');
     }
-
+  
+    // Quantidade de registros
     const quantidadeRegistros = this.converterBytesParaInt(bytes.slice(offset, offset + 4));
     offset += 4;
-
+  
+    console.log('Quantidade de registros recebidos:', quantidadeRegistros);
+  
     const registros = [];
-
+  
     for (let i = 0; i < quantidadeRegistros; i++) {
       const registro: any = {};
-
+  
+      // Tempo da informação (em Unix Timestamp)
       registro.tempoInformacao = this.converterBytesParaInt(bytes.slice(offset, offset + 4));
       offset += 4;
-
+  
+      // Status do registro
+      registro.status = bytes[offset];
+      offset += 1;
+  
+      // Quantidade de valores inteiros
+      const quantidadeInteiros = bytes[offset];
+      offset += 1;
+  
+      registro.inteiros = [];
+      for (let j = 0; j < quantidadeInteiros; j++) {
+        const inteiro = this.converterBytesParaInt(bytes.slice(offset, offset + 4));
+        registro.inteiros.push(inteiro);
+        offset += 4;
+      }
+  
+      // Quantidade de valores booleanos
+      const quantidadeBooleanos = bytes[offset];
+      offset += 1;
+  
+      registro.booleanos = [];
+      for (let k = 0; k < quantidadeBooleanos; k++) {
+        const booleano = bytes[offset] === 1; // 1 = true, 0 = false
+        registro.booleanos.push(booleano);
+        offset += 1;
+      }
+  
+      // Adicionar registro à lista
       registros.push(registro);
     }
-
+  
     console.log('Registros interpretados:', registros);
+  
     return registros;
   }
-
+  
   private converterBytesParaInt(bytes: Uint8Array): number {
     return bytes.reduce((acc, byte) => (acc << 8) | byte, 0);
   }
+  
+
+
+
+
 
   public isTagInteira(tagId: number): boolean {
     const tag = this.getTagFromGlobalList(tagId); // Obtém a tag da lista global
