@@ -27,17 +27,32 @@ export class EntradaService {
     public TerceiraRequisicaoService: TerceiraRequisicaoService 
   ) {}
 
-  public getTagsBySetorId(setorId: number): Tag[] {
+  public getTagsBySetorId(setorId: number): { inteiras: Tag[]; booleanas: Tag[] } {
     const setor = this.listaGlobal.find((s) => s.id === setorId);
     console.log('Setor encontrado:', setor);
+
+    const inteiras: Tag[] = [];
+    const booleanas: Tag[] = [];
+
     if (setor) {
-      setor.tags.forEach(tag => {
-        console.log(`Tag ID: ${tag.id}, Inteira: ${tag.leituraInt}, Booleana: ${tag.leituraBool}`);
-      });
+        setor.tags.forEach(tag => {
+            console.log(`Tag ID: ${tag.id}, Inteira: ${tag.leituraInt}, Booleana: ${tag.leituraBool}`);
+            
+            if (typeof tag.leituraInt === 'number' && tag.leituraInt !== 0) {
+                inteiras.push(tag);
+            }
+            if (typeof tag.leituraBool === 'boolean' && tag.leituraBool === true) {
+                booleanas.push(tag);
+            }
+        });
     }
-    return setor ? setor.tags : [];
-  }
-  
+
+    console.log('Tags Inteiras:', inteiras.map(tag => tag.id));
+    console.log('Tags Booleanas:', booleanas.map(tag => tag.id));
+
+    return { inteiras, booleanas };
+}
+
 //////////////////////////////////////////////////////////////////////////////função para carregar setores ////////////////////////////////////////////////////////////////////////////
 public carregarSetores(): void {
   this.fazerSegundaRequisicao().pipe(

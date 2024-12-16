@@ -45,9 +45,11 @@ export class HistoricoModalComponent implements OnInit {
 
   // Carrega as tags do setor selecionado
   loadTags() {
-    this.tags = this.entradaService.getTagsBySetorId(this.setorId) || [];
+    const { inteiras, booleanas } = this.entradaService.getTagsBySetorId(this.setorId);
+    this.tags = [...inteiras, ...booleanas]; // Todas as tags disponíveis
     console.log('Tags carregadas:', this.tags);
-  }
+}
+
   
   
   
@@ -118,25 +120,26 @@ export class HistoricoModalComponent implements OnInit {
       this.tagsSelecionadas.splice(index, 1);
     }
     console.log('Tags Selecionadas:', this.tagsSelecionadas);
+    this.cdr.detectChanges();
   }
+  
   
   
   
 
   separarTagsSelecionadas() {
-    console.log('Tags selecionadas para separação:', this.tagsSelecionadas);
-  
     this.tagsInteirasSelecionadas = this.tagsSelecionadas
-      .filter(tag => typeof tag.leituraInt === 'number') // Verifica se leituraInt é um número
+      .filter(tag => typeof tag.leituraInt === 'number' && tag.leituraInt !== 0)
       .map(tag => tag.id);
   
     this.tagsBooleanasSelecionadas = this.tagsSelecionadas
-      .filter(tag => typeof tag.leituraBool === 'boolean') // Verifica se leituraBool é booleano
+      .filter(tag => typeof tag.leituraBool === 'boolean' && tag.leituraBool === true)
       .map(tag => tag.id);
   
     console.log('Tags Inteiras Selecionadas:', this.tagsInteirasSelecionadas);
     console.log('Tags Booleanas Selecionadas:', this.tagsBooleanasSelecionadas);
   }
+  
   
   
   
