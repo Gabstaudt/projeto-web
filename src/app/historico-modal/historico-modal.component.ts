@@ -117,8 +117,10 @@ export class HistoricoModalComponent implements OnInit {
     .subscribe({
       next: (data) => {
         this.dadosHistorico = data;
-        console.log('Histórico recebido:', data);
+        this.mapearIdsParaNomes(); // Substitui os IDs pelos nomes
+        console.log('Histórico final processado:', this.dadosHistorico);
       },
+      
       error: (err) => {
         console.error('Erro ao consultar histórico:', err);
       },
@@ -167,6 +169,35 @@ export class HistoricoModalComponent implements OnInit {
   
   
   
+  private mapearIdsParaNomes() {
+    const tagIdParaNome: { [id: number]: string } = {};
+    
+    // Carrega o mapeamento entre IDs e nomes
+    this.setores.forEach(setor => {
+      setor.tags.forEach(tag => {
+        tagIdParaNome[tag.id] = tag.nome;
+      });
+    });
+  
+    // Substitui os IDs pelos nomes
+    this.dadosHistorico = this.dadosHistorico.map(registro => {
+      const novoRegistro: any = {
+        tempoInformacao: registro.tempoInformacao, // Mantém o tempo
+      };
+  
+      Object.keys(registro).forEach(key => {
+        const idTag = Number(key);
+        const nomeTag = tagIdParaNome[idTag];
+        if (nomeTag) {
+          novoRegistro[nomeTag] = registro[key];
+        }
+      });
+  
+      return novoRegistro;
+    });
+  
+    console.log('Histórico mapeado:', this.dadosHistorico);
+  }
   
   
   

@@ -54,27 +54,31 @@
       </label>
     </div>
     
+    
     <div class="historico-container">
-      <div *ngFor="let registro of dadosHistorico" class="registro-card">
-        <div class="registro-header">
-          <h4>{{ registro.tempoInformacao | date: 'short' }}</h4>
-        </div>
-        <div class="registro-body">
-          <div>
-            <strong>Status:</strong>
-            <span>{{ registro.status }}</span>
-          </div>
-          <div>
-            <strong>Inteiros:</strong>
-            <span>{{ registro.inteiros.length ? registro.inteiros.join(', ') : 'Nenhum' }}</span>
-          </div>
-          <div>
-            <strong>Booleanos:</strong>
-            <span>{{ registro.booleanos.length ? registro.booleanos.join(', ') : 'Nenhum' }}</span>
-          </div>
-        </div>
-      </div>
+      <table class="tabela-historico">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th *ngFor="let tag of tagsSelecionadas">{{ tag.nome }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let registro of dadosHistorico">
+            <td>{{ registro.tempoInformacao | date: 'dd/MM/yy HH:mm:ss' }}</td>
+            <td *ngFor="let tag of tagsSelecionadas">
+              <span *ngIf="registro[tag.nome] !== undefined">
+                <!-- Exibição condicional: Booleana ou Inteira -->
+                {{ registro[tag.nome] === true ? 'ligado' : 
+                   registro[tag.nome] === false ? 'desligado' : registro[tag.nome] }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+    
+    
     
     
     
