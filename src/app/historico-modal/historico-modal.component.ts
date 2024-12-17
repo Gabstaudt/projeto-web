@@ -5,7 +5,6 @@ import { Setor } from '../models/setor.model';
 import { HistoricoService } from '../services/hist/historico.service';
 import { ChangeDetectorRef } from '@angular/core';
 
-
 @Component({
   selector: 'app-historico-modal',
   templateUrl: './historico-modal.component.html',
@@ -14,13 +13,16 @@ import { ChangeDetectorRef } from '@angular/core';
 export class HistoricoModalComponent implements OnInit {
   @Input() setorId: number = 0; // ID do setor selecionado
   @Output() fechar = new EventEmitter<void>(); // Evento para fechar o modal
+
   tags: Tag[] = []; // Tags do setor selecionado
   setores: Setor[] = [];
   selectedTags: number[] = []; // IDs das tags selecionadas
+
   dataInicio: string = '';
   horaInicio: string = '';
   dataFim: string = '';
   horaFim: string = '';
+
   historico: any[] = []; // Dados recebidos do servidor
   tagsSelecionadas: Tag[] = []; // Lista de todas as tags selecionadas
   tagsInteirasSelecionadas: number[] = []; // IDs das tags inteiras
@@ -43,7 +45,7 @@ export class HistoricoModalComponent implements OnInit {
   }
   
 
-  // Fecha o modal
+  
   fecharModal() {
     this.fechar.emit();
   }
@@ -56,13 +58,6 @@ export class HistoricoModalComponent implements OnInit {
   }
   
   
-  
-
-  
-  
-  
-  
-  
   // Atualiza as tags quando o setor muda
   onSetorChange(event: Event) {
     const target = event.target as HTMLSelectElement;
@@ -70,6 +65,7 @@ export class HistoricoModalComponent implements OnInit {
     this.selectedTags = []; // Limpa a seleção ao trocar de setor
     this.loadTags();
   }
+
   // Consulta o histórico
   consultarHistorico() {
     // Separar tags antes de enviar
@@ -127,9 +123,7 @@ export class HistoricoModalComponent implements OnInit {
     });
   }
   
-  
-  
-  
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   isTagSelecionada(tagId: number): boolean {
     return this.tagsSelecionadas.some(tag => tag.id === tagId);
   }
@@ -137,7 +131,6 @@ export class HistoricoModalComponent implements OnInit {
   
 
   // Alterna a seleção de tags
-
   toggleTagSelection(tag: Tag) {
     const index = this.tagsSelecionadas.findIndex(t => t.id === tag.id);
     if (index === -1) {
@@ -149,9 +142,6 @@ export class HistoricoModalComponent implements OnInit {
     this.separarTagsSelecionadas(); // Atualiza a separação de inteiras/booleanas
     console.log('Tags Selecionadas:', this.tagsSelecionadas);
   }
-  
-  
-  
   
   
   separarTagsSelecionadas() {
@@ -168,7 +158,7 @@ export class HistoricoModalComponent implements OnInit {
   }
   
   
-  
+  //////////////////// função para mapear o nome da tag pelo id dela/////////////////////////////////
   private mapearIdsParaNomes() {
     const tagIdParaNome: { [id: number]: string } = {};
     
@@ -198,13 +188,6 @@ export class HistoricoModalComponent implements OnInit {
   
     console.log('Histórico mapeado:', this.dadosHistorico);
   }
-  
-  
-  
-  
-  
-  
-  
   
   
 }
