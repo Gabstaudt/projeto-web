@@ -161,33 +161,54 @@ export class HistoricoModalComponent implements OnInit {
   //////////////////// função para mapear o nome da tag pelo id dela/////////////////////////////////
   private mapearIdsParaNomes() {
     const tagIdParaNome: { [id: number]: string } = {};
-    
+  
     // Carrega o mapeamento entre IDs e nomes
-    this.setores.forEach(setor => {
-      setor.tags.forEach(tag => {
+    this.setores.forEach((setor) => {
+      setor.tags.forEach((tag) => {
         tagIdParaNome[tag.id] = tag.nome;
       });
     });
   
-    // Substitui os IDs pelos nomes
-    this.dadosHistorico = this.dadosHistorico.map(registro => {
+    // Substitui os IDs pelos nomes e ajusta o tempo e os valores
+    this.dadosHistorico = this.dadosHistorico.map((registro) => {
       const novoRegistro: any = {
-        tempoInformacao: registro.tempoInformacao, // Mantém o tempo
+        tempoInformacao: this.formatarData(registro.tempoInformacao), // Data formatada
       };
   
-      Object.keys(registro).forEach(key => {
-        const idTag = Number(key);
-        const nomeTag = tagIdParaNome[idTag];
-        if (nomeTag) {
-          novoRegistro[nomeTag] = registro[key];
-        }
-      });
+      // Mapeia os valores para os nomes das tags
+      if (registro.tagsInteiras) {
+        registro.tagsInteiras.forEach((tag: any) => {
+          const nomeTag = tagIdParaNome[tag.id] || `Tag Inteira ${tag.id}`;
+          novoRegistro[nomeTag] = tag.valor; // Valor numérico
+        });
+      }
+  
+      if (registro.valoresBooleanos) {
+        registro.valoresBooleanos.forEach((tag: any) => {
+          const nomeTag = tagIdParaNome[tag.id] || `Tag Booleana ${tag.id}`;
+          novoRegistro[nomeTag] = tag.valor ? 'Ativado' : 'Desativado'; // Valor booleano
+        });
+      }
   
       return novoRegistro;
     });
   
-    console.log('Histórico mapeado:', this.dadosHistorico);
+    console.log('Histórico mapeado e formatado:', this.dadosHistorico);
   }
+  
+  // Formata a data para dd/MM/yy HH:mm:ss
+  private formatarData(tempoInformacao: number): string {
+    const data = new Date(tempoInformacao * 1000); // Converter timestamp Unix para milissegundos
+    return data.toLocaleString('pt-BR', {
+      year: '2-digit',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  }
+  
   
   
 }

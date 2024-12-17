@@ -153,76 +153,129 @@ export class HistoricoService {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////// função para interpretação da resposta do server /////////////////////////////
-  private interpretarRespostaHistorico(bytes: Uint8Array): any {
-    console.log('Bytes recebidos do servidor:', bytes);
-  
-    let offset = 0;
-  
-    // Validação da sessão
-    const sessaoOK = bytes[offset];
-    offset += 1;
-  
-    if (sessaoOK === 0) {
-      throw new Error('Sessão inválida ou expirada.');
-    }
-  
-    // Validação da consulta
-    const consultaOK = bytes[offset];
-    offset += 1;
-  
-    if (consultaOK === 0) {
-      throw new Error('Erro ao consultar histórico.');
-    }
-  
-    // Quantidade de registros
-    const quantidadeRegistros = this.converterBytesParaInt(bytes.slice(offset, offset + 4));
-    offset += 4;
-  
-    console.log('Quantidade de registros recebidos:', quantidadeRegistros);
-  
-    const registros = [];
-  
-    for (let i = 0; i < quantidadeRegistros; i++) {
-      const registro: any = {};
-  
-      // Tempo da informação (em Unix Timestamp)
-      registro.tempoInformacao = this.converterBytesParaInt(bytes.slice(offset, offset + 4));
-      offset += 4;
-  
-      // Status do registro
-      registro.status = bytes[offset];
-      offset += 1;
-  
-      // Quantidade de valores inteiros
-      const quantidadeInteiros = bytes[offset];
-      offset += 1;
-  
-      registro.inteiros = [];
-      for (let j = 0; j < quantidadeInteiros; j++) {
-        const inteiro = this.converterBytesParaInt(bytes.slice(offset, offset + 4));
-        registro.inteiros.push(inteiro);
-        offset += 4;
-      }
-  
-      // Quantidade de valores booleanos
-      const quantidadeBooleanos = bytes[offset];
-      offset += 1;
-  
-      registro.booleanos = [];
-      for (let k = 0; k < quantidadeBooleanos; k++) {
-        const booleano = bytes[offset] === 1; // 1 = true, 0 = false
-        registro.booleanos.push(booleano);
-        offset += 1;
-      }
-  
-      // Adicionar registro à lista
-      registros.push(registro);
-    }
-  
-    console.log('Registros interpretados:', registros);
-  
-    return registros;
+private interpretarRespostaHistorico(bytes: Uint8Array): any {
+  console.log('Bytes recebidos do servidor:', bytes);
+
+  let offset = 0;
+
+  // Sessão OK
+  const sessaoOK = bytes[offset];
+  offset += 1;
+
+  if (sessaoOK !== 1) {
+    throw new Error('Sessão inválida ou expirada.');
   }
+
+  // Consulta OK
+  const consultaOK = bytes[offset];
+  offset += 1;
+
+  if (consultaOK !== 1) {
+    throw new Error('Erro ao consultar histórico.');
+  }
+
+  // Quantidade de registros
+  const quantidadeRegistros = this.converterBytesParaInt(bytes.slice(offset, offset + 4));
+  offset += 4;
+
+  console.log('Quantidade de registros recebidos:', quantidadeRegistros);
+
+  const registros = [];
+
+  // Laço 1: Repete para cada registro
+  for (let i = 0; i < quantidadeRegistros; i++) {
+    const registro: any = {};
+
+    console.log(`\n>>> Registro ${i + 1} <<<`);
+
+    // Tempo da informação (4 bytes)
+    registro.tempoInformacao = this.converterBytesParaInt(bytes.slice(offset, offset + 4));
+    console.log(`Tempo da informação: ${registro.tempoInformacao} (Offset: ${offset})`);
+    offset += 4;
+
+    // Quantidade de tags inteiras (1 byte)
+    const quantidadeTagsInteiras = bytes[offset];
+    console.log(`Quantidade de Tags Inteiras: ${quantidadeTagsInteiras} (Offset: ${offset})`);
+    offset += 1;
+
+    // Quantidade de tags booleanas (1 byte)
+    const quantidadeTagsBooleanas = bytes[offset];
+    console.log(`Quantidade de Tags Booleanas: ${quantidadeTagsBooleanas} (Offset: ${offset})`);
+    offset += 1;
+
+    registro.tagsInteiras = [];
+    registro.tagsBooleanas = [];
+    registro.valoresBooleanos = [];
+
+    // Laço 2: Repete para cada tag inteira
+    for (let j = 0; j < quantidadeTagsInteiras; j++) {
+      const tagInteira: any = {};
+      tagInteira.id = this.converterBytesParaInt(bytes.slice(offset, offset + 2)); // ID da tag inteira (2 bytes)
+      console.log(`Tag Inteira ${j + 1} - ID: ${tagInteira.id} (Offset: ${offset})`);
+      offset += 2;
+
+      tagInteira.valor = this.converterBytesParaInt(bytes.slice(offset, offset + 4)); // Valor da tag inteira (4 bytes)
+      console.log(`Tag Inteira ${j + 1} - Valor: ${tagInteira.valor} (Offset: ${offset})`);
+      offset += 4;
+
+      registro.tagsInteiras.push(tagInteira);
+    }
+
+    // Laço 3: IDs das tags booleanas
+    const idsBooleanas = [];
+    for (let k = 0; k < quantidadeTagsBooleanas; k++) {
+      const idBooleana = this.converterBytesParaInt(bytes.slice(offset, offset + 2)); // ID da tag booleana (2 bytes)
+      console.log(`Tag Booleana ${k + 1} - ID: ${idBooleana} (Offset: ${offset})`);
+      offset += 2;
+
+      idsBooleanas.push(idBooleana);
+    }
+    registro.tagsBooleanas = idsBooleanas;
+    const tamanhoValoresBooleanos = Math.ceil(quantidadeTagsBooleanas / 8); // Quantidade de bytes necessários
+    console.log(`Tamanho dos valores booleanos: ${tamanhoValoresBooleanos} bytes (Offset: ${offset})`);
+    
+    const valoresBooleanosBytes = bytes.slice(offset, offset + tamanhoValoresBooleanos);
+    console.log(
+      `Bytes dos valores booleanos (Hex e Binário): ${Array.from(valoresBooleanosBytes)
+        .map((b) => `${b.toString(16).padStart(2, '0')} (${b.toString(2).padStart(8, '0')})`)
+        .join(' ')}`
+    );
+    offset += tamanhoValoresBooleanos;
+    
+    // Decodificar os bits até a quantidade de tags booleanas
+    const valoresBooleanos: { id: number, valor: boolean }[] = [];
+    let bitCounter = 0;
+    
+    for (let j = 0; j < tamanhoValoresBooleanos; j++) {
+      const byteAtual = valoresBooleanosBytes[j];
+    
+      for (let bit = 0; bit < 8 && bitCounter < quantidadeTagsBooleanas; bit++) {
+        const bitValue = (byteAtual >> bit) & 1; // Lê o bit da posição atual (da direita para esquerda)
+        const booleanValue = bitValue === 1; // Converte para true ou false
+    
+        valoresBooleanos.push({
+          id: idsBooleanas[bitCounter], // Associa o valor booleano ao ID da tag
+          valor: booleanValue,
+        });
+    
+        console.log(
+          `Tag Booleana ${bitCounter + 1}: ID=${idsBooleanas[bitCounter]}, Valor=${booleanValue} (BitValue=${bitValue}, Byte: ${byteAtual.toString(2)}, Bit: ${bit})`
+        );
+    
+        bitCounter++;
+      }
+    }
+    
+    registro.valoresBooleanos = valoresBooleanos;
+
+    registros.push(registro);
+  }
+
+  console.log('\nRegistros interpretados:', registros);
+  return registros;
+}
+
+
   
 ///////////////////////////////////////////// funções auxiliares/////////////////////////////////////
   //////////////// função para achar a tag pelo id do setor ////////////////////////////////////////
