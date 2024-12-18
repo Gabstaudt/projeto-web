@@ -44,7 +44,19 @@
       }
     }
   }
-
+  .tags-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 8px 16px; 
+  }
+  
+  .tag-item label {
+    display: flex;
+    align-items: center;
+    gap: 8px; 
+    font-size: 14px; 
+  }
+  
   .datas {
     display: flex;
     flex-direction: column;
