@@ -4,6 +4,8 @@ import { Tag } from '../models/tag.model';
 import { Setor } from '../models/setor.model';
 import { HistoricoService } from '../services/hist/historico.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { converterLeitura } from 'src/app/models/converter.model';
+import { TipoTag } from 'src/app/models/tipo.model';
 
 @Component({
   selector: 'app-historico-modal',
@@ -177,23 +179,33 @@ export class HistoricoModalComponent implements OnInit {
           : '-', // Exibe '-' se tempoInformacao for null
       };
     
-      // Mapeia os valores das tags
+      // Mapeia os valores das tags inteiras
       if (registro.tagsInteiras) {
         registro.tagsInteiras.forEach((tag: any) => {
-          const nomeTag = tagIdParaNome[tag.id] || `Tag Inteira ${tag.id}`;
-          novoRegistro[nomeTag] = tag.valor; 
+          const tagInfo = this.tagsSelecionadas.find((t) => t.id === tag.id);
+          const valorFormatado = tagInfo
+            ? converterLeitura(tagInfo.tipo, tag.valor)
+            : tag.valor;
+    
+          const nomeTag = tagInfo ? tagInfo.nome : `Tag Inteira ${tag.id}`;
+          novoRegistro[nomeTag] = valorFormatado;
         });
       }
     
+      // Mapeia os valores das tags booleanas
       if (registro.valoresBooleanos) {
         registro.valoresBooleanos.forEach((tag: any) => {
-          const nomeTag = tagIdParaNome[tag.id] || `Tag Booleana ${tag.id}`;
-          novoRegistro[nomeTag] = tag.valor ? 'Ativado' : 'Desativado';
+          const tagInfo = this.tagsSelecionadas.find((t) => t.id === tag.id);
+          const valorFormatado = tag.valor ? 'Ativado' : 'Desativado';
+    
+          const nomeTag = tagInfo ? tagInfo.nome : `Tag Booleana ${tag.id}`;
+          novoRegistro[nomeTag] = valorFormatado;
         });
       }
     
       return novoRegistro;
     });
+    
     
   
     console.log('Histórico mapeado e formatado:', this.dadosHistorico);
