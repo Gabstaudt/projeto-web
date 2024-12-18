@@ -1,5 +1,6 @@
 import { TipoTag } from './tipo.model';
 
+// função específica para a conversão dos valores recebidos no histórico // modal
 export function formatarValorParaHistorico(tagTipo: TipoTag, valor: number): string {
   console.log('Formatando valor para histórico - tagTipo:', tagTipo, ', valor:', valor);
 
@@ -15,7 +16,7 @@ export function formatarValorParaHistorico(tagTipo: TipoTag, valor: number): str
       return valor === 0 ? 'Desativado' : 'Ativado';
     case TipoTag.Vazao0:
     case TipoTag.Vazao1:
-      return formatarValor(valor / 10, 1); // Apenas o número
+      return formatarValor(valor / 10, 1); 
     case TipoTag.Nivel:
       return formatarValor(valor / 100, 2);
     case TipoTag.Pressao:
@@ -25,7 +26,7 @@ export function formatarValorParaHistorico(tagTipo: TipoTag, valor: number): str
     case TipoTag.Corrente:
     case TipoTag.Frequencia:
     case TipoTag.Abertura:
-      return formatarValor(valor, 0); // Apenas o número
+      return formatarValor(valor, 0); 
     default:
       return valor.toString();
   }

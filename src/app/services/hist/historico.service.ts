@@ -252,7 +252,7 @@ private interpretarRespostaHistorico(bytes: Uint8Array): any {
       const byteAtual = valoresBooleanosBytes[j];
     
       for (let bit = 0; bit < 8 && bitCounter < quantidadeTagsBooleanas; bit++) {
-        const bitValue = (byteAtual >> bit) & 1; // Lê o bit da posição atual (da direita para esquerda)
+        const bitValue = (byteAtual >> bit) & 1; 
         const booleanValue = bitValue === 1; // Converte para true ou false
     
         valoresBooleanos.push({
