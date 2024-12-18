@@ -20,10 +20,11 @@ export class HistoricoModalComponent implements OnInit {
   setores: Setor[] = [];
   selectedTags: number[] = []; // IDs das tags selecionadas
 
+  periodoSelecionado: string = 'dia';
+  horaInicio: string = '00:00';
+  horaFim: string = '23:59';
   dataInicio: string = '';
-  horaInicio: string = '';
   dataFim: string = '';
-  horaFim: string = '';
 
   historico: any[] = []; 
   tagsSelecionadas: Tag[] = []; 
@@ -44,6 +45,8 @@ export class HistoricoModalComponent implements OnInit {
     if (this.setorId) {
       this.loadTags();
     }
+    this.inicializarDataAtual();
+
   }
   
 
@@ -222,9 +225,49 @@ export class HistoricoModalComponent implements OnInit {
   
     return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
   }
+  inicializarDataAtual(): void {
+    const hoje = new Date();
+    this.dataInicio = this.formatarData(hoje);
+    this.dataFim = this.formatarData(hoje);
+    this.horaInicio = '00:00';
+    this.horaFim = '23:59';
+  }
+  private formatarData(data: Date): string {
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+    return `${ano}-${mes}-${dia}`;
+  }
+
   
-  
-  
+  onPeriodoChange(): void {
+    const hoje = new Date();
+
+    if (this.periodoSelecionado === 'dia') {
+      // Define a data inicial e final como o dia atual
+      this.dataInicio = this.formatarData(hoje);
+      this.dataFim = this.formatarData(hoje);
+      this.horaInicio = '00:00';
+      this.horaFim = '23:59';
+    } else if (this.periodoSelecionado === 'mes') {
+      // Define a data inicial como o primeiro dia do mês e a final como o último dia
+      const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+
+      this.dataInicio = this.formatarData(primeiroDia);
+      this.dataFim = this.formatarData(ultimoDia);
+      this.horaInicio = '00:00';
+      this.horaFim = '23:59';
+    }
+  }
+
+  // Atualiza os horários apenas se "Dia" estiver selecionado
+  atualizarHorario(): void {
+    if (this.periodoSelecionado === 'dia') {
+      this.horaInicio = '00:00';
+      this.horaFim = '23:59';
+    }
+  }
   
   
   

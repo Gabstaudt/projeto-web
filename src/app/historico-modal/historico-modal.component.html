@@ -5,9 +5,15 @@
     <div class="grid-item">
       <fieldset>
         <legend>Período de Consulta</legend>
-        <label><input type="radio" name="periodo" value="dia" checked> Dia</label>
-        <label><input type="radio" name="periodo" value="mes"> Mês</label>
-        <label><input type="radio" name="periodo" value="custom"> Intervalo Customizável</label>
+        <label>
+          <input type="radio" name="periodo" value="dia" [(ngModel)]="periodoSelecionado" (change)="onPeriodoChange()"> Dia
+        </label>
+        <label>
+          <input type="radio" name="periodo" value="mes" [(ngModel)]="periodoSelecionado" (change)="onPeriodoChange()"> Mês
+        </label>
+        <label>
+          <input type="radio" name="periodo" value="custom" [(ngModel)]="periodoSelecionado" (change)="onPeriodoChange()"> Intervalo Customizável
+        </label>
       </fieldset>
     </div>
 
@@ -17,13 +23,15 @@
   <fieldset>
     <legend>Data</legend>
     <label>Data Inicial:</label>
-    <input type="date" [(ngModel)]="dataInicio" />
+    <input type="date" [(ngModel)]="dataInicio" (change)="atualizarHorario()"/>
     <input type="time" [(ngModel)]="horaInicio" />
+
     <label>Data Final:</label>
-    <input type="date" [(ngModel)]="dataFim" />
+    <input type="date" [(ngModel)]="dataFim" [disabled]="periodoSelecionado === 'dia' || periodoSelecionado === 'mes'" />
     <input type="time" [(ngModel)]="horaFim" />
   </fieldset>
 </div>
+
 
     
     
@@ -105,9 +113,7 @@
     <button (click)="consultarHistorico()">Consultar</button>
     <button>Gráfico</button>
     <button>Exportar</button>
-    <button>Imprimir</button>
     <button>Excluir</button>
-    <label><input type="checkbox"> Exibir intervalo</label>
   </div>
 
   <div class="modal-footer">

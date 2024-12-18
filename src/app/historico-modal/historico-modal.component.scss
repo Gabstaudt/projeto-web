@@ -7,14 +7,16 @@
   background-color: #ffffff;
   border-radius: 16px;
   padding: 24px;
-  max-width: 90vw; // Máximo 90% da largura da tela
-  max-height: 90vh; // Máximo 90% da altura da tela
-  overflow-y: auto; // Rolagem vertical no modal
+  max-width: 90vw; 
+  max-height: 90vh; 
+  overflow-y: auto; 
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   font-family: 'Poppins', sans-serif;
   color: #333333;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+
 
   h2 {
     font-size: 1.8rem;
@@ -72,45 +74,48 @@
 
   .acoes {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    gap: 12px;
     margin-top: 20px;
-
-    button {
-      background-color: #09041D;
-      color: white;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s;
-
-      &:hover {
-        background-color: #100052;
-      }
-    }
+    flex-wrap: wrap; /* Para que os botões se ajustem em telas menores */
+  }
+  
+  .acoes button {
+    background-color: #09041D;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .acoes button:hover {
+    background-color: #100052;
   }
 
   .modal-footer {
     text-align: center;
-    margin-top: 20px;
-
-    button {
-      background-color: #f44336;
-      color: white;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s;
-
-      &:hover {
-        background-color: #d32f2f;
-      }
-    }
+    margin-top: 16px;
   }
-}
+  
+  .modal-footer .close-button {
+    background-color: #f44336;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .modal-footer .close-button:hover {
+    background-color: #d32f2f;
+  }
+  }
+
 
 .modal-overlay {
   position: fixed;
@@ -121,6 +126,13 @@
   background: rgba(0, 0, 0, 0.5);
   z-index: 999;
   animation: fadeIn 0.3s ease-in-out;
+}
+
+input[disabled] {
+  background-color: #f9f9f9;
+  color: #aaa;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 @keyframes fadeIn {
@@ -136,8 +148,8 @@
 
 
 .historico-container {
-  max-height: 300px; /* Define a altura máxima com rolagem */
-  overflow-y: auto; /* Adiciona rolagem vertical */
+  max-height: 300px; 
+  overflow-y: auto; 
   margin: 0 auto;
   border: 1px solid #ddd;
 
