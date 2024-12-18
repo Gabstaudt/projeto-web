@@ -82,4 +82,30 @@ export class Tag {
   converterLeitura(valor: number): string {
     return converterLeitura(this.tipo, valor);
   }
+
+  get unidadeMedida(): string {
+    switch (this.tipo) {
+      case TipoTag.Booleano:
+        return ''; // Sem unidade
+      case TipoTag.Vazao0:
+      case TipoTag.Vazao1:
+        return 'L/s';
+      case TipoTag.Nivel:
+        return 'm';
+      case TipoTag.Pressao:
+        return 'mca';
+      case TipoTag.Volume:
+        return 'm³';
+      case TipoTag.Tensao:
+        return 'V';
+      case TipoTag.Corrente:
+        return 'A';
+      case TipoTag.Frequencia:
+        return 'Hz';
+      case TipoTag.Abertura:
+        return '%';
+      default:
+        return '';
+    }
+  }
 }

@@ -1,182 +1,181 @@
 .modal-container {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    background-color: #ffffff;
-    border-radius: 16px;
-    padding: 24px;
-    max-width: 600px;
-    width: 90%;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    font-family: 'Poppins', sans-serif;
-    color: #333333;
-    animation: fadeIn 0.3s ease-in-out;
-  
-    h2 {
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: #09041D;
-      text-align: center;
-      margin-bottom: 16px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  font-family: 'Poppins', sans-serif;
+  color: #333333;
+  animation: fadeIn 0.3s ease-in-out;
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #09041D;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .periodo-consulta {
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #555555;
     }
-  
-    .periodo-consulta {
-      label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 8px;
-        color: #555555;
-      }
-  
-      div {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-  
-        input[type='radio'] {
-          margin-right: 6px;
-        }
-      }
-    }
-  
-    .datas {
+
+    div {
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
       gap: 12px;
-      margin-top: 16px;
-  
-      label {
-        font-size: 0.9rem;
-        font-weight: 500;
-        margin-bottom: 4px;
-      }
-  
-      input[type='date'],
-      input[type='time'] {
-        width: 100%;
-        padding: 8px;
-        border-radius: 8px;
-        border: 1px solid #cccccc;
-        outline: none;
-        transition: border-color 0.3s;
-      }
-  
-      input:focus {
-        border-color: #09041D;
-      }
-    }
-  
-    .acoes {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 20px;
-  
-      button {
-        background-color: #09041D;
-        color: white;
-        padding: 10px 16px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.3s;
-  
-        &:hover {
-          background-color: #100052;
-        }
-      }
-    }
-  
-    .modal-footer {
-      text-align: center;
-      margin-top: 20px;
-  
-      button {
-        background-color: #f44336;
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.3s;
-  
-        &:hover {
-          background-color: #d32f2f;
-        }
+
+      input[type='radio'] {
+        margin-right: 6px;
       }
     }
   }
-  
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
+
+  .datas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 4px;
     }
-    to {
-      opacity: 1;
-    }
-  }
-  
 
-
-
-  .historico-container {
-    max-height: 300px; /* Define a altura máxima com rolagem */
-    overflow-y: auto; /* Adiciona rolagem vertical */
-    margin: 0 auto;
-    border: 1px solid #ddd;
-  
-    .tabela-historico {
+    input[type='date'],
+    input[type='time'] {
       width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-  
-      thead {
-        background-color: #f1f1f1;
-        position: sticky;
-        top: 0;
-        z-index: 1;
-  
-        th {
-          text-align: left;
-          padding: 8px;
-          border-bottom: 1px solid #ccc;
-        }
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #cccccc;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      border-color: #09041D;
+    }
+  }
+
+  .acoes {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+
+    button {
+      background-color: #09041D;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #100052;
       }
-  
-      tbody {
-        tr:nth-child(even) {
-          background-color: #f9f9f9;
+    }
+  }
+
+  .modal-footer {
+    text-align: center;
+    margin-top: 20px;
+
+    button {
+      background-color: #f44336;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #d32f2f;
+      }
+    }
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+
+
+.historico-container {
+  max-height: 300px; /* Define a altura máxima com rolagem */
+  overflow-y: auto; /* Adiciona rolagem vertical */
+  margin: 0 auto;
+  border: 1px solid #ddd;
+
+  .tabela-historico {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+
+    thead {
+      background-color: #f1f1f1;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+
+      th {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+      }
+    }
+
+    tbody {
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      td {
+        padding: 6px;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: center;
+
+        &.ligado {
+          color: red;
+          font-weight: bold;
         }
-  
-        td {
-          padding: 6px;
-          border-bottom: 1px solid #e0e0e0;
-          text-align: center;
-  
-          &.ligado {
-            color: red;
-            font-weight: bold;
-          }
-  
-          &.desligado {
-            color: green;
-          }
+
+        &.desligado {
+          color: green;
         }
       }
     }
   }
-  
+}

@@ -4,7 +4,7 @@ import { Tag } from '../models/tag.model';
 import { Setor } from '../models/setor.model';
 import { HistoricoService } from '../services/hist/historico.service';
 import { ChangeDetectorRef } from '@angular/core';
-import { converterLeitura } from 'src/app/models/converter.model';
+import {formatarValorParaHistorico} from '../models/converterhistorico.model'
 import { TipoTag } from 'src/app/models/tipo.model';
 
 @Component({
@@ -174,42 +174,40 @@ export class HistoricoModalComponent implements OnInit {
     // Substitui os IDs pelos nomes e ajusta o tempo e os valores
     this.dadosHistorico = this.dadosHistorico.map((registro) => {
       const novoRegistro: any = {
-        tempoInformacao: registro.tempoInformacao 
+        tempoInformacao: registro.tempoInformacao
           ? this.formatarTempo(registro.tempoInformacao)
           : '-', // Exibe '-' se tempoInformacao for null
       };
-    
+  
       // Mapeia os valores das tags inteiras
       if (registro.tagsInteiras) {
         registro.tagsInteiras.forEach((tag: any) => {
           const tagInfo = this.tagsSelecionadas.find((t) => t.id === tag.id);
           const valorFormatado = tagInfo
-            ? converterLeitura(tagInfo.tipo, tag.valor)
+            ? formatarValorParaHistorico(tagInfo.tipo, tag.valor) // Nova função para histórico
             : tag.valor;
-    
+      
           const nomeTag = tagInfo ? tagInfo.nome : `Tag Inteira ${tag.id}`;
           novoRegistro[nomeTag] = valorFormatado;
         });
       }
-    
+      
+  
       // Mapeia os valores das tags booleanas
       if (registro.valoresBooleanos) {
         registro.valoresBooleanos.forEach((tag: any) => {
           const tagInfo = this.tagsSelecionadas.find((t) => t.id === tag.id);
           const valorFormatado = tag.valor ? 'Ativado' : 'Desativado';
-    
+  
           const nomeTag = tagInfo ? tagInfo.nome : `Tag Booleana ${tag.id}`;
-          novoRegistro[nomeTag] = valorFormatado;
+          novoRegistro[nomeTag] = valorFormatado; // Apenas o valor convertido
         });
       }
-    
+  
       return novoRegistro;
     });
-    
-    
-  
-    console.log('Histórico mapeado e formatado:', this.dadosHistorico);
   }
+  
   
   // Formata a data para dd/MM/yy HH:mm:ss
   formatarTempo(tempo: number): string {

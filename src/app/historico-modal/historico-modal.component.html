@@ -53,25 +53,30 @@
       </label>
     </div>
     
-    
     <div class="historico-container">
       <table class="tabela-historico">
         <thead>
           <tr>
             <th>Data</th>
-            <th *ngFor="let tag of tagsSelecionadas">{{ tag.nome }}</th>
+            <!-- Exibe o nome e a unidade de medida no cabeçalho -->
+            <th *ngFor="let tag of tagsSelecionadas">
+              {{ tag.nome }} <span *ngIf="tag.unidadeMedida">({{ tag.unidadeMedida }})</span>
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let registro of dadosHistorico">
             <td>{{ registro.tempoInformacao || '-' }}</td>
             <td *ngFor="let tag of tagsSelecionadas">
+              <!-- Exibe o valor formatado, sem unidade -->
               {{ registro[tag.nome] !== undefined ? registro[tag.nome] : '-' }}
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+    
+    
     
     
     
