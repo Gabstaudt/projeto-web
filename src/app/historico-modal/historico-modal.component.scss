@@ -134,6 +134,60 @@ input[disabled] {
   cursor: not-allowed;
   opacity: 0.6;
 }
+.modal-seletor-mes {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 300px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.modal-seletor-mes h3 {
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+}
+
+.meses-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.meses-container button {
+  padding: 10px 16px;
+  background-color: #09041d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.meses-container button:hover {
+  background-color: #4caf50;
+}
+
+.modal-seletor-mes .close-button {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.modal-seletor-mes .close-button:hover {
+  background-color: #d32f2f;
+}
+
 
 @keyframes fadeIn {
   from {

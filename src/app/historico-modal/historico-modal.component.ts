@@ -32,7 +32,21 @@ export class HistoricoModalComponent implements OnInit {
   tagsBooleanasSelecionadas: number[] = []; 
   dadosHistorico: any[] = [];
 
-
+  meses = [
+    { nome: 'Janeiro', numero: 1 },
+    { nome: 'Fevereiro', numero: 2 },
+    { nome: 'Março', numero: 3 },
+    { nome: 'Abril', numero: 4 },
+    { nome: 'Maio', numero: 5 },
+    { nome: 'Junho', numero: 6 },
+    { nome: 'Julho', numero: 7 },
+    { nome: 'Agosto', numero: 8 },
+    { nome: 'Setembro', numero: 9 },
+    { nome: 'Outubro', numero: 10 },
+    { nome: 'Novembro', numero: 11 },
+    { nome: 'Dezembro', numero: 12 },
+  ];
+  mostrarModalMes = false;
 
   constructor(
     private entradaService: EntradaService,
@@ -49,7 +63,14 @@ export class HistoricoModalComponent implements OnInit {
 
   }
   
-
+  abrirModalMes(): void {
+    this.mostrarModalMes = true;
+  }
+  
+  // Fechar modal de meses
+  fecharModalMes(): void {
+    this.mostrarModalMes = false;
+  }
   
   fecharModal() {
     this.fechar.emit();
@@ -209,7 +230,7 @@ export class HistoricoModalComponent implements OnInit {
       if (registro.valoresBooleanos) {
         registro.valoresBooleanos.forEach((tag: any) => {
           const tagInfo = this.tagsSelecionadas.find((t) => t.id === tag.id);
-          const valorFormatado = tag.valor ? 'Ativado' : 'Desativado';
+          const valorFormatado = tag.valor ? 'Ligado' : 'Desligado';
   
           const nomeTag = tagInfo ? tagInfo.nome : `Tag Booleana ${tag.id}`;
           novoRegistro[nomeTag] = valorFormatado; 
@@ -278,6 +299,15 @@ export class HistoricoModalComponent implements OnInit {
     }
   }
   
-  
+  selecionarMes(mes: { nome: string; numero: number }): void {
+    const anoAtual = new Date().getFullYear();
+    this.dataInicio = `${anoAtual}-${String(mes.numero).padStart(2, '0')}-01`;
+    this.horaInicio = '00:00';
+    const ultimoDia = new Date(anoAtual, mes.numero, 0).getDate(); // Último dia do mês
+    this.dataFim = `${anoAtual}-${String(mes.numero).padStart(2, '0')}-${ultimoDia}`;
+    this.horaFim = '23:59';
+    this.mostrarModalMes = false; // Fecha o modal
+    console.log(`Mês selecionado: ${mes.nome}`);
+  }
   
 }

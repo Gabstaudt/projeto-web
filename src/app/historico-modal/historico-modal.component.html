@@ -9,7 +9,14 @@
           <input type="radio" name="periodo" value="dia" [(ngModel)]="periodoSelecionado" (change)="onPeriodoChange()"> Dia
         </label>
         <label>
-          <input type="radio" name="periodo" value="mes" [(ngModel)]="periodoSelecionado" (change)="onPeriodoChange()"> Mês
+          <input
+            type="radio"
+            name="periodo"
+            value="mes"
+            [(ngModel)]="periodoSelecionado"
+            (change)="abrirModalMes()"
+          />
+          Mês
         </label>
         <label>
           <input type="radio" name="periodo" value="custom" [(ngModel)]="periodoSelecionado" (change)="onPeriodoChange()"> Intervalo Customizável
@@ -17,7 +24,6 @@
       </fieldset>
     </div>
 
-    <!-- Datas -->
 <!-- Datas -->
 <div class="grid-item">
   <fieldset>
@@ -30,6 +36,17 @@
     <input type="date" [(ngModel)]="dataFim" [disabled]="periodoSelecionado === 'dia' || periodoSelecionado === 'mes'" />
     <input type="time" [(ngModel)]="horaFim" />
   </fieldset>
+</div>
+
+<div class="modal-overlay" *ngIf="mostrarModalMes" (click)="fecharModalMes()"></div>
+<div class="modal-seletor-mes" *ngIf="mostrarModalMes">
+  <h3>Selecione o Mês</h3>
+  <div class="meses-container">
+    <button *ngFor="let mes of meses" (click)="selecionarMes(mes)">
+      {{ mes.nome }}
+    </button>
+  </div>
+  <button class="close-button" (click)="fecharModalMes()">Fechar</button>
 </div>
 
 
@@ -48,7 +65,7 @@
     </div>
 
     <!-- Tags -->
-    <<h3>Tags Carregadas</h3>
+    <h3>Tags Carregadas</h3>
     <div *ngFor="let tag of tags">
       <label>
         <input 
@@ -66,7 +83,6 @@
         <thead>
           <tr>
             <th>Data</th>
-            <!-- Exibe o nome e a unidade de medida no cabeçalho -->
             <th *ngFor="let tag of tagsSelecionadas">
               {{ tag.nome }} <span *ngIf="tag.unidadeMedida">({{ tag.unidadeMedida }})</span>
             </th>
@@ -76,7 +92,6 @@
           <tr *ngFor="let registro of dadosHistorico">
             <td>{{ registro.tempoInformacao || '-' }}</td>
             <td *ngFor="let tag of tagsSelecionadas">
-              <!-- Exibe o valor formatado, sem unidade -->
               {{ registro[tag.nome] !== undefined ? registro[tag.nome] : '-' }}
             </td>
           </tr>
