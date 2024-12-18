@@ -25,9 +25,9 @@ export class HistoricoModalComponent implements OnInit {
   dataFim: string = '';
   horaFim: string = '';
 
-  historico: any[] = []; // Dados recebidos do servidor
-  tagsSelecionadas: Tag[] = []; // Lista de todas as tags selecionadas
-  tagsInteirasSelecionadas: number[] = []; // IDs das tags inteiras
+  historico: any[] = []; 
+  tagsSelecionadas: Tag[] = []; 
+  tagsInteirasSelecionadas: number[] = []; 
   tagsBooleanasSelecionadas: number[] = []; 
   dadosHistorico: any[] = [];
 
@@ -184,7 +184,7 @@ export class HistoricoModalComponent implements OnInit {
         registro.tagsInteiras.forEach((tag: any) => {
           const tagInfo = this.tagsSelecionadas.find((t) => t.id === tag.id);
           const valorFormatado = tagInfo
-            ? formatarValorParaHistorico(tagInfo.tipo, tag.valor) // Nova função para histórico
+            ? formatarValorParaHistorico(tagInfo.tipo, tag.valor) 
             : tag.valor;
       
           const nomeTag = tagInfo ? tagInfo.nome : `Tag Inteira ${tag.id}`;
@@ -193,14 +193,14 @@ export class HistoricoModalComponent implements OnInit {
       }
       
   
-      // Mapeia os valores das tags booleanas
+      // 
       if (registro.valoresBooleanos) {
         registro.valoresBooleanos.forEach((tag: any) => {
           const tagInfo = this.tagsSelecionadas.find((t) => t.id === tag.id);
           const valorFormatado = tag.valor ? 'Ativado' : 'Desativado';
   
           const nomeTag = tagInfo ? tagInfo.nome : `Tag Booleana ${tag.id}`;
-          novoRegistro[nomeTag] = valorFormatado; // Apenas o valor convertido
+          novoRegistro[nomeTag] = valorFormatado; 
         });
       }
   
@@ -209,12 +209,12 @@ export class HistoricoModalComponent implements OnInit {
   }
   
   
-  // Formata a data para dd/MM/yy HH:mm:ss
+  // Formata a data 
   formatarTempo(tempo: number): string {
-    if (!tempo) return '-'; // Retorna "-" se não houver tempo
-    const data = new Date(tempo * 1000); // Converte Unix timestamp (segundos) para milissegundos
+    if (!tempo) return '-'; // retornar para caso o tempo seja nulo 
+    const data = new Date(tempo * 1000); // conversão de Unix
     const dia = String(data.getDate()).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0'); // Meses começam em 0
+    const mes = String(data.getMonth() + 1).padStart(2, '0'); 
     const ano = data.getFullYear().toString().slice(-2);
     const horas = String(data.getHours()).padStart(2, '0');
     const minutos = String(data.getMinutes()).padStart(2, '0');

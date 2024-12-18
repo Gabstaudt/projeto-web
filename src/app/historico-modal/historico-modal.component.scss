@@ -7,12 +7,14 @@
   background-color: #ffffff;
   border-radius: 16px;
   padding: 24px;
-  max-width: 600px;
-  width: 90%;
+  max-width: 90vw; // Máximo 90% da largura da tela
+  max-height: 90vh; // Máximo 90% da altura da tela
+  overflow-y: auto; // Rolagem vertical no modal
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   font-family: 'Poppins', sans-serif;
   color: #333333;
-  animation: fadeIn 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
 
   h2 {
     font-size: 1.8rem;

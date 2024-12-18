@@ -13,7 +13,7 @@ export function formatarValorParaHistorico(tagTipo: TipoTag, valor: number): str
 
   switch (tagTipo) {
     case TipoTag.Booleano:
-      return valor === 0 ? 'Desativado' : 'Ativado';
+      return valor === 0 ? 'Desligado' : 'Ligado';
     case TipoTag.Vazao0:
     case TipoTag.Vazao1:
       return formatarValor(valor / 10, 1); 
