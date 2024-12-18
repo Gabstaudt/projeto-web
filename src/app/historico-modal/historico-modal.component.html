@@ -65,18 +65,17 @@
         </thead>
         <tbody>
           <tr *ngFor="let registro of dadosHistorico">
-            <td>{{ registro.tempoInformacao | date: 'dd/MM/yy HH:mm:ss' }}</td>
+            <td>{{ registro.tempoInformacao || '-' }}</td>
             <td *ngFor="let tag of tagsSelecionadas">
-              <span *ngIf="registro[tag.nome] !== undefined">
-                <!-- Exibição condicional: Booleana ou Inteira -->
-                {{ registro[tag.nome] === true ? 'ligado' : 
-                   registro[tag.nome] === false ? 'desligado' : registro[tag.nome] }}
-              </span>
+              {{ registro[tag.nome] !== undefined ? registro[tag.nome] : '-' }}
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+    
+    
+    
     
     
     

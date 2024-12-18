@@ -116,11 +116,11 @@ export class HistoricoModalComponent implements OnInit {
         this.mapearIdsParaNomes(); // Substitui os IDs pelos nomes
         console.log('Histórico final processado:', this.dadosHistorico);
       },
-      
       error: (err) => {
         console.error('Erro ao consultar histórico:', err);
       },
     });
+  
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -172,42 +172,49 @@ export class HistoricoModalComponent implements OnInit {
     // Substitui os IDs pelos nomes e ajusta o tempo e os valores
     this.dadosHistorico = this.dadosHistorico.map((registro) => {
       const novoRegistro: any = {
-        tempoInformacao: this.formatarData(registro.tempoInformacao), // Data formatada
+        tempoInformacao: registro.tempoInformacao 
+          ? this.formatarTempo(registro.tempoInformacao)
+          : '-', // Exibe '-' se tempoInformacao for null
       };
-  
-      // Mapeia os valores para os nomes das tags
+    
+      // Mapeia os valores das tags
       if (registro.tagsInteiras) {
         registro.tagsInteiras.forEach((tag: any) => {
           const nomeTag = tagIdParaNome[tag.id] || `Tag Inteira ${tag.id}`;
-          novoRegistro[nomeTag] = tag.valor; // Valor numérico
+          novoRegistro[nomeTag] = tag.valor; 
         });
       }
-  
+    
       if (registro.valoresBooleanos) {
         registro.valoresBooleanos.forEach((tag: any) => {
           const nomeTag = tagIdParaNome[tag.id] || `Tag Booleana ${tag.id}`;
-          novoRegistro[nomeTag] = tag.valor ? 'Ativado' : 'Desativado'; // Valor booleano
+          novoRegistro[nomeTag] = tag.valor ? 'Ativado' : 'Desativado';
         });
       }
-  
+    
       return novoRegistro;
     });
+    
   
     console.log('Histórico mapeado e formatado:', this.dadosHistorico);
   }
   
   // Formata a data para dd/MM/yy HH:mm:ss
-  private formatarData(tempoInformacao: number): string {
-    const data = new Date(tempoInformacao * 1000); // Converter timestamp Unix para milissegundos
-    return data.toLocaleString('pt-BR', {
-      year: '2-digit',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
+  formatarTempo(tempo: number): string {
+    if (!tempo) return '-'; // Retorna "-" se não houver tempo
+    const data = new Date(tempo * 1000); // Converte Unix timestamp (segundos) para milissegundos
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0'); // Meses começam em 0
+    const ano = data.getFullYear().toString().slice(-2);
+    const horas = String(data.getHours()).padStart(2, '0');
+    const minutos = String(data.getMinutes()).padStart(2, '0');
+    const segundos = String(data.getSeconds()).padStart(2, '0');
+  
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
   }
+  
+  
+  
   
   
   
