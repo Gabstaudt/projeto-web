@@ -64,12 +64,21 @@ export class HistoricoModalComponent implements OnInit {
   
   
   // Atualiza as tags quando o setor muda
-  onSetorChange(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    this.setorId = Number(target.value);
-    this.selectedTags = []; // Limpa a seleção ao trocar de setor
-    this.loadTags();
+  onSetorChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedSetorId = parseInt(selectElement.value, 10);
+  
+    // Atualiza o setor selecionado
+    this.setorId = selectedSetorId;
+  
+    // Limpa as tags selecionadas
+    this.tagsSelecionadas = [];
+  
+    // Atualiza as tags disponíveis com base no setor selecionado
+    const setorSelecionado = this.setores.find(setor => setor.id === this.setorId);
+    this.tags = setorSelecionado ? setorSelecionado.tags : [];
   }
+  
 
   // Consulta o histórico
   consultarHistorico() {

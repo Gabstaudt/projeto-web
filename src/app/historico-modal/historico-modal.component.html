@@ -48,7 +48,7 @@
     </div>
 
     <!-- Tags -->
-    <h3>Tags Carregadas</h3>
+    <<h3>Tags Carregadas</h3>
     <div *ngFor="let tag of tags">
       <label>
         <input 
@@ -56,10 +56,10 @@
           (change)="toggleTagSelection(tag)" 
           [checked]="isTagSelecionada(tag.id)"
         />
-        {{ tag.nome }} 
-       
+        {{ tag.nome }}
       </label>
     </div>
+    
     
     <div class="historico-container">
       <table class="tabela-historico">
@@ -84,17 +84,7 @@
       </table>
     </div>
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
 
     <!-- Filtro de Intervalo -->
     <div class="grid-item">
