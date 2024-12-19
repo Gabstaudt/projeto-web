@@ -8,7 +8,7 @@ import { EntradaComponent } from './entrada/entrada.component';
 import { HttpClientModule } from '@angular/common/http';
 import { HistoricoModalComponent } from './historico-modal/historico-modal.component';
 import { MatDialogModule } from '@angular/material/dialog';
-
+import {FilterPipe} from '../filtro/filter.pipe'
 
 
 @NgModule({
@@ -17,7 +17,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     LoginComponent,
     EntradaComponent,
     HistoricoModalComponent,
-    
+    FilterPipe
   ],
   imports: [
     BrowserModule,

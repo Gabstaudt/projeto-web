@@ -32,6 +32,8 @@ export class HistoricoModalComponent implements OnInit {
   tagsBooleanasSelecionadas: number[] = []; 
   dadosHistorico: any[] = [];
 
+
+  filtroSetor: string = ''; // Texto para filtragem
   meses = [
     { nome: 'Janeiro', numero: 1 },
     { nome: 'Fevereiro', numero: 2 },
@@ -88,14 +90,10 @@ export class HistoricoModalComponent implements OnInit {
   onSetorChange(event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     const selectedSetorId = parseInt(selectElement.value, 10);
-  
-    // Atualiza o setor selecionado
+
+    // Atualiza o setor selecionado (lógica anterior)
     this.setorId = selectedSetorId;
-  
-    // Limpa as tags selecionadas
-    this.tagsSelecionadas = [];
-  
-    // Atualiza as tags disponíveis com base no setor selecionado
+
     const setorSelecionado = this.setores.find(setor => setor.id === this.setorId);
     this.tags = setorSelecionado ? setorSelecionado.tags : [];
   }
@@ -308,6 +306,24 @@ export class HistoricoModalComponent implements OnInit {
     this.horaFim = '23:59';
     this.mostrarModalMes = false; // Fecha o modal
     console.log(`Mês selecionado: ${mes.nome}`);
+  }
+
+  onSetorInput(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const setorSelecionado = this.setores.find(
+      (setor) => setor.nome.toLowerCase() === inputElement.value.toLowerCase()
+    );
+  
+    if (setorSelecionado) {
+      this.setorId = setorSelecionado.id;
+      this.tags = setorSelecionado.tags;
+    } else {
+      this.setorId = 0; // Define como null se nenhum setor for encontrado
+      this.tags = [];
+    }
+  
+    // Limpa as tags selecionadas ao alterar o setor
+    this.tagsSelecionadas = [];
   }
   
 }
