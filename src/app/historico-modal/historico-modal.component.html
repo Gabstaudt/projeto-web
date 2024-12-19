@@ -19,7 +19,7 @@
           Mês
         </label>
         <label>
-          <input type="radio" name="periodo" value="custom" [(ngModel)]="periodoSelecionado" (change)="onPeriodoChange()"> Intervalo Customizável
+          <input type="radio" name="periodo" value="custom" [(ngModel)]="periodoSelecionado" (change)="onPeriodoChange()">Customizável
         </label>
       </fieldset>
     </div>
@@ -58,7 +58,7 @@
         <legend>Setores</legend>
         <input 
           list="setoresDatalist" 
-          placeholder="Digite para filtrar e selecionar" 
+          placeholder="Nome do Setor..." 
           (input)="onSetorInput($event)" 
         />
         <datalist id="setoresDatalist">
@@ -73,19 +73,22 @@
     
 
     <!-- Tags -->
-    <h3>Tags Carregadas</h3>
-    <div class="tags-container">
-      <div class="tag-item" *ngFor="let tag of tags">
-        <label>
-          <input 
-            type="checkbox" 
-            (change)="toggleTagSelection(tag)" 
-            [checked]="isTagSelecionada(tag.id)"
-          />
-          {{ tag.nome }}
-        </label>
+    <fieldset>
+      <legend>Tags</legend>
+      <div class="tags-container">
+        <div class="tag-item" *ngFor="let tag of tags">
+          <label>
+            <input 
+              type="checkbox" 
+              (change)="toggleTagSelection(tag)" 
+              [checked]="isTagSelecionada(tag.id)"
+            />
+            {{ tag.nome }}
+          </label>
+        </div>
       </div>
-    </div>
+    </fieldset>
+    
     
     
     
@@ -113,7 +116,7 @@
 
 
     <!-- Filtro de Intervalo -->
-    <div class="grid-item">
+    <!-- <div class="grid-item">
       <fieldset>
         <legend>Filtro de Intervalo</legend>
         <label><input type="radio" name="filtro" value="sem-filtro" checked> Sem filtro</label>
@@ -122,7 +125,7 @@
         <label><input type="radio" name="filtro" value="60-min"> 60 min</label>
       </fieldset>
     </div>
-  </div>
+  </div> -->
 
   <!-- Ações -->
   <div class="acoes">
