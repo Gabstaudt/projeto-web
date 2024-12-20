@@ -1,17 +1,11 @@
-<div *ngIf="modalAberto" class="modal-graficos">
-    <div 
-      class="conteudo-graficos draggable-modal" 
-      (mousedown)="iniciarArraste($event)" 
-      (mouseup)="finalizarArraste()"
-    >
-      <div class="header-graficos">
-        <h2>Gráficos</h2>
-        <button (click)="fecharModal()">Fechar</button>
-      </div>
-      <div class="body-graficos">
-        <!-- Canvas para o gráfico -->
-        <canvas id="graficoCanvas"></canvas>
-      </div>
+<div class="modal-graficos draggable-modal" [hidden]="!modalAberto">
+  <div class="conteudo-graficos">
+    <div class="header-graficos" (mousedown)="iniciarArraste($event)">
+      <h2>Gráficos</h2>
+      <button (click)="fecharModal()">Fechar</button>
+    </div>
+    <div class="body-graficos">
+      <canvas id="graficoCanvas"></canvas>
     </div>
   </div>
-  
+</div>

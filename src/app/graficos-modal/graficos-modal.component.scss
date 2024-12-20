@@ -1,36 +1,48 @@
 .modal-graficos {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-  }
-  
-  .conteudo-graficos {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    cursor: grab;
-  }
-  
-  .header-graficos {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background: #f1f1f1;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .body-graficos {
-    padding: 10px;
-  }
-  
+  position: fixed;
+  top: 20%;
+  left: 30%;
+  width: 500px;
+  height: 400px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  overflow: hidden;
+  cursor: default; /* Normal para o modal */
+}
+
+.header-graficos {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f4f4f4;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  cursor: move; /* Cursor de movimentação */
+}
+
+.header-graficos h2 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.header-graficos button {
+  background: #ff4d4d;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.header-graficos button:hover {
+  background: #ff0000;
+}
+
+.body-graficos {
+  padding: 20px;
+  overflow: auto;
+}

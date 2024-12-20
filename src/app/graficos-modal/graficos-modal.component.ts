@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, ElementRef, Renderer2, HostListener } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -10,28 +10,45 @@ Chart.register(...registerables);
 })
 export class GraficosModalComponent {
   modalAberto: boolean = false;
+  modalElemento: HTMLElement | null = null;
+  movendo: boolean = false;
   posicaoInicialX: number = 0;
   posicaoInicialY: number = 0;
-  movendo: boolean = false;
-  modalElemento: HTMLElement | null = null;
-  grafico: Chart | null = null;
+
+  constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   abrirModal(): void {
+    console.log('Abrindo modal de gráficos');
     this.modalAberto = true;
-    setTimeout(() => this.renderizarGrafico(), 0); // Garante que o canvas esteja no DOM
+  
+    // Adicionar o modal ao body
+    const modalNativeElement = this.el.nativeElement.querySelector('.modal-graficos');
+    if (modalNativeElement) {
+      this.renderer.appendChild(document.body, modalNativeElement);
+      console.log('Modal de gráficos adicionado ao body');
+    } else {
+      console.error('Elemento modal-graficos não encontrado');
+    }
+  
+    setTimeout(() => this.renderizarGrafico(), 0); // Renderizar o gráfico
   }
+  
 
   fecharModal(): void {
+    console.log('Fechando modal de gráficos');
     this.modalAberto = false;
-    if (this.grafico) {
-      this.grafico.destroy(); // Destroi o gráfico para evitar múltiplas instâncias
+  
+    const modalNativeElement = this.el.nativeElement.querySelector('.modal-graficos');
+    if (modalNativeElement && document.body.contains(modalNativeElement)) {
+      this.renderer.removeChild(document.body, modalNativeElement);
+      console.log('Modal de gráficos removido do body');
     }
   }
 
   renderizarGrafico(): void {
     const ctx = document.getElementById('graficoCanvas') as HTMLCanvasElement;
     if (ctx) {
-      this.grafico = new Chart(ctx, {
+      new Chart(ctx, {
         type: 'bar',
         data: {
           labels: ['Janeiro', 'Fevereiro', 'Março'],
@@ -47,14 +64,7 @@ export class GraficosModalComponent {
         },
         options: {
           responsive: true,
-          scales: {
-            x: {
-              beginAtZero: true
-            },
-            y: {
-              beginAtZero: true
-            }
-          }
+          maintainAspectRatio: false
         }
       });
     }
@@ -69,10 +79,6 @@ export class GraficosModalComponent {
     }
   }
 
-  finalizarArraste(): void {
-    this.movendo = false;
-  }
-
   @HostListener('document:mousemove', ['$event'])
   moverModal(event: MouseEvent): void {
     if (this.movendo && this.modalElemento) {
@@ -81,5 +87,10 @@ export class GraficosModalComponent {
       this.modalElemento.style.left = `${novaPosicaoX}px`;
       this.modalElemento.style.top = `${novaPosicaoY}px`;
     }
+  }
+
+  @HostListener('document:mouseup', ['$event'])
+  finalizarArraste(): void {
+    this.movendo = false;
   }
 }
