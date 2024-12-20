@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ViewChild } from '@angular/core';
 import { EntradaService } from '../services/auth/entrada.service';
 import { Tag } from '../models/tag.model';
 import { Setor } from '../models/setor.model';
@@ -6,12 +6,7 @@ import { HistoricoService } from '../services/hist/historico.service';
 import { ChangeDetectorRef } from '@angular/core';
 import {formatarValorParaHistorico} from '../models/converterhistorico.model'
 import { TipoTag } from 'src/app/models/tipo.model';
-import { Chart, registerables } from 'chart.js';
-
-
-
-Chart.register(...registerables);
-
+import { GraficosModalComponent } from '../graficos-modal/graficos-modal.component';
 
 @Component({
   selector: 'app-historico-modal',
@@ -21,6 +16,8 @@ Chart.register(...registerables);
 export class HistoricoModalComponent implements OnInit {
   @Input() setorId: number = 0; // ID do setor selecionado
   @Output() fechar = new EventEmitter<void>(); // Evento para fechar o modal
+  @ViewChild('graficosModal') graficosModal!: GraficosModalComponent;
+
 
   tags: Tag[] = []; // Tags do setor selecionado
   setores: Setor[] = [];
@@ -37,15 +34,6 @@ export class HistoricoModalComponent implements OnInit {
   tagsInteirasSelecionadas: number[] = []; 
   tagsBooleanasSelecionadas: number[] = []; 
   dadosHistorico: any[] = [];
-
-
-  modalHistoricoAberto: boolean = true;
-  modalGraficosAberto: boolean = false;
-  posicaoInicialX: number = 0;
-  posicaoInicialY: number = 0;
-  movendo: boolean = false;
-  modalElemento: HTMLElement | null = null;
-  grafico: Chart | null = null;
 
 
   filtroSetor: string = ''; // Texto para filtragem
@@ -69,7 +57,6 @@ export class HistoricoModalComponent implements OnInit {
     private entradaService: EntradaService,
     private historicoService: HistoricoService,
     private cdr: ChangeDetectorRef,
-    
   ) {}
 
   ngOnInit() {
@@ -343,71 +330,9 @@ export class HistoricoModalComponent implements OnInit {
   }
 
 
+ 
   abrirModalGraficos(): void {
-    this.modalGraficosAberto = true;
-    setTimeout(() => this.renderizarGrafico(), 0); // Garante que o canvas esteja no DOM
-  }
-
-  fecharModalGraficos(): void {
-    this.modalGraficosAberto = false;
-    if (this.grafico) {
-      this.grafico.destroy(); // Remove o gráfico ao fechar o modal
-    }
-  }
-
-  renderizarGrafico(): void {
-    const ctx = document.getElementById('graficoCanvas') as HTMLCanvasElement;
-    if (ctx) {
-      this.grafico = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Janeiro', 'Fevereiro', 'Março'],
-          datasets: [
-            {
-              label: 'Valores',
-              data: [100, 200, 150],
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            x: {
-              beginAtZero: true
-            },
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-    }
-  }
-
-  iniciarArraste(event: MouseEvent): void {
-    this.modalElemento = (event.target as HTMLElement).closest('.draggable-modal');
-    if (this.modalElemento) {
-      this.movendo = true;
-      this.posicaoInicialX = event.clientX - this.modalElemento.offsetLeft;
-      this.posicaoInicialY = event.clientY - this.modalElemento.offsetTop;
-    }
-  }
-
-  finalizarArraste(): void {
-    this.movendo = false;
-  }
-
-  @HostListener('document:mousemove', ['$event'])
-  moverModal(event: MouseEvent): void {
-    if (this.movendo && this.modalElemento) {
-      const novaPosicaoX = event.clientX - this.posicaoInicialX;
-      const novaPosicaoY = event.clientY - this.posicaoInicialY;
-      this.modalElemento.style.left = `${novaPosicaoX}px`;
-      this.modalElemento.style.top = `${novaPosicaoY}px`;
-    }
+    this.graficosModal.abrirModal();
   }
 
   

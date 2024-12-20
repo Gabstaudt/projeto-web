@@ -8,7 +8,8 @@ import { EntradaComponent } from './entrada/entrada.component';
 import { HttpClientModule } from '@angular/common/http';
 import { HistoricoModalComponent } from './historico-modal/historico-modal.component';
 import { MatDialogModule } from '@angular/material/dialog';
-import {FilterPipe} from '../filtro/filter.pipe'
+import {FilterPipe} from '../filtro/filter.pipe';
+import { GraficosModalComponent } from './graficos-modal/graficos-modal.component'
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import {FilterPipe} from '../filtro/filter.pipe'
     LoginComponent,
     EntradaComponent,
     HistoricoModalComponent,
-    FilterPipe
+    FilterPipe,
+    GraficosModalComponent
   ],
   imports: [
     BrowserModule,
