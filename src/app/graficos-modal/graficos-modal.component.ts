@@ -17,7 +17,7 @@ export class GraficosModalComponent {
 
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
-  abrirModal(): void {
+abrirModal(): void {
     console.log('Abrindo modal de gráficos');
     this.modalAberto = true;
   
