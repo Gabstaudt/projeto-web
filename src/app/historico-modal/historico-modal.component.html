@@ -130,9 +130,26 @@
   <!-- Ações -->
   <div class="acoes">
     <button (click)="consultarHistorico()">Consultar</button>
-    <button>Gráfico</button>
+    <button (click)="abrirModalGraficos()">Gráficos</button>
     <button>Exportar</button>
     <button>Excluir</button>
+  </div>
+
+  <div *ngIf="modalGraficosAberto" class="modal-graficos">
+    <div 
+      class="conteudo-graficos draggable-modal" 
+      (mousedown)="iniciarArraste($event)" 
+      (mouseup)="finalizarArraste()"
+    >
+      <div class="header-graficos">
+        <h2>Gráficos</h2>
+        <button (click)="fecharModalGraficos()">Fechar</button>
+      </div>
+      <div class="body-graficos">
+        <!-- Canvas para o gráfico -->
+        <canvas id="graficoCanvas"></canvas>
+      </div>
+    </div>
   </div>
 
   <div class="modal-footer">
