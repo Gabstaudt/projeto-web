@@ -23,8 +23,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog'; // Certifiqu
 })
 export class EntradaComponent implements AfterViewInit, OnDestroy {
   private subscription: Subscription | null = null;
-  private readonly servidorUrl = 'http://10.20.100.133:8043/dados';
-
+  private readonly servidorUrl = 'http://200.178.173.133:8043/dados';
+  
 ////auxiliares do modal
   modalAberto: boolean = false;
   

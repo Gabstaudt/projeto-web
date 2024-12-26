@@ -10,7 +10,7 @@ import { EntradaService } from '../auth/entrada.service';
 })
 export class HistoricoService {
   // private apiUrl = 'http://172.74.0.167:8043/dados'; // URL do servidor
-  private apiUrl = 'http://10.20.100.133:8043/dados';
+  private apiUrl = 'http://200.178.173.133:8043/dados';
   constructor(private http: HttpClient, private entradaService: EntradaService) {}
 
   ////////////// comando para fazer a requisição do histórico///////////////////
@@ -305,4 +305,19 @@ private formatarTempo(tempo: number): string {
 
   return `${dia}/${mes}/${ano} ${horas}:${minutos}:${segundos}`;
 }
+
+
+
+buscarDados(setorId: number, tags: any[], intervalo: { inicio: string; fim: string }): Observable<any> {
+  const params = {
+    setorId: setorId.toString(),
+    tags: tags.map(tag => tag.id).join(','), // Envia IDs das tags
+    inicio: intervalo.inicio,
+    fim: intervalo.fim,
+  };
+  return this.http.get<any>(`${this.apiUrl}`, { params });
 }
+
+
+}
+

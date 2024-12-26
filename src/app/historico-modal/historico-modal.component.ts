@@ -53,6 +53,10 @@ export class HistoricoModalComponent implements OnInit {
   ];
   mostrarModalMes = false;
 
+
+  setorSelecionado: any;
+  intervalo: { inicio: string; fim: string } = { inicio: '', fim: '' };
+
   constructor(
     private entradaService: EntradaService,
     private historicoService: HistoricoService,
@@ -332,8 +336,40 @@ export class HistoricoModalComponent implements OnInit {
 
  
   abrirModalGraficos(): void {
+    // Garantir que as tags inteiras e booleanas estão separadas
+    this.separarTagsSelecionadas();
+  
+    if (!this.dadosHistorico || this.dadosHistorico.length === 0) {
+      console.error('Não há dados históricos disponíveis para gerar gráficos.');
+      return;
+    }
+  
+    // Prepara os dados de gráfico para tags inteiras e booleanas
+    const dadosGraficoInteiras = this.dadosHistorico.map((registro) => ({
+      tempo: registro.tempoInformacao,
+      valores: this.tagsInteirasSelecionadas.map((tagId) => ({
+        id: tagId,
+        nome: this.tags.find((tag) => tag.id === tagId)?.nome || `Tag ${tagId}`,
+        valor: registro[`Tag Inteira ${tagId}`] || 0,
+      })),
+    }));
+  
+    const dadosGraficoBooleanas = this.dadosHistorico.map((registro) => ({
+      tempo: registro.tempoInformacao,
+      valores: this.tagsBooleanasSelecionadas.map((tagId) => ({
+        id: tagId,
+        nome: this.tags.find((tag) => tag.id === tagId)?.nome || `Tag ${tagId}`,
+        estado: registro[`Tag Booleana ${tagId}`] || 'Desligado',
+      })),
+    }));
+  
+    // Envia os dados ao modal de gráficos
+    this.graficosModal.gerarGraficos(dadosGraficoInteiras, dadosGraficoBooleanas);
     this.graficosModal.abrirModal();
   }
-
   
-}
+    
+  }
+
+
+
