@@ -10,6 +10,8 @@ export class GraficosModalComponent {
   modalAberto: boolean = false;
   graficoInteiras: Chart | null = null;
 
+
+  
   abrirModal(): void {
     this.modalAberto = true;
   }

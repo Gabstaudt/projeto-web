@@ -65,10 +65,12 @@ export class HistoricoModalComponent implements OnInit {
 
   ngOnInit() {
     this.setores = this.entradaService.listaGlobal || [];
+    console.log('Setores carregados:', this.setores);
     if (this.setorId) {
       this.loadTags();
     }
     this.inicializarDataAtual();
+    
 
   }
   
@@ -317,21 +319,22 @@ export class HistoricoModalComponent implements OnInit {
 
   onSetorInput(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
+    const filtro = inputElement.value.toLowerCase();
     const setorSelecionado = this.setores.find(
-      (setor) => setor.nome.toLowerCase() === inputElement.value.toLowerCase()
+      (setor) => setor.nome.toLowerCase().includes(filtro) // Permite busca parcial
     );
   
     if (setorSelecionado) {
       this.setorId = setorSelecionado.id;
       this.tags = setorSelecionado.tags;
     } else {
-      this.setorId = 0; // Define como null se nenhum setor for encontrado
+      this.setorId = 0; // Reseta se não encontrar
       this.tags = [];
     }
   
-    // Limpa as tags selecionadas ao alterar o setor
-    this.tagsSelecionadas = [];
+    console.log('Setor Selecionado:', setorSelecionado);
   }
+  
 
 
  
