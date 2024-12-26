@@ -56,16 +56,12 @@
     <div class="grid-item">
       <fieldset>
         <legend>Setores</legend>
-        <input 
-          list="setoresDatalist" 
-          placeholder="Nome do Setor..." 
-          (input)="onSetorInput($event)" 
-        />
-        <datalist id="setoresDatalist">
-          <option *ngFor="let setor of setores" [value]="setor.nome">
+        <select [(ngModel)]="setorId" (change)="onSetorChange($event)">
+          <option *ngFor="let setor of setores" [value]="setor.id">
             {{ setor.nome }}
           </option>
-        </datalist>
+        </select>
+      
       </fieldset>
     </div>
     

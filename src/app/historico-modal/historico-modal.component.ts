@@ -99,12 +99,18 @@ export class HistoricoModalComponent implements OnInit {
   onSetorChange(event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     const selectedSetorId = parseInt(selectElement.value, 10);
-
-    // Atualiza o setor selecionado (lógica anterior)
+  
+    // Atualiza o setor selecionado
     this.setorId = selectedSetorId;
-
+  
+    // Encontra o setor selecionado e suas tags
     const setorSelecionado = this.setores.find(setor => setor.id === this.setorId);
     this.tags = setorSelecionado ? setorSelecionado.tags : [];
+  
+    // Limpa as tags selecionadas
+    this.tagsSelecionadas = [];
+    this.separarTagsSelecionadas(); // Atualiza as listas de tags inteiras e booleanas
+    console.log('Setor alterado. Tags limpas:', this.tagsSelecionadas);
   }
   
 
@@ -320,19 +326,22 @@ export class HistoricoModalComponent implements OnInit {
   onSetorInput(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     const filtro = inputElement.value.toLowerCase();
+  
     const setorSelecionado = this.setores.find(
-      (setor) => setor.nome.toLowerCase().includes(filtro) // Permite busca parcial
+      (setor) => setor.nome.toLowerCase().includes(filtro)
     );
   
     if (setorSelecionado) {
       this.setorId = setorSelecionado.id;
       this.tags = setorSelecionado.tags;
+      console.log('Setor encontrado:', setorSelecionado);
     } else {
       this.setorId = 0; // Reseta se não encontrar
       this.tags = [];
+      console.log('Nenhum setor encontrado para o filtro:', filtro);
     }
   
-    console.log('Setor Selecionado:', setorSelecionado);
+    this.cdr.detectChanges(); // Atualiza o template
   }
   
 
