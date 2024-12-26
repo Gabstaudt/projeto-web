@@ -1,9 +1,10 @@
-<div class="modal-graficos" [hidden]="!modalAberto">
+<div class="modal-graficos">
   <div class="header-graficos">
     <h2>Gráficos</h2>
-    <button (click)="fecharModal()">Fechar</button>
+    <button (click)="fecharModal()">X</button>
   </div>
   <div class="body-graficos">
-    <canvas id="graficoCanvas"></canvas>
+    <!-- Conteúdo do modal -->
+    <p>Conteúdo do modal de gráficos.</p>
   </div>
 </div>

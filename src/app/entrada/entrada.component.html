@@ -46,7 +46,7 @@
 
     <!-- Lista de Nomes na Sidebar -->
     <ul class="sidebar-menu">
-      <li (click)="abrirModal()">Histórico</li>
+      <li (click)="abrirModalHistorico()">Histórico</li>
 
             <li>Exibir</li>
       <li>Pitometria</li>
@@ -58,8 +58,17 @@
 <!-- ////////// modal do historico \\\\\\\\\\\\\\\\\\\\\\\\\\ -->
 
 
-<app-historico-modal *ngIf="modalAberto" (fechar)="fecharModal()"></app-historico-modal>
+<app-historico-modal
+  *ngIf="modalHistoricoAberto"
+  (fechar)="fecharModalHistorico()"
+  (abrirGraficos)="abrirModalGraficos()"
+></app-historico-modal>
 
+<!-- Modal de Gráficos -->
+<app-graficos-modal
+  *ngIf="modalGraficosAberto"
+  (fechar)="fecharModalGraficos()"
+></app-graficos-modal>
 
 <!-- \/\/\/\//\\//////////////////////////////////////////////////////////////// -->
 <div class="entrada-container">

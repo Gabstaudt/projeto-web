@@ -15,7 +15,8 @@ import { GraficosModalComponent } from '../graficos-modal/graficos-modal.compone
 })
 export class HistoricoModalComponent implements OnInit {
   @Input() setorId: number = 0; // ID do setor selecionado
-  @Output() fechar = new EventEmitter<void>(); // Evento para fechar o modal
+  @Output() fechar = new EventEmitter<void>();
+  @Output() abrirGraficos = new EventEmitter<void>();
   @ViewChild('graficosModal') graficosModal!: GraficosModalComponent;
 
 
@@ -348,40 +349,6 @@ export class HistoricoModalComponent implements OnInit {
 
  
   abrirModalGraficos(): void {
-    // Garantir que as tags inteiras e booleanas estão separadas
-    this.separarTagsSelecionadas();
-  
-    if (!this.dadosHistorico || this.dadosHistorico.length === 0) {
-      console.error('Não há dados históricos disponíveis para gerar gráficos.');
-      return;
-    }
-  
-    // Prepara os dados de gráfico para tags inteiras e booleanas
-    const dadosGraficoInteiras = this.dadosHistorico.map((registro) => ({
-      tempo: registro.tempoInformacao,
-      valores: this.tagsInteirasSelecionadas.map((tagId) => ({
-        id: tagId,
-        nome: this.tags.find((tag) => tag.id === tagId)?.nome || `Tag ${tagId}`,
-        valor: registro[`Tag Inteira ${tagId}`] || 0,
-      })),
-    }));
-  
-    const dadosGraficoBooleanas = this.dadosHistorico.map((registro) => ({
-      tempo: registro.tempoInformacao,
-      valores: this.tagsBooleanasSelecionadas.map((tagId) => ({
-        id: tagId,
-        nome: this.tags.find((tag) => tag.id === tagId)?.nome || `Tag ${tagId}`,
-        estado: registro[`Tag Booleana ${tagId}`] || 'Desligado',
-      })),
-    }));
-  
-    // Envia os dados ao modal de gráficos
-    this.graficosModal.gerarGraficos(dadosGraficoInteiras, dadosGraficoBooleanas);
-    this.graficosModal.abrirModal();
+    this.abrirGraficos.emit();
   }
-  
-    
-  }
-
-
-
+}

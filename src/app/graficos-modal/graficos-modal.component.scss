@@ -1,20 +1,14 @@
 .modal-graficos {
   position: fixed;
-  top: 20%;
-  left: 30%;
+  top: 25%;
+  left: 35%;
   width: 500px;
-  height: 400px;
   background: white;
   border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  z-index: 2000;
-  overflow: hidden;
-  cursor: default; 
-  border: 1px solid #ddd;
-  font-family: 'Poppins', sans-serif; 
-
-
+  z-index: 1100;
+  transform: translate(0, 0);
 }
 
 .header-graficos {
@@ -24,7 +18,7 @@
   background: #f4f4f4;
   padding: 10px;
   border-bottom: 1px solid #ccc;
-  cursor: move; /* Cursor de movimentação */
+  cursor: move; /* Indica que é uma área arrastável */
 }
 
 .header-graficos h2 {

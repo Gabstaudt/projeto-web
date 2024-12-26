@@ -26,7 +26,7 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
   private readonly servidorUrl = 'http://200.178.173.133:8043/dados';
   
 ////auxiliares do modal
-  modalAberto: boolean = false;
+
   
     // private readonly servidorUrl = 'http://172.74.0.167:8043/dados';
   @ViewChild('percentageText', { static: false }) percentageText!: ElementRef;
@@ -52,6 +52,12 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
     unne: [],
     uste: []
   };
+
+
+  modalGraficosAberto = false;
+  modalHistoricoAberto = false;
+
+
 
   constructor(private dialog: MatDialog, private entradaService: EntradaService, private http: HttpClient, private router: Router,     private terceiraRequisicaoService: TerceiraRequisicaoService
   ) {
@@ -88,13 +94,6 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
     console.log('Mapa inicializado com sucesso'); 
   }
   
-  abrirModal(): void {
-    this.modalAberto = true; // Define como verdadeiro ao abrir o modal
-  }
-
-  fecharModal(): void {
-    this.modalAberto = false; // Define como falso ao fechar o modal
-  }
 
 
 
@@ -508,5 +507,23 @@ private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comand
     return null;
   }
   
+
+
+
+  abrirModalHistorico(): void {
+    this.modalHistoricoAberto = true;
+  }
+
+  fecharModalHistorico(): void {
+    this.modalHistoricoAberto = false;
+  }
+
+  abrirModalGraficos(): void {
+    this.modalGraficosAberto = true;
+  }
+
+  fecharModalGraficos(): void {
+    this.modalGraficosAberto = false;
+  }
 
 }

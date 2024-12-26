@@ -1,80 +1,49 @@
-import { Component, ElementRef, Renderer2 } from '@angular/core';
-import { Chart } from 'chart.js';
+import { Component, Output, EventEmitter, ElementRef, Renderer2, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-graficos-modal',
   templateUrl: './graficos-modal.component.html',
   styleUrls: ['./graficos-modal.component.scss'],
 })
-export class GraficosModalComponent {
-  modalAberto: boolean = false;
-  graficoInteiras: Chart | null = null;
-
-
+export class GraficosModalComponent implements OnInit {
+  @Output() fechar = new EventEmitter<void>();
   
-  abrirModal(): void {
-    this.modalAberto = true;
+  private isDragging = false; // Indica se o modal está sendo arrastado
+  private startX = 0; // Posição inicial do mouse no eixo X
+  private startY = 0; // Posição inicial do mouse no eixo Y
+  private offsetX = 0; // Deslocamento do modal no eixo X
+  private offsetY = 0; // Deslocamento do modal no eixo Y
+
+  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
+
+  ngOnInit(): void {
+    const header = this.elementRef.nativeElement.querySelector('.header-graficos');
+    this.renderer.listen(header, 'mousedown', this.iniciarArraste.bind(this));
+    this.renderer.listen(document, 'mousemove', this.moverModal.bind(this));
+    this.renderer.listen(document, 'mouseup', this.finalizarArraste.bind(this));
   }
 
   fecharModal(): void {
-    this.modalAberto = false;
-    if (this.graficoInteiras) {
-      this.graficoInteiras.destroy(); // Destrói o gráfico ao fechar o modal
-    }
+    this.fechar.emit();
   }
 
-
-  gerarGraficos(dadosInteiras: any[], dadosBooleanas: any[]): void {
-    // Renderiza o gráfico para tags inteiras
-    this.renderizarGraficoInteiras(dadosInteiras);
-
-    // (Opcional) Renderize um gráfico separado para tags booleanas
+  iniciarArraste(event: MouseEvent): void {
+    this.isDragging = true;
+    this.startX = event.clientX - this.offsetX;
+    this.startY = event.clientY - this.offsetY;
   }
 
-  private renderizarGraficoInteiras(dados: any[]): void {
-    const ctx = document.getElementById('graficoCanvas') as HTMLCanvasElement;
-    if (ctx) {
-      const labels = dados.map((dado) => dado.tempo);
-      const datasets = dados[0]?.valores.map((tag: any, index: number) => ({
-        label: tag.nome,
-        data: dados.map((dado) => dado.valores[index]?.valor || 0),
-        borderColor: `rgba(${75 + index * 20}, 192, 192, 1)`,
-        backgroundColor: `rgba(${75 + index * 20}, 192, 192, 0.2)`,
-        borderWidth: 2,
-      }));
+  moverModal(event: MouseEvent): void {
+    if (!this.isDragging) return;
 
-      this.graficoInteiras = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels, // Eixo X (tempos)
-          datasets: datasets, // Eixo Y (valores)
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-              position: 'top',
-            },
-          },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: 'Tempo',
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: 'Valores',
-              },
-              beginAtZero: true,
-            },
-          },
-        },
-      });
-    }
+    this.offsetX = event.clientX - this.startX;
+    this.offsetY = event.clientY - this.startY;
+
+    const modal = this.elementRef.nativeElement.querySelector('.modal-graficos');
+    this.renderer.setStyle(modal, 'transform', `translate(${this.offsetX}px, ${this.offsetY}px)`);
+  }
+
+  finalizarArraste(): void {
+    this.isDragging = false;
   }
 }
