@@ -16,7 +16,10 @@ export class EntradaService {
 
   private apiUrl = 'http://200.178.173.133:8043/dados';
 
+/////para componente/////////////
+private dadosGrafico: any = null;
 
+////////////////////////////////
 
 
   public listaGlobal: Setor[] = []; 
@@ -413,4 +416,22 @@ private obterSessaoIdDoLocalStorage(): string {
 //   // Libera a URL criada para o Blob
 //   window.URL.revokeObjectURL(url);
 // }
+
+
+/////função para o modal////
+setDadosGrafico(dados: any): void {
+  this.dadosGrafico = dados;
+}
+
+getDadosGrafico(): any {
+  return this.dadosGrafico;
+}
+
+limparDadosGrafico(): void {
+  this.dadosGrafico = null;
+}
+///////////////
+
+
+
 }

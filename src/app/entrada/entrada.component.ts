@@ -58,7 +58,7 @@ modalHistoricoAberto = false;
 
 
 
-  constructor(private dialog: MatDialog, private entradaService: EntradaService, private http: HttpClient, private router: Router,     private terceiraRequisicaoService: TerceiraRequisicaoService
+  constructor(private dialog: MatDialog, public entradaService: EntradaService, private http: HttpClient, private router: Router,     private terceiraRequisicaoService: TerceiraRequisicaoService
   ) {
     this.setores$ = this.entradaService.setores$;
   }
@@ -519,10 +519,14 @@ private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comand
 
   abrirModalGraficos(): void {
     this.modalGraficosAberto = true;
+    console.log('Modal de gráficos aberto.');
   }
-
+  
   fecharModalGraficos(): void {
     this.modalGraficosAberto = false;
+    this.entradaService.limparDadosGrafico();
+    console.log('Modal de gráficos fechado.');
   }
+  
 
 }

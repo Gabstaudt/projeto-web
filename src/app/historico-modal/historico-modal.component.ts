@@ -356,41 +356,37 @@ export class HistoricoModalComponent implements OnInit {
 
  
 abrirModalGraficos(): void {
-  if (!this.dadosHistorico || this.dadosHistorico.length === 0) {
-    console.warn('Nenhum dado histórico disponível para gerar gráficos.');
-    return;
-  }
-
-  const setorNome = this.setores.find(setor => setor.id === this.setorId)?.nome || 'Setor Desconhecido';
+  const setorNome = this.setores.find(setor => setor.id === this.setorId)?.nome || 'Setor não identificado';
 
   const dadosInteiras = this.dadosHistorico.map(registro => ({
-    tempo: registro.tempoInformacao || 'N/A', // Garantir que o tempo exista
+    tempo: registro.tempoInformacao || 'N/A',
     valores: this.tagsInteirasSelecionadas.map(tagId => {
       const tag = this.tags.find(tag => tag.id === tagId);
       return {
         nome: tag?.nome || `Tag ${tagId}`,
-        valor: registro[`Tag Inteira ${tagId}`] || 0, // Tratar valores nulos
+        valor: registro[`Tag Inteira ${tagId}`] || 0,
       };
     }),
   }));
 
   const dadosBooleanas = this.dadosHistorico.map(registro => ({
-    tempo: registro.tempoInformacao || 'N/A', // Garantir que o tempo exista
+    tempo: registro.tempoInformacao || 'N/A',
     valores: this.tagsBooleanasSelecionadas.map(tagId => {
       const tag = this.tags.find(tag => tag.id === tagId);
       return {
         nome: tag?.nome || `Tag ${tagId}`,
-        estado: registro[`Tag Booleana ${tagId}`] === 'Ligado' ? 'Ligado' : 'Desligado', // Tratar estado booleano
+        estado: registro[`Tag Booleana ${tagId}`] === 'Ligado' ? 'Ligado' : 'Desligado',
       };
     }),
   }));
 
   const dadosGrafico = { setorNome, dadosInteiras, dadosBooleanas };
 
+  // Envia os dados para o serviço (mantém o histórico aberto)
+  this.entradaService.setDadosGrafico(dadosGrafico);
   console.log('Dados enviados para o modal de gráficos:', dadosGrafico);
-
-  this.abrirGraficos.emit(dadosGrafico); // Emite os dados para o modal de gráficos
 }
+
 
 
 

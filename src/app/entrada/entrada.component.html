@@ -67,8 +67,11 @@
 <!-- Modal de Gráficos -->
 <app-graficos-modal
   *ngIf="modalGraficosAberto"
+  [dadosGrafico]="entradaService.getDadosGrafico()"
   (fechar)="fecharModalGraficos()"
 ></app-graficos-modal>
+
+
 
 <!-- \/\/\/\//\\//////////////////////////////////////////////////////////////// -->
 <div class="entrada-container">
