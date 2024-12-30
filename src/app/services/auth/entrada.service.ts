@@ -18,6 +18,8 @@ export class EntradaService {
 
 /////para componente/////////////
 private dadosGrafico: any = null;
+private modalGraficoAbertoSubject = new BehaviorSubject<boolean>(false);
+  modalGraficoAberto$ = this.modalGraficoAbertoSubject.asObservable();
 
 ////////////////////////////////
 
@@ -430,6 +432,16 @@ getDadosGrafico(): any {
 limparDadosGrafico(): void {
   this.dadosGrafico = null;
 }
+
+abrirModalGraficos(): void {
+  this.modalGraficoAbertoSubject.next(true); // Emite evento para abrir o modal gráfico
+}
+
+fecharModalGraficos(): void {
+  this.modalGraficoAbertoSubject.next(false); // Emite evento para fechar o modal gráfico
+  this.limparDadosGrafico(); // Limpa os dados do gráfico
+}
+
 ///////////////
 
 

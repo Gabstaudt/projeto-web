@@ -61,15 +61,16 @@
 <app-historico-modal
   *ngIf="modalHistoricoAberto"
   (fechar)="fecharModalHistorico()"
-  (abrirGraficos)="abrirModalGraficos()"
+  (abrirGraficos)="entradaService.abrirModalGraficos()"
 ></app-historico-modal>
 
-<!-- Modal de Gráficos -->
 <app-graficos-modal
   *ngIf="modalGraficosAberto"
   [dadosGrafico]="entradaService.getDadosGrafico()"
-  (fechar)="fecharModalGraficos()"
+  (fechar)="entradaService.fecharModalGraficos()"
 ></app-graficos-modal>
+
+
 
 
 

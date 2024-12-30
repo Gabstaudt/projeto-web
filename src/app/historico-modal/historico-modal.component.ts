@@ -354,7 +354,6 @@ export class HistoricoModalComponent implements OnInit {
 
 ///////////////////////modal gráfico////////////////
 
- 
 abrirModalGraficos(): void {
   const setorNome = this.setores.find(setor => setor.id === this.setorId)?.nome || 'Setor não identificado';
 
@@ -382,10 +381,13 @@ abrirModalGraficos(): void {
 
   const dadosGrafico = { setorNome, dadosInteiras, dadosBooleanas };
 
-  // Envia os dados para o serviço (mantém o histórico aberto)
   this.entradaService.setDadosGrafico(dadosGrafico);
   console.log('Dados enviados para o modal de gráficos:', dadosGrafico);
+
+  this.entradaService.abrirModalGraficos(); // Notifica abertura do modal gráfico
 }
+
+
 
 
 

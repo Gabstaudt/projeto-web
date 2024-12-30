@@ -73,6 +73,11 @@ modalHistoricoAberto = false;
     this.iniciarRequisicoesPeriodicas();
 
     this.atualizarNivelAgua();
+
+   this.entradaService.modalGraficoAberto$.subscribe((estado) => {
+    this.modalGraficosAberto = estado; // Atualiza o estado local com base no serviço
+  });
+
   }
 
   private iniciarMapa(): void {
@@ -517,16 +522,6 @@ private gerarBytesRequisicao(sessaoId: string, comandoSupervisao: number, comand
     this.modalHistoricoAberto = false;
   }
 
-  abrirModalGraficos(): void {
-    this.modalGraficosAberto = true;
-    console.log('Modal de gráficos aberto.');
-  }
-  
-  fecharModalGraficos(): void {
-    this.modalGraficosAberto = false;
-    this.entradaService.limparDadosGrafico();
-    console.log('Modal de gráficos fechado.');
-  }
-  
+
 
 }
