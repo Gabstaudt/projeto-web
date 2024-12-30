@@ -1,4 +1,5 @@
-import { Component, Output, EventEmitter, ElementRef, Renderer2, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Chart, registerables } from 'chart.js';
 
 @Component({
   selector: 'app-graficos-modal',
@@ -6,44 +7,124 @@ import { Component, Output, EventEmitter, ElementRef, Renderer2, OnInit } from '
   styleUrls: ['./graficos-modal.component.scss'],
 })
 export class GraficosModalComponent implements OnInit {
-  @Output() fechar = new EventEmitter<void>();
-  
-  private isDragging = false; // Indica se o modal está sendo arrastado
-  private startX = 0; // Posição inicial do mouse no eixo X
-  private startY = 0; // Posição inicial do mouse no eixo Y
-  private offsetX = 0; // Deslocamento do modal no eixo X
-  private offsetY = 0; // Deslocamento do modal no eixo Y
+  @Input() dadosGrafico: {
+    setorNome: string;
+    dadosInteiras: { tempo: any; valores: { nome: string; valor: any }[] }[];
+    dadosBooleanas: { tempo: any; valores: { nome: string; estado: any }[] }[];
+  } | null = null;
 
-  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
+  @Output() fechar = new EventEmitter<void>();
+
+  constructor() {
+    Chart.register(...registerables);
+  }
 
   ngOnInit(): void {
-    const header = this.elementRef.nativeElement.querySelector('.header-graficos');
-    this.renderer.listen(header, 'mousedown', this.iniciarArraste.bind(this));
-    this.renderer.listen(document, 'mousemove', this.moverModal.bind(this));
-    this.renderer.listen(document, 'mouseup', this.finalizarArraste.bind(this));
+    if (this.dadosGrafico) {
+      this.gerarGraficos();
+    } else {
+      console.warn('Nenhum dado disponível para gerar gráficos.');
+    }
+  }
+
+  gerarGraficos(): void {
+    if (!this.dadosGrafico) {
+      console.warn('dadosGrafico é nulo ou indefinido.');
+      return;
+    }
+
+    // Gráfico de Inteiras
+    const canvasInteiras = document.getElementById('canvasInteiras') as HTMLCanvasElement | null;
+    if (canvasInteiras) {
+      const ctx = canvasInteiras.getContext('2d');
+      if (ctx) {
+        const labels = this.dadosGrafico?.dadosInteiras?.map((d) => d.tempo ?? 'N/A') ?? [];
+        const datasets = this.dadosGrafico?.dadosInteiras?.[0]?.valores?.map((valor, i) => ({
+          label: valor?.nome ?? `Valor ${i + 1}`,
+          data: this.dadosGrafico?.dadosInteiras?.map((d) => d?.valores?.[i]?.valor ?? 0) ?? [],
+          borderColor: `hsl(${i * 50}, 70%, 50%)`,
+          fill: false,
+        })) ?? [];
+
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets,
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Tempo',
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Valores',
+                },
+              },
+            },
+          },
+        });
+      }
+    }
+
+    // Gráfico de Booleanas
+    const canvasBooleanas = document.getElementById('canvasBooleanas') as HTMLCanvasElement | null;
+    if (canvasBooleanas) {
+      const ctx = canvasBooleanas.getContext('2d');
+      if (ctx) {
+        const labels = this.dadosGrafico?.dadosBooleanas?.map((d) => d.tempo ?? 'N/A') ?? [];
+        const datasets = this.dadosGrafico?.dadosBooleanas?.[0]?.valores?.map((valor, i) => ({
+          label: valor?.nome ?? `Valor ${i + 1}`,
+          data: this.dadosGrafico?.dadosBooleanas?.map((d) => (d?.valores?.[i]?.estado === 'Ligado' ? 1 : 0)) ?? [],
+          borderColor: `hsl(${i * 50}, 70%, 50%)`,
+          fill: false,
+        })) ?? [];
+
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets,
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Tempo',
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Estado (1=Ligado, 0=Desligado)',
+                },
+              },
+            },
+          },
+        });
+      }
+    }
   }
 
   fecharModal(): void {
     this.fechar.emit();
-  }
-
-  iniciarArraste(event: MouseEvent): void {
-    this.isDragging = true;
-    this.startX = event.clientX - this.offsetX;
-    this.startY = event.clientY - this.offsetY;
-  }
-
-  moverModal(event: MouseEvent): void {
-    if (!this.isDragging) return;
-
-    this.offsetX = event.clientX - this.startX;
-    this.offsetY = event.clientY - this.startY;
-
-    const modal = this.elementRef.nativeElement.querySelector('.modal-graficos');
-    this.renderer.setStyle(modal, 'transform', `translate(${this.offsetX}px, ${this.offsetY}px)`);
-  }
-
-  finalizarArraste(): void {
-    this.isDragging = false;
   }
 }

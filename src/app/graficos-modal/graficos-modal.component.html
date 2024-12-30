@@ -1,10 +1,13 @@
 <div class="modal-graficos">
   <div class="header-graficos">
-    <h2>Gráficos</h2>
+    <h2>{{ dadosGrafico?.setorNome || 'Nome do Setor Indisponível' }}</h2>
     <button (click)="fecharModal()">X</button>
   </div>
   <div class="body-graficos">
-    <!-- Conteúdo do modal -->
-    <p>Conteúdo do modal de gráficos.</p>
+    <h3>Gráfico de Tags Inteiras</h3>
+    <canvas id="canvasInteiras"></canvas>
+
+    <h3>Gráfico de Tags Booleanas</h3>
+    <canvas id="canvasBooleanas"></canvas>
   </div>
 </div>

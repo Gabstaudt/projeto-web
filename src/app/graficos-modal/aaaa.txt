@@ -1,0 +1,7 @@
+
+fecharModal(): void {
+  this.fechar.emit();
+}
+
+
+  @Output() fechar = new EventEmitter<void>();

@@ -16,9 +16,15 @@ import { GraficosModalComponent } from '../graficos-modal/graficos-modal.compone
 export class HistoricoModalComponent implements OnInit {
   @Input() setorId: number = 0; // ID do setor selecionado
   @Output() fechar = new EventEmitter<void>();
-  @Output() abrirGraficos = new EventEmitter<void>();
   @ViewChild('graficosModal') graficosModal!: GraficosModalComponent;
 
+  @Output() abrirGraficos = new EventEmitter<{
+    setorNome: string;
+    dadosInteiras: { tempo: any; valores: { nome: string; valor: any }[] }[];
+    dadosBooleanas: { tempo: any; valores: { nome: string; estado: any }[] }[];
+  }>();
+
+  
 
   tags: Tag[] = []; // Tags do setor selecionado
   setores: Setor[] = [];
@@ -346,9 +352,47 @@ export class HistoricoModalComponent implements OnInit {
   }
   
 
+///////////////////////modal gráfico////////////////
 
  
-  abrirModalGraficos(): void {
-    this.abrirGraficos.emit();
+abrirModalGraficos(): void {
+  if (!this.dadosHistorico || this.dadosHistorico.length === 0) {
+    console.warn('Nenhum dado histórico disponível para gerar gráficos.');
+    return;
   }
+
+  const setorNome = this.setores.find(setor => setor.id === this.setorId)?.nome || 'Setor Desconhecido';
+
+  const dadosInteiras = this.dadosHistorico.map(registro => ({
+    tempo: registro.tempoInformacao || 'N/A', // Garantir que o tempo exista
+    valores: this.tagsInteirasSelecionadas.map(tagId => {
+      const tag = this.tags.find(tag => tag.id === tagId);
+      return {
+        nome: tag?.nome || `Tag ${tagId}`,
+        valor: registro[`Tag Inteira ${tagId}`] || 0, // Tratar valores nulos
+      };
+    }),
+  }));
+
+  const dadosBooleanas = this.dadosHistorico.map(registro => ({
+    tempo: registro.tempoInformacao || 'N/A', // Garantir que o tempo exista
+    valores: this.tagsBooleanasSelecionadas.map(tagId => {
+      const tag = this.tags.find(tag => tag.id === tagId);
+      return {
+        nome: tag?.nome || `Tag ${tagId}`,
+        estado: registro[`Tag Booleana ${tagId}`] === 'Ligado' ? 'Ligado' : 'Desligado', // Tratar estado booleano
+      };
+    }),
+  }));
+
+  const dadosGrafico = { setorNome, dadosInteiras, dadosBooleanas };
+
+  console.log('Dados enviados para o modal de gráficos:', dadosGrafico);
+
+  this.abrirGraficos.emit(dadosGrafico); // Emite os dados para o modal de gráficos
+}
+
+
+
+
 }

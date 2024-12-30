@@ -26,7 +26,9 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
   private readonly servidorUrl = 'http://200.178.173.133:8043/dados';
   
 ////auxiliares do modal
-
+modalGraficosAberto = false;
+modalHistoricoAberto = false;
+//////////////////////////////
   
     // private readonly servidorUrl = 'http://172.74.0.167:8043/dados';
   @ViewChild('percentageText', { static: false }) percentageText!: ElementRef;
@@ -53,9 +55,6 @@ export class EntradaComponent implements AfterViewInit, OnDestroy {
     uste: []
   };
 
-
-  modalGraficosAberto = false;
-  modalHistoricoAberto = false;
 
 
 
