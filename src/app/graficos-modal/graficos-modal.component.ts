@@ -15,6 +15,12 @@ export class GraficosModalComponent implements OnInit {
 
   @Output() fechar = new EventEmitter<void>();
 
+  private isDragging = false;
+  private startX = 0;
+  private startY = 0;
+  private offsetX = 0;
+  private offsetY = 0;
+
   constructor() {
     Chart.register(...registerables);
   }
@@ -28,6 +34,30 @@ export class GraficosModalComponent implements OnInit {
 
   fecharModal(): void {
     this.fechar.emit();
+  }
+
+  arrastarcomeco(event: MouseEvent): void {
+    this.isDragging = true;
+    this.startX = event.clientX - this.offsetX;
+    this.startY = event.clientY - this.offsetY;
+    const modal = event.target as HTMLElement;
+    modal.classList.add('dragging');
+  }
+
+  arraste(event: MouseEvent): void {
+    if (!this.isDragging) return;
+
+    this.offsetX = event.clientX - this.startX;
+    this.offsetY = event.clientY - this.startY;
+
+    const modal = document.querySelector('.modal-graficos') as HTMLElement;
+    modal.style.transform = `translate(${this.offsetX}px, ${this.offsetY}px)`;
+  }
+
+  parararraste(): void {
+    this.isDragging = false;
+    const modal = document.querySelector('.modal-graficos') as HTMLElement;
+    modal.classList.remove('dragging');
   }
 
   gerarGraficos(): void {
@@ -48,7 +78,7 @@ export class GraficosModalComponent implements OnInit {
           label: valor.nome,
           data: dadosInteiras.map((d) => parseFloat(d.valores[i]?.valor) || 0),
           borderColor: `hsl(${i * 50}, 70%, 50%)`,
-          borderWidth: 1, // Define a espessura da linha como 1px (ajuste conforme necessário)
+          borderWidth: 1, // espessura linha
           fill: false,
           yAxisID: `y${i}`, // Eixos separados
         }));

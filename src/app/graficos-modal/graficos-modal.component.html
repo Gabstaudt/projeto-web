@@ -1,4 +1,7 @@
-<div class="modal-graficos">
+<div class="modal-graficos" 
+     (mousedown)="arrastarcomeco($event)" 
+     (mousemove)="arraste($event)" 
+     (mouseup)="parararraste()">
   <div class="header-graficos">
     <h2>{{ dadosGrafico?.setorNome || 'Nome do Setor Indisponível' }}</h2>
     <button (click)="fecharModal()">X</button>
