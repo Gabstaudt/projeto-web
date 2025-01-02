@@ -26,7 +26,7 @@ export class GraficosModalComponent implements OnInit {
   }
 
   fecharModal(): void {
-    this.fechar.emit(); // Notifica o componente pai para fechar o modal
+    this.fechar.emit();
   }
 
   gerarGraficos(): void {
@@ -35,22 +35,20 @@ export class GraficosModalComponent implements OnInit {
       return;
     }
   
-    // Garantir que dados existam
-    const dadosBooleanas = this.dadosGrafico.dadosBooleanas || [];
-    const dadosInteiras = this.dadosGrafico.dadosInteiras || [];
+    const { dadosInteiras, dadosBooleanas } = this.dadosGrafico;
   
     // Gráfico de Inteiras
     const canvasInteiras = document.getElementById('canvasInteiras') as HTMLCanvasElement | null;
     if (canvasInteiras) {
       const ctx = canvasInteiras.getContext('2d');
-      if (ctx) {
-        const labels = dadosInteiras.map((d) => d.tempo);
-        const datasetsInteiras = dadosInteiras[0]?.valores?.map((valor, i) => ({
+      if (ctx && dadosInteiras.length > 0) {
+        const labels = dadosInteiras.map((d) => d.tempo); // Extrai os tempos como labels
+        const datasetsInteiras = dadosInteiras[0].valores.map((valor, i) => ({
           label: valor.nome,
-          data: dadosInteiras.map((d) => d?.valores?.[i]?.valor ?? 0),
+          data: dadosInteiras.map((d) => parseFloat(d.valores[i]?.valor) || 0), // Extrai valores corretamente
           borderColor: `hsl(${i * 50}, 70%, 50%)`,
           fill: false,
-        })) || [];
+        }));
   
         new Chart(ctx, {
           type: 'line',
@@ -77,6 +75,8 @@ export class GraficosModalComponent implements OnInit {
                   display: true,
                   text: 'Valores',
                 },
+                min: Math.min(...datasetsInteiras.flatMap((ds) => ds.data)), // Calcula o menor valor
+                max: Math.max(...datasetsInteiras.flatMap((ds) => ds.data)), // Calcula o maior valor
               },
             },
           },
@@ -88,14 +88,14 @@ export class GraficosModalComponent implements OnInit {
     const canvasBooleanas = document.getElementById('canvasBooleanas') as HTMLCanvasElement | null;
     if (canvasBooleanas) {
       const ctx = canvasBooleanas.getContext('2d');
-      if (ctx) {
-        const labels = dadosBooleanas.map((d) => d.tempo);
-        const datasetsBooleanas = dadosBooleanas[0]?.valores?.map((valor, i) => ({
+      if (ctx && dadosBooleanas.length > 0) {
+        const labels = dadosBooleanas.map((d) => d.tempo); // Extrai os tempos como labels
+        const datasetsBooleanas = dadosBooleanas[0].valores.map((valor, i) => ({
           label: valor.nome,
-          data: dadosBooleanas.map((d) => (d?.valores?.[i]?.estado === 'Ligado' ? 1 : 0)),
+          data: dadosBooleanas.map((d) => (d.valores[i]?.estado === 'Ligado' ? 1 : 0)), // Processa booleanos
           borderColor: `hsl(${i * 50}, 70%, 50%)`,
           fill: false,
-        })) || [];
+        }));
   
         new Chart(ctx, {
           type: 'line',
@@ -120,16 +120,20 @@ export class GraficosModalComponent implements OnInit {
               y: {
                 title: {
                   display: true,
-                  text: 'Estado (1=Ligado, 0=Desligado)', // Corrija aspas simples e chaves
+                  text: 'Estado (1=Ligado, 0=Desligado)',
                 },
+                min: 0,
+                max: 1,
               },
             },
-          },
-        });
-      }
-    }
-  }
+            },
+            });
+            }
+            }
+            }
+  
+  
+  
 
 
-
-}  
+}
