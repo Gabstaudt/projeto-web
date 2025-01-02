@@ -362,8 +362,8 @@ abrirModalGraficos(): void {
     valores: this.tagsInteirasSelecionadas.map(tagId => {
       const tag = this.tags.find(tag => tag.id === tagId);
       return {
-        nome: tag?.nome || `Tag ${tagId}`,
-        valor: registro[`Tag Inteira ${tagId}`] || 0,
+        nome: tag?.nome || `Tag Inteira ${tagId}`,
+        valor: registro[tag?.nome || `Tag Inteira ${tagId}`] || 0, // Mapeia o valor
       };
     }),
   }));
@@ -373,8 +373,8 @@ abrirModalGraficos(): void {
     valores: this.tagsBooleanasSelecionadas.map(tagId => {
       const tag = this.tags.find(tag => tag.id === tagId);
       return {
-        nome: tag?.nome || `Tag ${tagId}`,
-        estado: registro[`Tag Booleana ${tagId}`] === 'Ligado' ? 'Ligado' : 'Desligado',
+        nome: tag?.nome || `Tag Booleana ${tagId}`,
+        estado: registro[tag?.nome || `Tag Booleana ${tagId}`] === 'Ligado' ? 'Ligado' : 'Desligado',
       };
     }),
   }));
@@ -384,8 +384,9 @@ abrirModalGraficos(): void {
   this.entradaService.setDadosGrafico(dadosGrafico);
   console.log('Dados enviados para o modal de gráficos:', dadosGrafico);
 
-  this.entradaService.abrirModalGraficos(); // Notifica abertura do modal gráfico
+  this.entradaService.abrirModalGraficos(); // Abre o modal gráfico
 }
+
 
 
 

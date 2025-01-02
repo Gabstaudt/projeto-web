@@ -9,8 +9,8 @@ import { Chart, registerables } from 'chart.js';
 export class GraficosModalComponent implements OnInit {
   @Input() dadosGrafico: {
     setorNome: string | null;
-    dadosInteiras: { tempo: any; valores: { nome: string; valor: any }[] }[];
-    dadosBooleanas: { tempo: any; valores: { nome: string; estado: any }[] }[];
+    dadosInteiras: { tempo: string; valores: { nome: string; valor: any }[] }[];
+    dadosBooleanas: { tempo: string; valores: { nome: string; estado: any }[] }[];
   } | null = null;
 
   @Output() fechar = new EventEmitter<void>();
@@ -21,6 +21,7 @@ export class GraficosModalComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.dadosGrafico) {
+      console.log('Dados recebidos no componente gráfico:', this.dadosGrafico);
       this.gerarGraficos();
     }
   }
@@ -42,12 +43,27 @@ export class GraficosModalComponent implements OnInit {
     if (canvasInteiras) {
       const ctx = canvasInteiras.getContext('2d');
       if (ctx && dadosInteiras.length > 0) {
-        const labels = dadosInteiras.map((d) => d.tempo); // Extrai os tempos como labels
+        const labels = dadosInteiras.map((d) => d.tempo);
         const datasetsInteiras = dadosInteiras[0].valores.map((valor, i) => ({
           label: valor.nome,
-          data: dadosInteiras.map((d) => parseFloat(d.valores[i]?.valor) || 0), // Extrai valores corretamente
+          data: dadosInteiras.map((d) => parseFloat(d.valores[i]?.valor) || 0),
           borderColor: `hsl(${i * 50}, 70%, 50%)`,
           fill: false,
+          yAxisID: `y${i}`, // Eixos separados
+        }));
+  
+        const yAxes = datasetsInteiras.map((ds, i) => ({
+          id: `y${i}`,
+          type: 'linear' as const,
+          position: i % 2 === 0 ? 'left' : 'right',
+          title: {
+            display: true,
+            text: ds.label,
+          },
+          ticks: {
+            suggestedMin: Math.min(...ds.data),
+            suggestedMax: Math.max(...ds.data),
+          },
         }));
   
         new Chart(ctx, {
@@ -70,14 +86,7 @@ export class GraficosModalComponent implements OnInit {
                   text: 'Tempo',
                 },
               },
-              y: {
-                title: {
-                  display: true,
-                  text: 'Valores',
-                },
-                min: Math.min(...datasetsInteiras.flatMap((ds) => ds.data)), // Calcula o menor valor
-                max: Math.max(...datasetsInteiras.flatMap((ds) => ds.data)), // Calcula o maior valor
-              },
+              ...Object.fromEntries(yAxes.map((axis) => [axis.id, axis])),
             },
           },
         });
@@ -89,10 +98,10 @@ export class GraficosModalComponent implements OnInit {
     if (canvasBooleanas) {
       const ctx = canvasBooleanas.getContext('2d');
       if (ctx && dadosBooleanas.length > 0) {
-        const labels = dadosBooleanas.map((d) => d.tempo); // Extrai os tempos como labels
+        const labels = dadosBooleanas.map((d) => d.tempo);
         const datasetsBooleanas = dadosBooleanas[0].valores.map((valor, i) => ({
           label: valor.nome,
-          data: dadosBooleanas.map((d) => (d.valores[i]?.estado === 'Ligado' ? 1 : 0)), // Processa booleanos
+          data: dadosBooleanas.map((d) => (d.valores[i]?.estado === 'Ligado' ? 1 : 0)),
           borderColor: `hsl(${i * 50}, 70%, 50%)`,
           fill: false,
         }));
@@ -126,14 +135,9 @@ export class GraficosModalComponent implements OnInit {
                 max: 1,
               },
             },
-            },
-            });
-            }
-            }
-            }
-  
-  
-  
-
-
-}
+          },
+        });
+      }
+    }
+  }
+}  
