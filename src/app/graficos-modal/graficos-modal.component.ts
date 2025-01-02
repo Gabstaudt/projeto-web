@@ -48,6 +48,7 @@ export class GraficosModalComponent implements OnInit {
           label: valor.nome,
           data: dadosInteiras.map((d) => parseFloat(d.valores[i]?.valor) || 0),
           borderColor: `hsl(${i * 50}, 70%, 50%)`,
+          borderWidth: 1, // Define a espessura da linha como 1px (ajuste conforme necessário)
           fill: false,
           yAxisID: `y${i}`, // Eixos separados
         }));
@@ -103,6 +104,7 @@ export class GraficosModalComponent implements OnInit {
           label: valor.nome,
           data: dadosBooleanas.map((d) => (d.valores[i]?.estado === 'Ligado' ? 1 : 0)),
           borderColor: `hsl(${i * 50}, 70%, 50%)`,
+          borderWidth: 1, // Define a espessura da linha como 1px (ajuste conforme necessário)
           fill: false,
         }));
   
