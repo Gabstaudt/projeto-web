@@ -74,6 +74,10 @@
     <!-- Tags -->
     <fieldset>
       <legend>Tags</legend>
+      <div class="botoes-selecao">
+        <button (click)="selecionarTodasTags()">Selecionar Todas</button>
+        <button (click)="desmarcarTodasTags()">Desmarcar Todas</button>
+      </div>
       <div class="tags-container">
         <div class="tag-item" *ngFor="let tag of tags">
           <label>

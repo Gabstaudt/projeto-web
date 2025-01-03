@@ -24,7 +24,8 @@ export class HistoricoModalComponent implements OnInit {
     dadosBooleanas: { tempo: any; valores: { nome: string; estado: any }[] }[];
   }>();
 
-  
+  limiteTagsInteirasAtingido: boolean = false; // Adiciona a propriedade com valor inicial
+
   erroMensagem: string | null = null;
 
   tags: Tag[] = []; // Tags do setor selecionado
@@ -402,6 +403,35 @@ abrirModalGraficos(): void {
 
 
 
+selecionarTodasTags(): void {
+  this.tagsSelecionadas = [];
+  this.erroMensagem = null;
+
+  let contadorInteiras = 0;
+
+  this.tags.forEach(tag => {
+    if (tag.tipo !== 0) {
+      // Adiciona tags inteiras até o limite de 6
+      if (contadorInteiras < 6) {
+        this.tagsSelecionadas.push(tag);
+        contadorInteiras++;
+      }
+    } else {
+      // Adiciona todas as tags booleanas
+      this.tagsSelecionadas.push(tag);
+    }
+  });
+
+  this.separarTagsSelecionadas();
+  this.limiteTagsInteirasAtingido = contadorInteiras >= 6;
+}
+
+desmarcarTodasTags(): void {
+  this.tagsSelecionadas = [];
+  this.separarTagsSelecionadas();
+  this.erroMensagem = null;
+  this.limiteTagsInteirasAtingido = false;
+}
 
 
 
