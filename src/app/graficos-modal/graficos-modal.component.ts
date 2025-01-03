@@ -70,7 +70,7 @@ export class GraficosModalComponent implements OnInit {
             label: valor.nome,
             data,
             borderColor: `hsl(${i * 50}, 70%, 50%)`,
-            borderWidth: 1, // Define linhas finas
+            borderWidth: 2, // Define linhas finas
             pointRadius: 0, // Remove pontos
             fill: false,
             yAxisID: `y${i}`, // Eixos separados para cada conjunto de dados
@@ -112,7 +112,9 @@ export class GraficosModalComponent implements OnInit {
                 },
                 ticks: {
                   autoSkip: true, // Reduz a densidade dos rótulos
-                  maxTicksLimit: 10, // Limita o número de rótulos exibidos no eixo X
+                  maxTicksLimit: Math.min(15, labels.length), // Ajusta o número de rótulos com base na quantidade de dados
+                  maxRotation: 45, // Rotaciona os rótulos para evitar sobreposição
+                  minRotation: 0,
                 },
               },
               ...Object.fromEntries(yAxes.map((axis) => [axis.id, axis])),
@@ -164,7 +166,9 @@ export class GraficosModalComponent implements OnInit {
                 },
                 ticks: {
                   autoSkip: true,
-                  maxTicksLimit: 10,
+                  maxTicksLimit: Math.min(15, labels.length), 
+                  maxRotation: 45,
+                  minRotation: 0,
                 },
               },
               y: {

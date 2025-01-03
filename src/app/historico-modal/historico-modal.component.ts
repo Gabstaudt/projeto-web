@@ -25,6 +25,7 @@ export class HistoricoModalComponent implements OnInit {
   }>();
 
   
+  erroMensagem: string | null = null;
 
   tags: Tag[] = []; // Tags do setor selecionado
   setores: Setor[] = [];
@@ -186,17 +187,28 @@ export class HistoricoModalComponent implements OnInit {
   
 
   // Alterna a seleção de tags
-  toggleTagSelection(tag: Tag) {
+  toggleTagSelection(tag: Tag): void {
     const index = this.tagsSelecionadas.findIndex(t => t.id === tag.id);
+  
     if (index === -1) {
+      // Verifique se a tag é inteira e se o limite foi atingido
+      if (tag.tipo !== 0 && this.tagsInteirasSelecionadas.length >= 6) {
+        this.erroMensagem = 'Você só pode selecionar até 6 tags inteiras.';
+        return;
+      }
+  
       this.tagsSelecionadas.push(tag); // Adiciona a tag selecionada
+      this.erroMensagem = null; // Limpa a mensagem de erro, se existir
     } else {
       this.tagsSelecionadas.splice(index, 1); // Remove a tag selecionada
+      this.erroMensagem = null; // Limpa a mensagem de erro, se existir
     }
   
     this.separarTagsSelecionadas(); // Atualiza a separação de inteiras/booleanas
     console.log('Tags Selecionadas:', this.tagsSelecionadas);
   }
+  
+  
   
   
   separarTagsSelecionadas() {
