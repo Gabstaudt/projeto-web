@@ -1,16 +1,18 @@
-<div class="modal-graficos" 
+<div class="modal-container" id="modal-container"
      (mousedown)="arrastarcomeco($event)" 
      (mousemove)="arraste($event)" 
      (mouseup)="parararraste()">
-  <div class="header-graficos">
+  <div class="modal-header">
     <h2>{{ dadosGrafico?.setorNome || 'Nome do Setor Indisponível' }}</h2>
-    <button (click)="fecharModal()">X</button>
+    <button class="close-button" (click)="fecharModal()">X</button>
   </div>
-  <div class="body-graficos">
+  <div class="modal-body">
     <h3>Gráfico de Tags Inteiras</h3>
     <canvas id="canvasInteiras"></canvas>
 
     <h3>Gráfico de Tags Booleanas</h3>
     <canvas id="canvasBooleanas"></canvas>
   </div>
+  <div class="resize-handle" id="resize-handle"
+       (mousedown)="comecarRedimensionar($event)"></div>
 </div>

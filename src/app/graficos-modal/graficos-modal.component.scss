@@ -1,46 +1,75 @@
-.modal-graficos {
+.modal-container {
   position: fixed;
-  top: 25%;
-  left: 35%;
-  width: 500px;
-  background: white;
-  border: 1px solid #ccc;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  top: 20%;
+  left: 30%;
+  width: 600px; /* Tamanho inicial do modal */
+  height: 500px; /* Altura inicial */
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
   border-radius: 10px;
   z-index: 1100;
-  transform: translate(0, 0);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Evita que elementos internos transbordem */
 }
 
-.header-graficos {
+.modal-header {
+  background: #09041D; /* Cor da barra do título */
+  padding: 10px 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f4f4f4;
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-  cursor: move; /* Indica que é uma área arrastável */
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+  cursor: move; /* Indica que o cabeçalho pode ser arrastado */
 }
 
-.header-graficos h2 {
+.modal-header h2 {
   margin: 0;
-  font-size: 16px;
-  color: #333;
 }
 
-.header-graficos button {
-  background: #ff4d4d;
+.close-button {
+  background: transparent;
   border: none;
-  color: white;
-  border-radius: 5px;
-  padding: 5px 10px;
+  color: #7e9cff;
+  font-size: 20px;
+  font-weight: bold;
   cursor: pointer;
 }
 
-.header-graficos button:hover {
-  background: #ff0000;
+.close-button:hover {
+  color: #ffffff; /* Cor ao passar o mouse */
 }
 
-.body-graficos {
+.modal-body {
+  flex: 1;
   padding: 20px;
-  overflow: auto;
+  overflow-y: auto; /* Rolagem caso o conteúdo seja maior que o modal */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+canvas {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.resize-handle {
+  width: 15px;
+  height: 15px;
+  background: #09041D ;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+  border-radius: 0 0 10px 0; /* Canto arredondado */
+}
+
+.resize-handle:hover {
+  background: #09041D; /* Cor mais escura ao passar o mouse */
 }

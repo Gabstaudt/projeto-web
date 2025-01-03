@@ -16,10 +16,15 @@ export class GraficosModalComponent implements OnInit {
   @Output() fechar = new EventEmitter<void>();
 
   private isDragging = false;
+  private isResizing = false;
   private startX = 0;
   private startY = 0;
   private offsetX = 0;
   private offsetY = 0;
+  private initialWidth = 0;
+  private initialHeight = 0;
+  private initialMouseX = 0;
+  private initialMouseY = 0;
 
   constructor() {
     Chart.register(...registerables);
@@ -36,29 +41,6 @@ export class GraficosModalComponent implements OnInit {
     this.fechar.emit();
   }
 
-  arrastarcomeco(event: MouseEvent): void {
-    this.isDragging = true;
-    this.startX = event.clientX - this.offsetX;
-    this.startY = event.clientY - this.offsetY;
-    const modal = event.target as HTMLElement;
-    modal.classList.add('dragging');
-  }
-
-  arraste(event: MouseEvent): void {
-    if (!this.isDragging) return;
-
-    this.offsetX = event.clientX - this.startX;
-    this.offsetY = event.clientY - this.startY;
-
-    const modal = document.querySelector('.modal-graficos') as HTMLElement;
-    modal.style.transform = `translate(${this.offsetX}px, ${this.offsetY}px)`;
-  }
-
-  parararraste(): void {
-    this.isDragging = false;
-    const modal = document.querySelector('.modal-graficos') as HTMLElement;
-    modal.classList.remove('dragging');
-  }
 
   gerarGraficos(): void {
     if (!this.dadosGrafico) {
@@ -78,7 +60,7 @@ export class GraficosModalComponent implements OnInit {
           label: valor.nome,
           data: dadosInteiras.map((d) => parseFloat(d.valores[i]?.valor) || 0),
           borderColor: `hsl(${i * 50}, 70%, 50%)`,
-          borderWidth: 1, // espessura linha
+          borderWidth: 0.5, // espessura linha
           fill: false,
           yAxisID: `y${i}`, // Eixos separados
         }));
@@ -172,4 +154,80 @@ export class GraficosModalComponent implements OnInit {
       }
     }
   }
-}  
+
+  arrastarcomeco(event: MouseEvent): void {
+    if (this.isResizing) return; // Bloqueia arraste se estiver redimensionando
+    this.isDragging = true;
+    this.startX = event.clientX - this.offsetX;
+    this.startY = event.clientY - this.offsetY;
+
+    document.addEventListener('mousemove', this.arraste);
+    document.addEventListener('mouseup', this.parararraste);
+  }
+
+  arraste = (event: MouseEvent): void => {
+    if (!this.isDragging) return;
+
+    this.offsetX = event.clientX - this.startX;
+    this.offsetY = event.clientY - this.startY;
+
+    const modal = document.getElementById('modal-container')!;
+    modal.style.transform = `translate(${this.offsetX}px, ${this.offsetY}px)`;
+  };
+
+  parararraste = (): void => {
+    this.isDragging = false;
+    document.removeEventListener('mousemove', this.arraste);
+    document.removeEventListener('mouseup', this.parararraste);
+  };
+
+  comecarRedimensionar(event: MouseEvent): void {
+    if (this.isDragging) return; // Bloqueia redimensionamento se estiver arrastando
+    this.isResizing = true;
+    const modal = document.getElementById('modal-container')!;
+    this.initialWidth = modal.offsetWidth;
+    this.initialHeight = modal.offsetHeight;
+    this.initialMouseX = event.clientX;
+    this.initialMouseY = event.clientY;
+
+    document.addEventListener('mousemove', this.redimensionar);
+    document.addEventListener('mouseup', this.pararRedimensionar);
+  }
+
+  redimensionar = (event: MouseEvent): void => {
+    if (!this.isResizing) return;
+
+    const deltaX = event.clientX - this.initialMouseX;
+    const deltaY = event.clientY - this.initialMouseY;
+
+    const modal = document.getElementById('modal-container')!;
+    modal.style.width = `${this.initialWidth + deltaX}px`;
+    modal.style.height = `${this.initialHeight + deltaY}px`;
+
+    this.atualizarTamanhoGraficos();
+  };
+
+  pararRedimensionar = (): void => {
+    this.isResizing = false;
+    document.removeEventListener('mousemove', this.redimensionar);
+    document.removeEventListener('mouseup', this.pararRedimensionar);
+  };
+
+  atualizarTamanhoGraficos(): void {
+    const canvasInteiras = document.getElementById('canvasInteiras') as HTMLCanvasElement;
+    const canvasBooleanas = document.getElementById('canvasBooleanas') as HTMLCanvasElement;
+
+    if (canvasInteiras) {
+      canvasInteiras.width = canvasInteiras.offsetWidth;
+      canvasInteiras.height = canvasInteiras.offsetHeight;
+    }
+
+    if (canvasBooleanas) {
+      canvasBooleanas.width = canvasBooleanas.offsetWidth;
+      canvasBooleanas.height = canvasBooleanas.offsetHeight;
+    }
+  }
+
+}
+  
+  
