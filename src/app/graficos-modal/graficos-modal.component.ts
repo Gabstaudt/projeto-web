@@ -15,16 +15,16 @@ export class GraficosModalComponent implements OnInit {
 
   @Output() fechar = new EventEmitter<void>();
 
-  private isDragging = false;
-  private isResizing = false;
-  private startX = 0;
-  private startY = 0;
-  private offsetX = 0;
-  private offsetY = 0;
-  private initialWidth = 0;
-  private initialHeight = 0;
-  private initialMouseX = 0;
-  private initialMouseY = 0;
+  private isArrastando = false;
+  private isRedimensionando = false;
+  private inicioX = 0;
+  private inicioY = 0;
+  private deslocamentoX = 0;
+  private deslocamentoY = 0;
+  private larguraInicial = 0;
+  private alturaInicial = 0;
+  private mouseInicialX = 0;
+  private mouseInicialY = 0;
 
   constructor() {
     Chart.register(...registerables);
@@ -156,60 +156,60 @@ export class GraficosModalComponent implements OnInit {
   }
 
   arrastarcomeco(event: MouseEvent): void {
-    if (this.isResizing) return; // Bloqueia arraste se estiver redimensionando
-    this.isDragging = true;
-    this.startX = event.clientX - this.offsetX;
-    this.startY = event.clientY - this.offsetY;
+    if (this.isRedimensionando) return; 
+    this.isArrastando = true;
+    this.inicioX = event.clientX - this.deslocamentoX;
+    this.inicioY = event.clientY - this.deslocamentoY;
 
     document.addEventListener('mousemove', this.arraste);
     document.addEventListener('mouseup', this.parararraste);
   }
 
   arraste = (event: MouseEvent): void => {
-    if (!this.isDragging) return;
+    if (!this.isArrastando) return;
 
-    this.offsetX = event.clientX - this.startX;
-    this.offsetY = event.clientY - this.startY;
+    this.deslocamentoX = event.clientX - this.inicioX;
+    this.deslocamentoY = event.clientY - this.inicioY;
 
     const modal = document.getElementById('modal-container')!;
-    modal.style.transform = `translate(${this.offsetX}px, ${this.offsetY}px)`;
+    modal.style.transform = `translate(${this.deslocamentoX}px, ${this.deslocamentoY}px)`;;
   };
 
   parararraste = (): void => {
-    this.isDragging = false;
+    this.isArrastando = false;
     document.removeEventListener('mousemove', this.arraste);
     document.removeEventListener('mouseup', this.parararraste);
   };
 
   comecarRedimensionar(event: MouseEvent): void {
-    if (this.isDragging) return; // Bloqueia redimensionamento se estiver arrastando
-    this.isResizing = true;
+    if (this.isArrastando) return; 
+    this.isRedimensionando = true;
     const modal = document.getElementById('modal-container')!;
-    this.initialWidth = modal.offsetWidth;
-    this.initialHeight = modal.offsetHeight;
-    this.initialMouseX = event.clientX;
-    this.initialMouseY = event.clientY;
+    this.larguraInicial = modal.offsetWidth;
+    this.alturaInicial = modal.offsetHeight;
+    this.mouseInicialX = event.clientX;
+    this.mouseInicialY = event.clientY;
 
     document.addEventListener('mousemove', this.redimensionar);
     document.addEventListener('mouseup', this.pararRedimensionar);
   }
 
   redimensionar = (event: MouseEvent): void => {
-    if (!this.isResizing) return;
+    if (!this.isRedimensionando) return;
 
-    const deltaX = event.clientX - this.initialMouseX;
-    const deltaY = event.clientY - this.initialMouseY;
+    const deltaX = event.clientX - this.mouseInicialX;
+    const deltaY = event.clientY - this.mouseInicialY;
 
     const modal = document.getElementById('modal-container')!;
-    modal.style.width = `${this.initialWidth + deltaX}px`;
-    modal.style.height = `${this.initialHeight + deltaY}px`;
+    modal.style.width = `${this.larguraInicial + deltaX}px`;
+    modal.style.height = `${this.alturaInicial + deltaY}px`;
 
     this.atualizarTamanhoGraficos();
   };
 
   pararRedimensionar = (): void => {
-    this.isResizing = false;
-    document.removeEventListener('mousemove', this.redimensionar);
+    this.isRedimensionando = false;
+        document.removeEventListener('mousemove', this.redimensionar);
     document.removeEventListener('mouseup', this.pararRedimensionar);
   };
 
