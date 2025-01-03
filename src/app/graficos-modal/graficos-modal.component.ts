@@ -50,32 +50,44 @@ export class GraficosModalComponent implements OnInit {
   
     const { dadosInteiras, dadosBooleanas } = this.dadosGrafico;
   
+    console.log('Dados recebidos para inteiras:', dadosInteiras);
+    console.log('Dados recebidos para booleanas:', dadosBooleanas);
+  
     // Gráfico de Inteiras
     const canvasInteiras = document.getElementById('canvasInteiras') as HTMLCanvasElement | null;
     if (canvasInteiras) {
       const ctx = canvasInteiras.getContext('2d');
       if (ctx && dadosInteiras.length > 0) {
-        const labels = dadosInteiras.map((d) => d.tempo);
-        const datasetsInteiras = dadosInteiras[0].valores.map((valor, i) => ({
-          label: valor.nome,
-          data: dadosInteiras.map((d) => parseFloat(d.valores[i]?.valor) || 0),
-          borderColor: `hsl(${i * 50}, 70%, 50%)`,
-          borderWidth: 0.5, // espessura linha
-          fill: false,
-          yAxisID: `y${i}`, // Eixos separados
-        }));
+        const labels = dadosInteiras.map((d) => d.tempo); // Rótulos do eixo X (tempo)
+  
+        const datasetsInteiras = dadosInteiras[0].valores.map((valor, i) => {
+          const data = dadosInteiras.map((d) =>
+            d.valores[i]?.valor ? parseFloat(d.valores[i].valor.replace(',', '.')) : null // Converte para número
+          );
+          console.log(`Dataset Inteiras (${valor.nome}):`, data);
+  
+          return {
+            label: valor.nome,
+            data,
+            borderColor: `hsl(${i * 50}, 70%, 50%)`,
+            borderWidth: 1, // Define linhas finas
+            pointRadius: 0, // Remove pontos
+            fill: false,
+            yAxisID: `y${i}`, // Eixos separados para cada conjunto de dados
+          };
+        });
   
         const yAxes = datasetsInteiras.map((ds, i) => ({
           id: `y${i}`,
           type: 'linear' as const,
-          position: i % 2 === 0 ? 'left' : 'right',
+          position: i % 2 === 0 ? 'left' : 'right', // Alterna entre esquerda e direita
           title: {
             display: true,
             text: ds.label,
           },
           ticks: {
-            suggestedMin: Math.min(...ds.data),
-            suggestedMax: Math.max(...ds.data),
+            suggestedMin: Math.min(...(ds.data.filter((v) => v !== null) as number[])), // Valores válidos
+            suggestedMax: Math.max(...(ds.data.filter((v) => v !== null) as number[])),
           },
         }));
   
@@ -98,6 +110,10 @@ export class GraficosModalComponent implements OnInit {
                   display: true,
                   text: 'Tempo',
                 },
+                ticks: {
+                  autoSkip: true, // Reduz a densidade dos rótulos
+                  maxTicksLimit: 10, // Limita o número de rótulos exibidos no eixo X
+                },
               },
               ...Object.fromEntries(yAxes.map((axis) => [axis.id, axis])),
             },
@@ -111,14 +127,21 @@ export class GraficosModalComponent implements OnInit {
     if (canvasBooleanas) {
       const ctx = canvasBooleanas.getContext('2d');
       if (ctx && dadosBooleanas.length > 0) {
-        const labels = dadosBooleanas.map((d) => d.tempo);
-        const datasetsBooleanas = dadosBooleanas[0].valores.map((valor, i) => ({
-          label: valor.nome,
-          data: dadosBooleanas.map((d) => (d.valores[i]?.estado === 'Ligado' ? 1 : 0)),
-          borderColor: `hsl(${i * 50}, 70%, 50%)`,
-          borderWidth: 1, // Define a espessura da linha como 1px (ajuste conforme necessário)
-          fill: false,
-        }));
+        const labels = dadosBooleanas.map((d) => d.tempo); // Rótulos do eixo X (tempo)
+  
+        const datasetsBooleanas = dadosBooleanas[0].valores.map((valor, i) => {
+          const data = dadosBooleanas.map((d) => (d.valores[i]?.estado === 'Ligado' ? 1 : 0));
+          console.log(`Dataset Booleanas (${valor.nome}):`, data);
+  
+          return {
+            label: valor.nome,
+            data,
+            borderColor: `hsl(${i * 50}, 70%, 50%)`,
+            borderWidth: 1, // Define linhas finas
+            pointRadius: 0, // Remove pontos
+            fill: false,
+          };
+        });
   
         new Chart(ctx, {
           type: 'line',
@@ -139,6 +162,10 @@ export class GraficosModalComponent implements OnInit {
                   display: true,
                   text: 'Tempo',
                 },
+                ticks: {
+                  autoSkip: true,
+                  maxTicksLimit: 10,
+                },
               },
               y: {
                 title: {
@@ -147,6 +174,8 @@ export class GraficosModalComponent implements OnInit {
                 },
                 min: 0,
                 max: 1,
+           
+  
               },
             },
           },
@@ -154,7 +183,9 @@ export class GraficosModalComponent implements OnInit {
       }
     }
   }
-
+  
+  
+  
   arrastarcomeco(event: MouseEvent): void {
     if (this.isRedimensionando) return; 
     this.isArrastando = true;

@@ -363,7 +363,7 @@ abrirModalGraficos(): void {
       const tag = this.tags.find(tag => tag.id === tagId);
       return {
         nome: tag?.nome || `Tag Inteira ${tagId}`,
-        valor: registro[tag?.nome || `Tag Inteira ${tagId}`] || 0, // Mapeia o valor
+        valor: registro[tag?.nome || `Tag Inteira ${tagId}`], // Passa o valor diretamente sem arredondar
       };
     }),
   }));
@@ -386,6 +386,8 @@ abrirModalGraficos(): void {
 
   this.entradaService.abrirModalGraficos(); // Abre o modal gráfico
 }
+
+
 
 
 
