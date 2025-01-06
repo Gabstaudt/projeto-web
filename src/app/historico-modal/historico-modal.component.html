@@ -70,7 +70,10 @@
     </div>
     
     
-
+    <div *ngIf="isCarregando" class="carregando-overlay">
+      <div class="spinner"></div>
+    </div>
+    
     <!-- Tags -->
     <fieldset>
       <legend>Tags</legend>

@@ -62,6 +62,7 @@ export class HistoricoModalComponent implements OnInit {
   ];
   mostrarModalMes = false;
 
+  isCarregando: boolean = false; // Estado de carregamento
 
   setorSelecionado: any;
   intervalo: { inicio: string; fim: string } = { inicio: '', fim: '' };
@@ -166,27 +167,34 @@ export class HistoricoModalComponent implements OnInit {
     console.log('Tags Inteiras Selecionadas:', this.tagsInteirasSelecionadas);
     console.log('Tags Booleanas Selecionadas:', this.tagsBooleanasSelecionadas);
   
-    this.historicoService
-    .fazerRequisicaoHistorico(
-      idSessao,
-      this.setorId,
-      dataInicioMs,
-      dataFimMs,
-      this.tagsInteirasSelecionadas,
-      this.tagsBooleanasSelecionadas
-    )
-    .subscribe({
-      next: (data) => {
-        this.dadosHistorico = data;
-        this.mapearIdsParaNomes(); // Substitui os IDs pelos nomes
-        console.log('Histórico final processado:', this.dadosHistorico);
-      },
-      error: (err) => {
-        console.error('Erro ao consultar histórico:', err);
-      },
-    });
+    // Iniciar estado de carregamento
+    this.isCarregando = true;
   
+    this.historicoService
+      .fazerRequisicaoHistorico(
+        idSessao,
+        this.setorId,
+        dataInicioMs,
+        dataFimMs,
+        this.tagsInteirasSelecionadas,
+        this.tagsBooleanasSelecionadas
+      )
+      .subscribe({
+        next: (data) => {
+          this.dadosHistorico = data;
+          this.mapearIdsParaNomes(); // Substitui os IDs pelos nomes
+          console.log('Histórico final processado:', this.dadosHistorico);
+        },
+        error: (err) => {
+          console.error('Erro ao consultar histórico:', err);
+        },
+        complete: () => {
+          // Finalizar estado de carregamento
+          this.isCarregando = false;
+        },
+      });
   }
+  
   
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   isTagSelecionada(tagId: number): boolean {
