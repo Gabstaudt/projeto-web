@@ -60,18 +60,18 @@ export class GraficosModalComponent implements OnInit {
       if (ctx && dadosInteiras.length > 0) {
         const labels = dadosInteiras.map((d) => {
           if (/\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/.test(d.tempo)) {
-            // Extrai apenas a hora no formato hh:mm
+            
             return d.tempo.split(' ')[1].substring(0, 5);
           } else {
             console.warn('Formato inesperado no campo tempo:', d.tempo);
-            return d.tempo; // Fallback para o valor original
+            return d.tempo; 
           }
         });
         
     
         const datasetsInteiras = dadosInteiras[0].valores.map((valor, i) => {
           const data = dadosInteiras.map((d) =>
-            d.valores[i]?.valor ? parseFloat(d.valores[i].valor.replace(',', '.')) : null // Converte para número
+            d.valores[i]?.valor ? parseFloat(d.valores[i].valor.replace(',', '.')) : null 
           );
           console.log(`Dataset Inteiras (${valor.nome}):`, data);
     
@@ -79,23 +79,23 @@ export class GraficosModalComponent implements OnInit {
             label: valor.nome,
             data,
             borderColor: `hsl(${i * 50}, 70%, 50%)`,
-            borderWidth: 2, // Define linhas finas
-            pointRadius: 0, // Remove pontos
+            borderWidth: 2, 
+            pointRadius: 0, 
             fill: false,
-            yAxisID: `y${i}`, // Eixos separados para cada conjunto de dados
+            yAxisID: `y${i}`, 
           };
         });
     
         const yAxes = datasetsInteiras.map((ds, i) => ({
           id: `y${i}`,
           type: 'linear' as const,
-          position: i % 2 === 0 ? 'left' : 'right', // Alterna entre esquerda e direita
+          position: i % 2 === 0 ? 'left' : 'right', 
           title: {
             display: true,
             text: ds.label,
           },
           ticks: {
-            suggestedMin: Math.min(...(ds.data.filter((v) => v !== null) as number[])), // Valores válidos
+            suggestedMin: Math.min(...(ds.data.filter((v) => v !== null) as number[])), 
             suggestedMax: Math.max(...(ds.data.filter((v) => v !== null) as number[])),
           },
         }));
@@ -120,9 +120,9 @@ export class GraficosModalComponent implements OnInit {
                   text: 'Hora',
                 },
                 ticks: {
-                  autoSkip: true, // Reduz a densidade dos rótulos
-                  maxTicksLimit: Math.min(15, labels.length), // Ajusta o número de rótulos com base na quantidade de dados
-                  maxRotation: 45, // Rotaciona os rótulos para evitar sobreposição
+                  autoSkip: true, 
+                  maxTicksLimit: Math.min(15, labels.length), 
+                  maxRotation: 45, 
                   minRotation: 0,
                 },
               },
@@ -134,7 +134,7 @@ export class GraficosModalComponent implements OnInit {
     }
     
   
-    // Gráfico de Booleanas
+   
     // Gráfico de Booleanas
 const canvasBooleanas = document.getElementById('canvasBooleanas') as HTMLCanvasElement | null;
 if (canvasBooleanas) {
@@ -143,10 +143,10 @@ if (canvasBooleanas) {
     // Rótulos do eixo X (tempo)
     const labels = dadosBooleanas.map((d) => {
       if (/\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/.test(d.tempo)) {
-        return d.tempo.split(' ')[1].substring(0, 5); // Extrai a hora no formato hh:mm
+        return d.tempo.split(' ')[1].substring(0, 5); 
       } else {
         console.warn('Formato inesperado no campo tempo (booleanas):', d.tempo);
-        return d.tempo; // Fallback para o valor original
+        return d.tempo;
       }
     });
 
@@ -158,8 +158,8 @@ if (canvasBooleanas) {
         label: valor.nome,
         data,
         borderColor: `hsl(${i * 50}, 70%, 50%)`,
-        borderWidth: 2, // Define linhas finas
-        pointRadius: 0, // Remove pontos
+        borderWidth: 2, 
+        pointRadius: 0, 
         fill: false,
       };
     });
@@ -196,10 +196,10 @@ if (canvasBooleanas) {
               text: 'Tags Booleanas',
             },
             ticks: {
-              stepSize: 1, // Garante que os valores no eixo Y sejam incrementados em 1
+              stepSize: 1, 
             },
             min: 0,
-            max: datasetsBooleanas.length, // O número de tags define o máximo do eixo Y
+            max: datasetsBooleanas.length, 
           },
         },
       },

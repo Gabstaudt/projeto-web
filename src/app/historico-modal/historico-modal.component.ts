@@ -24,13 +24,13 @@ export class HistoricoModalComponent implements OnInit {
     dadosBooleanas: { tempo: any; valores: { nome: string; estado: any }[] }[];
   }>();
 
-  limiteTagsInteirasAtingido: boolean = false; // Adiciona a propriedade com valor inicial
+  limiteTagsInteirasAtingido: boolean = false; 
 
   erroMensagem: string | null = null;
 
-  tags: Tag[] = []; // Tags do setor selecionado
+  tags: Tag[] = []; 
   setores: Setor[] = [];
-  selectedTags: number[] = []; // IDs das tags selecionadas
+  selectedTags: number[] = []; 
 
   periodoSelecionado: string = 'dia';
   horaInicio: string = '00:00';
@@ -45,7 +45,7 @@ export class HistoricoModalComponent implements OnInit {
   dadosHistorico: any[] = [];
 
 
-  filtroSetor: string = ''; // Texto para filtragem
+  filtroSetor: string = ''; 
   meses = [
     { nome: 'Janeiro', numero: 1 },
     { nome: 'Fevereiro', numero: 2 },
@@ -62,7 +62,7 @@ export class HistoricoModalComponent implements OnInit {
   ];
   mostrarModalMes = false;
 
-  isCarregando: boolean = false; // Estado de carregamento
+  isCarregando: boolean = false; 
 
   setorSelecionado: any;
   intervalo: { inicio: string; fim: string } = { inicio: '', fim: '' };
@@ -208,20 +208,19 @@ export class HistoricoModalComponent implements OnInit {
     const index = this.tagsSelecionadas.findIndex(t => t.id === tag.id);
   
     if (index === -1) {
-      // Verifique se a tag é inteira e se o limite foi atingido
       if (tag.tipo !== 0 && this.tagsInteirasSelecionadas.length >= 6) {
         this.erroMensagem = 'Você só pode selecionar até 6 tags inteiras.';
         return;
       }
   
-      this.tagsSelecionadas.push(tag); // Adiciona a tag selecionada
-      this.erroMensagem = null; // Limpa a mensagem de erro, se existir
+      this.tagsSelecionadas.push(tag); 
+      this.erroMensagem = null; 
     } else {
-      this.tagsSelecionadas.splice(index, 1); // Remove a tag selecionada
-      this.erroMensagem = null; // Limpa a mensagem de erro, se existir
+      this.tagsSelecionadas.splice(index, 1); 
+      this.erroMensagem = null; 
     }
   
-    this.separarTagsSelecionadas(); // Atualiza a separação de inteiras/booleanas
+    this.separarTagsSelecionadas(); 
     console.log('Tags Selecionadas:', this.tagsSelecionadas);
   }
   
@@ -230,11 +229,11 @@ export class HistoricoModalComponent implements OnInit {
   
   separarTagsSelecionadas() {
     this.tagsInteirasSelecionadas = this.tagsSelecionadas
-      .filter(tag => tag.tipo !== 0) // Inteira se tipo for diferente de 0
+      .filter(tag => tag.tipo !== 0)
       .map(tag => tag.id);
   
     this.tagsBooleanasSelecionadas = this.tagsSelecionadas
-      .filter(tag => tag.tipo === 0) // Booleana se tipo for 0
+      .filter(tag => tag.tipo === 0) 
       .map(tag => tag.id);
   
     console.log('Tags Inteiras Selecionadas:', this.tagsInteirasSelecionadas);
@@ -352,7 +351,7 @@ export class HistoricoModalComponent implements OnInit {
     const anoAtual = new Date().getFullYear();
     this.dataInicio = `${anoAtual}-${String(mes.numero).padStart(2, '0')}-01`;
     this.horaInicio = '00:00';
-    const ultimoDia = new Date(anoAtual, mes.numero, 0).getDate(); // Último dia do mês
+    const ultimoDia = new Date(anoAtual, mes.numero, 0).getDate(); 
     this.dataFim = `${anoAtual}-${String(mes.numero).padStart(2, '0')}-${ultimoDia}`;
     this.horaFim = '23:59';
     this.mostrarModalMes = false; // Fecha o modal
@@ -372,7 +371,7 @@ export class HistoricoModalComponent implements OnInit {
       this.tags = setorSelecionado.tags;
       console.log('Setor encontrado:', setorSelecionado);
     } else {
-      this.setorId = 0; // Reseta se não encontrar
+      this.setorId = 0; 
       this.tags = [];
       console.log('Nenhum setor encontrado para o filtro:', filtro);
     }
@@ -392,7 +391,7 @@ abrirModalGraficos(): void {
       const tag = this.tags.find(tag => tag.id === tagId);
       return {
         nome: tag?.nome || `Tag Inteira ${tagId}`,
-        valor: registro[tag?.nome || `Tag Inteira ${tagId}`], // Passa o valor diretamente sem arredondar
+        valor: registro[tag?.nome || `Tag Inteira ${tagId}`], 
       };
     }),
   }));
@@ -413,7 +412,6 @@ abrirModalGraficos(): void {
   this.entradaService.setDadosGrafico(dadosGrafico);
   console.log('Dados enviados para o modal de gráficos:', dadosGrafico);
 
-  this.entradaService.abrirModalGraficos(); // Abre o modal gráfico
 }
 
 
