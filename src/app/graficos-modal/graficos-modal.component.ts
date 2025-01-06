@@ -135,67 +135,77 @@ export class GraficosModalComponent implements OnInit {
     
   
     // Gráfico de Booleanas
-    const canvasBooleanas = document.getElementById('canvasBooleanas') as HTMLCanvasElement | null;
-    if (canvasBooleanas) {
-      const ctx = canvasBooleanas.getContext('2d');
-      if (ctx && dadosBooleanas.length > 0) {
-        const labels = dadosBooleanas.map((d) => d.tempo); // Rótulos do eixo X (tempo)
-  
-        const datasetsBooleanas = dadosBooleanas[0].valores.map((valor, i) => {
-          const data = dadosBooleanas.map((d) => (d.valores[i]?.estado === 'Ligado' ? 1 : 0));
-          console.log(`Dataset Booleanas (${valor.nome}):`, data);
-  
-          return {
-            label: valor.nome,
-            data,
-            borderColor: `hsl(${i * 50}, 70%, 50%)`,
-            borderWidth: 1, // Define linhas finas
-            pointRadius: 0, // Remove pontos
-            fill: false,
-          };
-        });
-  
-        new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels,
-            datasets: datasetsBooleanas,
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: {
-                position: 'top',
-              },
-            },
-            scales: {
-              x: {
-                title: {
-                  display: true,
-                  text: 'Tempo',
-                },
-                ticks: {
-                  autoSkip: true,
-                  maxTicksLimit: Math.min(15, labels.length), 
-                  maxRotation: 45,
-                  minRotation: 0,
-                },
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: 'Estado (1=Ligado, 0=Desligado)',
-                },
-                min: 0,
-                max: 1,
-           
-  
-              },
-            },
-          },
-        });
+    // Gráfico de Booleanas
+const canvasBooleanas = document.getElementById('canvasBooleanas') as HTMLCanvasElement | null;
+if (canvasBooleanas) {
+  const ctx = canvasBooleanas.getContext('2d');
+  if (ctx && dadosBooleanas.length > 0) {
+    // Rótulos do eixo X (tempo)
+    const labels = dadosBooleanas.map((d) => {
+      if (/\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/.test(d.tempo)) {
+        return d.tempo.split(' ')[1].substring(0, 5); // Extrai a hora no formato hh:mm
+      } else {
+        console.warn('Formato inesperado no campo tempo (booleanas):', d.tempo);
+        return d.tempo; // Fallback para o valor original
       }
-    }
+    });
+
+    const datasetsBooleanas = dadosBooleanas[0].valores.map((valor, i) => {
+      const data = dadosBooleanas.map((d) => (d.valores[i]?.estado === 'Ligado' ? i + 1 : 0));
+      console.log(`Dataset Booleanas (${valor.nome}):`, data);
+
+      return {
+        label: valor.nome,
+        data,
+        borderColor: `hsl(${i * 50}, 70%, 50%)`,
+        borderWidth: 2, // Define linhas finas
+        pointRadius: 0, // Remove pontos
+        fill: false,
+      };
+    });
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: datasetsBooleanas,
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Tempo',
+            },
+            ticks: {
+              autoSkip: true,
+              maxTicksLimit: Math.min(15, labels.length),
+              maxRotation: 45,
+              minRotation: 0,
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Tags Booleanas',
+            },
+            ticks: {
+              stepSize: 1, // Garante que os valores no eixo Y sejam incrementados em 1
+            },
+            min: 0,
+            max: datasetsBooleanas.length, // O número de tags define o máximo do eixo Y
+          },
+        },
+      },
+    });
+  }
+}
   }
   
   
