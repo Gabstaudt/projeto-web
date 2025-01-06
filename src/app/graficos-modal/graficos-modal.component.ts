@@ -58,14 +58,23 @@ export class GraficosModalComponent implements OnInit {
     if (canvasInteiras) {
       const ctx = canvasInteiras.getContext('2d');
       if (ctx && dadosInteiras.length > 0) {
-        const labels = dadosInteiras.map((d) => d.tempo); // Rótulos do eixo X (tempo)
-  
+        const labels = dadosInteiras.map((d) => {
+          if (/\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/.test(d.tempo)) {
+            // Extrai apenas a hora no formato hh:mm
+            return d.tempo.split(' ')[1].substring(0, 5);
+          } else {
+            console.warn('Formato inesperado no campo tempo:', d.tempo);
+            return d.tempo; // Fallback para o valor original
+          }
+        });
+        
+    
         const datasetsInteiras = dadosInteiras[0].valores.map((valor, i) => {
           const data = dadosInteiras.map((d) =>
             d.valores[i]?.valor ? parseFloat(d.valores[i].valor.replace(',', '.')) : null // Converte para número
           );
           console.log(`Dataset Inteiras (${valor.nome}):`, data);
-  
+    
           return {
             label: valor.nome,
             data,
@@ -76,7 +85,7 @@ export class GraficosModalComponent implements OnInit {
             yAxisID: `y${i}`, // Eixos separados para cada conjunto de dados
           };
         });
-  
+    
         const yAxes = datasetsInteiras.map((ds, i) => ({
           id: `y${i}`,
           type: 'linear' as const,
@@ -90,7 +99,7 @@ export class GraficosModalComponent implements OnInit {
             suggestedMax: Math.max(...(ds.data.filter((v) => v !== null) as number[])),
           },
         }));
-  
+    
         new Chart(ctx, {
           type: 'line',
           data: {
@@ -108,7 +117,7 @@ export class GraficosModalComponent implements OnInit {
               x: {
                 title: {
                   display: true,
-                  text: 'Tempo',
+                  text: 'Hora',
                 },
                 ticks: {
                   autoSkip: true, // Reduz a densidade dos rótulos
@@ -123,6 +132,7 @@ export class GraficosModalComponent implements OnInit {
         });
       }
     }
+    
   
     // Gráfico de Booleanas
     const canvasBooleanas = document.getElementById('canvasBooleanas') as HTMLCanvasElement | null;
