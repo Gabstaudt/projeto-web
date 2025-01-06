@@ -1,7 +1,1 @@
-
-fecharModal(): void {
-  this.fechar.emit();
-}
-
-
-  @Output() fechar = new EventEmitter<void>();
+          pointRadius: 0, // Remove os pontos do gráfico

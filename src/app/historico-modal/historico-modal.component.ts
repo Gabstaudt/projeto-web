@@ -119,8 +119,16 @@ export class HistoricoModalComponent implements OnInit {
     // Limpa as tags selecionadas
     this.tagsSelecionadas = [];
     this.separarTagsSelecionadas(); // Atualiza as listas de tags inteiras e booleanas
-    console.log('Setor alterado. Tags limpas:', this.tagsSelecionadas);
+  
+    // Limpa os dados da consulta (tabela e gráficos)
+    this.dadosHistorico = [];
+    this.tagsInteirasSelecionadas = [];
+    this.tagsBooleanasSelecionadas = [];
+    this.limiteTagsInteirasAtingido = false;
+  
+    console.log('Setor alterado. Tags e dados históricos limpos.');
   }
+  
   
 
   // Consulta o histórico
