@@ -391,7 +391,7 @@ abrirModalGraficos(): void {
       const tag = this.tags.find(tag => tag.id === tagId);
       return {
         nome: tag?.nome || `Tag Inteira ${tagId}`,
-        valor: registro[tag?.nome || `Tag Inteira ${tagId}`], 
+        valor: registro[tag?.nome || `Tag Inteira ${tagId}`] || 0,
       };
     }),
   }));
@@ -412,7 +412,10 @@ abrirModalGraficos(): void {
   this.entradaService.setDadosGrafico(dadosGrafico);
   console.log('Dados enviados para o modal de gráficos:', dadosGrafico);
 
+  // Abre o modal
+  this.entradaService.abrirModalGraficos();
 }
+
 
 
 
