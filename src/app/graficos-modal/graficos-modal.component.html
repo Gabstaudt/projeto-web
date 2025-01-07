@@ -7,10 +7,13 @@
     <button class="botao-fechar" (click)="fecharModal()">X</button>
   </div>
   <div class="modal-body">
-    <h3>Gráfico de Tags Inteiras</h3>
+    <h3>Inteiras</h3>
+    
     <canvas id="canvasInteiras"></canvas>
+    <button (click)="resetZoom()">Resetar Zoom</button>
 
-    <h3>Gráfico de Tags Booleanas</h3>
+
+    <h3>Booleanas</h3>
     <canvas id="canvasBooleanas"></canvas>
   </div>
   <div class="mudatamanho" id="mudatamanho"

@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
+
 
 @Component({
   selector: 'app-graficos-modal',
@@ -27,7 +29,7 @@ export class GraficosModalComponent implements OnInit {
   private mouseInicialY = 0;
 
   constructor() {
-    Chart.register(...registerables);
+    Chart.register(...registerables, zoomPlugin);
   }
 
   ngOnInit(): void {
@@ -112,7 +114,23 @@ export class GraficosModalComponent implements OnInit {
               legend: {
                 position: 'top',
               },
+              zoom: {
+                pan: {
+                  enabled: true, // Habilita arrastar o gráfico
+                  mode: 'xy',
+                },
+                zoom: {
+                  wheel: {
+                    enabled: true, // Zoom com scroll do mouse
+                  },
+                  pinch: {
+                    enabled: true, // Zoom com gestos de pinça (para dispositivos touch)
+                  },
+                  mode: 'xy', // Zoom em ambos os eixos
+                },
+              },
             },
+
             scales: {
               x: {
                 title: {
@@ -176,7 +194,23 @@ if (canvasBooleanas) {
           legend: {
             position: 'top',
           },
+          zoom: {
+            pan: {
+              enabled: true, // Habilita arrastar o gráfico
+              mode: 'xy',
+            },
+            zoom: {
+              wheel: {
+                enabled: true, // Zoom com scroll do mouse
+              },
+              pinch: {
+                enabled: true, // Zoom com gestos de pinça
+              },
+              mode: 'xy',
+            },
+          },
         },
+      
         scales: {
           x: {
             title: {
@@ -282,6 +316,14 @@ if (canvasBooleanas) {
       canvasBooleanas.height = canvasBooleanas.offsetHeight;
     }
   }
+
+  resetZoom(): void {
+    const chart = Chart.getChart('canvasInteiras'); // Substitua pelo ID correto do canvas
+    if (chart) {
+      chart.resetZoom();
+    }
+  }
+  
 
 }
   
