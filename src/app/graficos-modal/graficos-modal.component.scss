@@ -73,3 +73,25 @@ canvas {
 .mudatamanho:hover {
   background: #09041D; 
 }
+
+
+button {
+  background-color: #09041D; 
+  border: none; 
+  color: white; 
+  padding: 10px 20px; 
+  text-align: center; 
+  text-decoration: none; 
+  display: inline-block; 
+  font-size: 16px; 
+  font-weight: bold;
+  margin: 10px 0; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #131346; 
+}
+
