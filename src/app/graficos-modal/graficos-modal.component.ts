@@ -28,6 +28,10 @@ export class GraficosModalComponent implements OnInit {
   private mouseInicialX = 0;
   private mouseInicialY = 0;
 
+  chartInteiras: Chart | null = null;
+  chartBooleanas: Chart | null = null;
+  
+
   constructor() {
     Chart.register(...registerables, zoomPlugin);
   }
@@ -43,7 +47,6 @@ export class GraficosModalComponent implements OnInit {
     this.fechar.emit();
   }
 
-
   gerarGraficos(): void {
     if (!this.dadosGrafico) {
       console.warn('Dados do gráfico estão ausentes.');
@@ -51,6 +54,10 @@ export class GraficosModalComponent implements OnInit {
     }
   
     const { dadosInteiras, dadosBooleanas } = this.dadosGrafico;
+  
+    // Limpeza de gráficos anteriores
+    if (this.chartInteiras) this.chartInteiras.destroy();
+    if (this.chartBooleanas) this.chartBooleanas.destroy();
   
     console.log('Dados recebidos para inteiras:', dadosInteiras);
     console.log('Dados recebidos para booleanas:', dadosBooleanas);
@@ -60,49 +67,35 @@ export class GraficosModalComponent implements OnInit {
     if (canvasInteiras) {
       const ctx = canvasInteiras.getContext('2d');
       if (ctx && dadosInteiras.length > 0) {
-        const labels = dadosInteiras.map((d) => {
-          if (/\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/.test(d.tempo)) {
-            
-            return d.tempo.split(' ')[1].substring(0, 5);
-          } else {
-            console.warn('Formato inesperado no campo tempo:', d.tempo);
-            return d.tempo; 
-          }
-        });
-        
-    
-        const datasetsInteiras = dadosInteiras[0].valores.map((valor, i) => {
-          const data = dadosInteiras.map((d) =>
-            d.valores[i]?.valor ? parseFloat(d.valores[i].valor.replace(',', '.')) : null 
-          );
-          console.log(`Dataset Inteiras (${valor.nome}):`, data);
-    
-          return {
-            label: valor.nome,
-            data,
-            borderColor: `hsl(${i * 50}, 70%, 50%)`,
-            borderWidth: 2, 
-            pointRadius: 0, 
-            fill: false,
-            yAxisID: `y${i}`, 
-          };
-        });
-    
+        const labels = dadosInteiras.map((d) => d.tempo.split(' ')[1].substring(0, 5));
+  
+        const datasetsInteiras = dadosInteiras[0].valores.map((valor, i) => ({
+          label: valor.nome,
+          data: dadosInteiras.map((d) =>
+            d.valores[i]?.valor ? parseFloat(d.valores[i].valor.replace(',', '.')) : null
+          ),
+          borderColor: `hsl(${i * 50}, 70%, 50%)`,
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false,
+          yAxisID: `y${i}`,
+        }));
+  
         const yAxes = datasetsInteiras.map((ds, i) => ({
           id: `y${i}`,
           type: 'linear' as const,
-          position: i % 2 === 0 ? 'left' : 'right', 
+          position: i % 2 === 0 ? 'left' : 'right',
           title: {
             display: true,
             text: ds.label,
           },
           ticks: {
-            suggestedMin: Math.min(...(ds.data.filter((v) => v !== null) as number[])), 
+            suggestedMin: Math.min(...(ds.data.filter((v) => v !== null) as number[])),
             suggestedMax: Math.max(...(ds.data.filter((v) => v !== null) as number[])),
           },
         }));
-    
-        new Chart(ctx, {
+  
+        this.chartInteiras = new Chart(ctx, {
           type: 'line',
           data: {
             labels,
@@ -116,21 +109,25 @@ export class GraficosModalComponent implements OnInit {
               },
               zoom: {
                 pan: {
-                  enabled: true, // Habilita arrastar o gráfico
+                  enabled: true,
                   mode: 'xy',
                 },
                 zoom: {
                   wheel: {
-                    enabled: true, // Zoom com scroll do mouse
+                    enabled: true,
                   },
                   pinch: {
-                    enabled: true, // Zoom com gestos de pinça (para dispositivos touch)
+                    enabled: true,
                   },
-                  mode: 'xy', // Zoom em ambos os eixos
+                  mode: 'xy',
+                  onZoomComplete: ({ chart }) => {
+                    if (chart === this.chartInteiras) {
+                      this.sincronizarZoom(this.chartInteiras, this.chartBooleanas);
+                    }
+                  },
                 },
               },
             },
-
             scales: {
               x: {
                 title: {
@@ -138,10 +135,8 @@ export class GraficosModalComponent implements OnInit {
                   text: 'Hora',
                 },
                 ticks: {
-                  autoSkip: true, 
-                  maxTicksLimit: Math.min(15, labels.length), 
-                  maxRotation: 45, 
-                  minRotation: 0,
+                  autoSkip: true,
+                  maxTicksLimit: 10,
                 },
               },
               ...Object.fromEntries(yAxes.map((axis) => [axis.id, axis])),
@@ -150,97 +145,101 @@ export class GraficosModalComponent implements OnInit {
         });
       }
     }
-    
   
-   
     // Gráfico de Booleanas
-const canvasBooleanas = document.getElementById('canvasBooleanas') as HTMLCanvasElement | null;
-if (canvasBooleanas) {
-  const ctx = canvasBooleanas.getContext('2d');
-  if (ctx && dadosBooleanas.length > 0) {
-    // Rótulos do eixo X (tempo)
-    const labels = dadosBooleanas.map((d) => {
-      if (/\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/.test(d.tempo)) {
-        return d.tempo.split(' ')[1].substring(0, 5); 
-      } else {
-        console.warn('Formato inesperado no campo tempo (booleanas):', d.tempo);
-        return d.tempo;
+    const canvasBooleanas = document.getElementById('canvasBooleanas') as HTMLCanvasElement | null;
+    if (canvasBooleanas) {
+      const ctx = canvasBooleanas.getContext('2d');
+      if (ctx && dadosBooleanas.length > 0) {
+        const labels = dadosBooleanas.map((d) => d.tempo.split(' ')[1].substring(0, 5));
+  
+        const datasetsBooleanas = dadosBooleanas[0].valores.map((valor, i) => ({
+          label: valor.nome,
+          data: dadosBooleanas.map((d) => (d.valores[i]?.estado === 'Ligado' ? i + 1 : 0)),
+          borderColor: `hsl(${i * 50}, 70%, 50%)`,
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false,
+        }));
+  
+        this.chartBooleanas = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: datasetsBooleanas,
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              zoom: {
+                pan: {
+                  enabled: true,
+                  mode: 'xy',
+                },
+                zoom: {
+                  wheel: {
+                    enabled: true,
+                  },
+                  pinch: {
+                    enabled: true,
+                  },
+                  mode: 'xy',
+                  onZoomComplete: ({ chart }) => {
+                    if (chart === this.chartBooleanas) {
+                      this.sincronizarZoom(this.chartBooleanas, this.chartInteiras);
+                    }
+                  },
+                },
+              },
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Hora',
+                },
+                ticks: {
+                  autoSkip: true,
+                  maxTicksLimit: 10,
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Tags Booleanas',
+                },
+                ticks: {
+                  stepSize: 1,
+                },
+                min: 0,
+                max: datasetsBooleanas.length,
+              },
+            },
+          },
+        });
       }
-    });
-
-    const datasetsBooleanas = dadosBooleanas[0].valores.map((valor, i) => {
-      const data = dadosBooleanas.map((d) => (d.valores[i]?.estado === 'Ligado' ? i + 1 : 0));
-      console.log(`Dataset Booleanas (${valor.nome}):`, data);
-
-      return {
-        label: valor.nome,
-        data,
-        borderColor: `hsl(${i * 50}, 70%, 50%)`,
-        borderWidth: 2, 
-        pointRadius: 0, 
-        fill: false,
-      };
-    });
-
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: datasetsBooleanas,
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'top',
-          },
-          zoom: {
-            pan: {
-              enabled: true, // Habilita arrastar o gráfico
-              mode: 'xy',
-            },
-            zoom: {
-              wheel: {
-                enabled: true, // Zoom com scroll do mouse
-              },
-              pinch: {
-                enabled: true, // Zoom com gestos de pinça
-              },
-              mode: 'xy',
-            },
-          },
-        },
-      
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Tempo',
-            },
-            ticks: {
-              autoSkip: true,
-              maxTicksLimit: Math.min(15, labels.length),
-              maxRotation: 45,
-              minRotation: 0,
-            },
-          },
-          y: {
-            title: {
-              display: true,
-              text: 'Tags Booleanas',
-            },
-            ticks: {
-              stepSize: 1, 
-            },
-            min: 0,
-            max: datasetsBooleanas.length, 
-          },
-        },
-      },
-    });
+    }
   }
-}
+  
+  
+  sincronizarZoom(chartOrigem: Chart | null, chartDestino: Chart | null): void {
+    if (!chartOrigem || !chartDestino) return;
+  
+    const xScaleOrigem = chartOrigem.scales['x'];
+    const xStart = xScaleOrigem.min;
+    const xEnd = xScaleOrigem.max;
+  
+    if (xStart !== undefined && xEnd !== undefined) {
+      chartDestino.zoomScale('x', { min: xStart, max: xEnd });
+    }
   }
+  
+  
+
+  
   
   
   
@@ -317,12 +316,15 @@ if (canvasBooleanas) {
     }
   }
 
-  resetZoom(): void {
-    const chart = Chart.getChart('canvasInteiras'); // Substitua pelo ID correto do canvas
-    if (chart) {
-      chart.resetZoom();
+  resetarZoom(): void {
+    if (this.chartInteiras) {
+      this.chartInteiras.resetZoom();
+    }
+    if (this.chartBooleanas) {
+      this.chartBooleanas.resetZoom();
     }
   }
+  
   
 
 }
