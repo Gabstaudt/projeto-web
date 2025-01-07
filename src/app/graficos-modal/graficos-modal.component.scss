@@ -2,8 +2,8 @@
   position: fixed;
   top: 20%;
   left: 30%;
-  width: 600px; 
-  height: 500px; 
+  width: 600px;
+  height: 500px;
   background: #fff;
   border: 1px solid #ddd;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
@@ -11,11 +11,28 @@
   z-index: 1100;
   display: flex;
   flex-direction: column;
-  overflow: hidden; 
+  overflow: hidden;
+
+  // Media query para telas médias (tablet/notebook)
+  @media (max-width: 1024px) {
+    width: 80%;
+    height: 70%;
+    top: 15%;
+    left: 10%;
+  }
+
+  // Media query para telas pequenas (mobile)
+  @media (max-width: 768px) {
+    width: 95%;
+    height: 85%;
+    top: 10%;
+    left: 2.5%;
+    border-radius: 5px;
+  }
 }
 
 .modal-header {
-  background: #09041D; 
+  background: #09041D;
   padding: 10px 15px;
   display: flex;
   justify-content: space-between;
@@ -24,7 +41,19 @@
   font-size: 18px;
   font-weight: bold;
   border-bottom: 1px solid #ddd;
-  cursor: move; 
+  cursor: move;
+
+  // Media query para telas médias
+  @media (max-width: 1024px) {
+    font-size: 16px;
+    padding: 8px 10px;
+  }
+
+  // Media query para telas pequenas
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 6px 8px;
+  }
 }
 
 .modal-header h2 {
@@ -38,10 +67,15 @@
   font-size: 20px;
   font-weight: bold;
   cursor: pointer;
-}
 
-.botao-fechar:hover {
-  color: #ffffff; 
+  &:hover {
+    color: #ffffff;
+  }
+
+  // Media query para telas pequenas
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 }
 
 .modal-body {
@@ -51,6 +85,18 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+
+  // Media query para telas médias
+  @media (max-width: 1024px) {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  // Media query para telas pequenas
+  @media (max-width: 768px) {
+    padding: 10px;
+    gap: 10px;
+  }
 }
 
 canvas {
@@ -62,36 +108,52 @@ canvas {
 .mudatamanho {
   width: 15px;
   height: 15px;
-  background: #09041D ;
+  background: #09041D;
   position: absolute;
   bottom: 0;
   right: 0;
   cursor: nwse-resize;
-  border-radius: 0 0 10px 0; 
-}
+  border-radius: 0 0 10px 0;
 
-.mudatamanho:hover {
-  background: #09041D; 
-}
+  &:hover {
+    background: #131346;
+  }
 
+  // Media query para telas pequenas
+  @media (max-width: 768px) {
+    width: 10px;
+    height: 10px;
+  }
+}
 
 button {
-  background-color: #09041D; 
-  border: none; 
-  color: white; 
-  padding: 10px 20px; 
-  text-align: center; 
-  text-decoration: none; 
-  display: inline-block; 
-  font-size: 16px; 
+  background-color: #09041D;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
   font-weight: bold;
-  margin: 10px 0; 
-  border-radius: 5px; 
-  cursor: pointer; 
+  margin: 10px 0;
+  border-radius: 5px;
+  cursor: pointer;
   transition: background-color 0.3s ease;
-}
 
-button:hover {
-  background-color: #131346; 
-}
+  &:hover {
+    background-color: #131346;
+  }
 
+  // Media query para telas médias
+  @media (max-width: 1024px) {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+
+  // Media query para telas pequenas
+  @media (max-width: 768px) {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}

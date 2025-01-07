@@ -279,7 +279,7 @@ body, html {
 /* /////////////////////////////////////abaixo de 768px/////////////////////////////////////////////////// */
 
    /* //////////////////////////////// Entre 768px e 1024px //////////////////////////////// */
-    @media (min-width: 768px) and (max-width: 1024px) {
+    @media (min-width: 481px) and (max-width: 1024px) {
         .navbar {
             display: flex;
             flex-direction: column; /* Organiza os elementos em coluna */
@@ -399,7 +399,7 @@ body, html {
     
 ///////////////////////////////////////////
 
-@media (min-width: 380px) and (max-width: 480px) {
+@media (min-width: 100px) and (max-width: 480px) {
     .navbar {
         flex-direction: column;
         align-items: center; 
